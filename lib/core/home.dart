@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:ghaith/core/calender/calender.dart';
-import 'package:ghaith/core/notifications/views/all_notification_page.dart';
+// import 'package:ghaith/core/notifications/views/all_notification_page.dart';
 import 'package:ghaith/core/settings/settings_view.dart';
 import 'package:ghaith/core/widgets/superellipse_button.dart';
 import 'package:ghaith/main.dart';
@@ -598,14 +598,14 @@ class _HomeState extends State<Home>
                   //           CupertinoPageRoute(builder: (builder) => const CompassWithQibla()));
                   //     },
                   //     imagePath: "assets/images/kabaa.png"),
-                  SuperellipseButton(
-                      text: "notifications".tr(),
-                      onPressed: () async {
-                        // await FlutterOverlayWindow.requestPermission();
-                        Navigator.push(context,
-                            CupertinoPageRoute(builder: (builder) => const NotificationsPage()));
-                      },
-                      imagePath: "assets/images/notifications.png"),
+                  // SuperellipseButton(
+                  //     text: "notifications".tr(),
+                  //     onPressed: () async {
+                  //       // await FlutterOverlayWindow.requestPermission();
+                  //       Navigator.push(context,
+                  //           CupertinoPageRoute(builder: (builder) => const NotificationsPage()));
+                  //     },
+                  //     imagePath: "assets/images/notifications.png"),
                   // SuperellipseButton(
                   //     text: "livetv".tr(),
                   //     onPressed: () async {
