@@ -160,126 +160,130 @@ class _AllahNamesPageState extends State<AllahNamesPage> {
                 )
               : PageView.builder(
                   itemBuilder: (context, int index) {
-                    return ListView(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            FadeIn(
-                              // tag: index.toString(),
-                              duration: const Duration(milliseconds: 1000),
-                              child: Container(
-                                height: 200.h,
-                                width: 200.w,
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: darkPrimaryColor.withOpacity(.5),
-                                    image: const DecorationImage(
-                                        fit: BoxFit.contain,
-                                        image: AssetImage(
-                                          "assets/images/nameborder.png",
-                                        ))),
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      FadeIn(
-                                        duration: const Duration(milliseconds: 1100),
-                                        child: Text(
-                                          allahNamesAr[index]["name"],
-                                          style: TextStyle(
-                                              color: const Color(0xffe0cb8a), fontSize: 26.sp),
-                                        ),
-                                      ),
-                                      FadeIn(
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(height: 24.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              FadeIn(
+                                // tag: index.toString(),
+                                duration: const Duration(milliseconds: 1000),
+                                child: Container(
+                                  height: 200.h,
+                                  width: 200.w,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: darkPrimaryColor.withOpacity(.5),
+                                      image: const DecorationImage(
+                                          fit: BoxFit.contain,
+                                          image: AssetImage(
+                                            "assets/images/nameborder.png",
+                                          ))),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        FadeIn(
                                           duration: const Duration(milliseconds: 1100),
                                           child: Text(
-                                            allahNamesEnglish[index]["transliteration"],
+                                            allahNamesAr[index]["name"],
                                             style: TextStyle(
-                                                color: const Color(0xffe0cb8a), fontSize: 17.sp),
-                                          )),
-                                      FadeIn(
-                                        duration: const Duration(milliseconds: 1500),
-                                        child: Text(
-                                          allahNamesEnglish[index]["en"]["meaning"],
-                                          // textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: const Color(0xffe0cb8a),
-                                            fontFamily: "cairo",
-                                            fontSize: 15.sp,
+                                                color: const Color(0xffe0cb8a), fontSize: 26.sp),
                                           ),
                                         ),
-                                      ),
-                                      FadeIn(
-                                        duration: const Duration(milliseconds: 1500),
-                                        child: Text(
-                                          allahNamesEnglish[index]["fr"]["meaning"],
-                                          // textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: const Color(0xffe0cb8a),
-                                            fontFamily: "cairo",
-                                            fontSize: 13.sp,
+                                        FadeIn(
+                                            duration: const Duration(milliseconds: 1100),
+                                            child: Text(
+                                              allahNamesEnglish[index]["transliteration"],
+                                              style: TextStyle(
+                                                  color: const Color(0xffe0cb8a), fontSize: 17.sp),
+                                            )),
+                                        FadeIn(
+                                          duration: const Duration(milliseconds: 1500),
+                                          child: Text(
+                                            allahNamesEnglish[index]["en"]["meaning"],
+                                            // textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: const Color(0xffe0cb8a),
+                                              fontFamily: "cairo",
+                                              fontSize: 15.sp,
+                                            ),
                                           ),
                                         ),
-                                      )
-                                    ],
+                                        FadeIn(
+                                          duration: const Duration(milliseconds: 1500),
+                                          child: Text(
+                                            allahNamesEnglish[index]["fr"]["meaning"],
+                                            // textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: const Color(0xffe0cb8a),
+                                              fontFamily: "cairo",
+                                              fontSize: 13.sp,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 15.h),
-
-                        FadeIn(
-                          duration: const Duration(milliseconds: 1500),
-                          child: Text(
-                            allahNamesAr[index]["text"],
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: "cairo",
-                              fontSize: 18.sp,
+                            ],
+                          ),
+                          SizedBox(height: 15.h),
+                      
+                          FadeIn(
+                            duration: const Duration(milliseconds: 1500),
+                            child: Text(
+                              allahNamesAr[index]["text"],
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "cairo",
+                                fontSize: 18.sp,
+                              ),
                             ),
                           ),
-                        ),
-                        // SizedBox(height: 15.h),
-                        // Image.asset(
-                        //   "assets/images/divider.png",
-                        //   color: const Color(0xffe0cb8a),
-                        // ),
-                        SizedBox(height: 15.h),
-                        FadeIn(
-                            duration: const Duration(milliseconds: 1500),
-                            child: Text(
-                              allahNamesEnglish[index]["en"]["desc"],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "cairo",
-                                fontSize: 18.sp,
-                              ),
-                            )),
-                        // SizedBox(height: 15.h),
-                        // Image.asset(
-                        //   "assets/images/divider.png",
-                        //   color: const Color(0xffe0cb8a)
-                        // ),
-                        SizedBox(height: 15.h),
-                        FadeIn(
-                            duration: const Duration(milliseconds: 1500),
-                            child: Text(
-                              decodeUnicode(allahNamesEnglish[index]["fr"]["desc"]),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "cairo",
-                                fontSize: 18.sp,
-                              ),
-                            )),
-                      ],
+                          // SizedBox(height: 15.h),
+                          // Image.asset(
+                          //   "assets/images/divider.png",
+                          //   color: const Color(0xffe0cb8a),
+                          // ),
+                          SizedBox(height: 15.h),
+                          FadeIn(
+                              duration: const Duration(milliseconds: 1500),
+                              child: Text(
+                                allahNamesEnglish[index]["en"]["desc"],
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "cairo",
+                                  fontSize: 18.sp,
+                                ),
+                              )),
+                          // SizedBox(height: 15.h),
+                          // Image.asset(
+                          //   "assets/images/divider.png",
+                          //   color: const Color(0xffe0cb8a)
+                          // ),
+                          SizedBox(height: 15.h),
+                          FadeIn(
+                              duration: const Duration(milliseconds: 1500),
+                              child: Text(
+                                decodeUnicode(allahNamesEnglish[index]["fr"]["desc"]),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "cairo",
+                                  fontSize: 18.sp,
+                                ),
+                              )),
+                        ],
+                      ),
                     );
                   },
                   itemCount: 100,

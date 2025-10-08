@@ -29,7 +29,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         audioPlayer.stop();
         int nextMediaId = 0;
         List<String> surahNumbers = event.moshaf.surahList.split(',');
-        final appDir = Directory('/storage/emulated/0/Download/skoon/');
+        final appDir = Directory('/storage/emulated/0/Download/Ghaith/');
 
         if (surahNumbers.any((element) {
           if (File(
@@ -42,13 +42,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         })) {
           PermissionStatus status = await Permission.storage.request();
           //PermissionStatus status1 = await Permission.accessMediaLocation.request();
-          PermissionStatus status2 =
-              await Permission.manageExternalStorage.request();
+          PermissionStatus status2 = await Permission.manageExternalStorage.request();
           print('status $status   -> $status2');
           if (status.isGranted && status2.isGranted) {
             print(true);
-          } else if (status.isPermanentlyDenied ||
-              status2.isPermanentlyDenied) {
+          } else if (status.isPermanentlyDenied || status2.isPermanentlyDenied) {
             await openAppSettings();
           } else if (status.isDenied) {
             print('Permission Denied');
@@ -66,8 +64,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
             return link;
           } else {
             var link = {
-              'link': Uri.parse(
-                      "${event.moshaf.server}/${e.toString().padLeft(3, "0")}.mp3")
+              'link': Uri.parse("${event.moshaf.server}/${e.toString().padLeft(3, "0")}.mp3")
                   .replace(scheme: 'http'),
               'suraNumber': e
             };
@@ -83,8 +80,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
               id: '${nextMediaId++}',
               album: '${event.reciter.name}',
               title: event.jsonData
-                  .where((element) =>
-                      element['id'].toString() == e['suraNumber'].toString())
+                  .where((element) => element['id'].toString() == e['suraNumber'].toString())
                   .first['name']
                   .toString(),
               artUri: Uri.parse(
@@ -130,9 +126,7 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
         emit(PlayerBlocPlaying(
             moshaf: event.moshaf,
             reciter: event.reciter,
-            suraNumber: event.suraNumber == -1
-                ? int.parse(currentSuraNumber)
-                : event.suraNumber,
+            suraNumber: event.suraNumber == -1 ? int.parse(currentSuraNumber) : event.suraNumber,
             // suraName: event.suraName,
             jsonData: event.jsonData,
             audioPlayer: audioPlayer,
@@ -140,12 +134,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
             playList: playList));
       } else if (event is DownloadSurah) {
         final dio = Dio();
-        final appDir = Directory('/storage/emulated/0/Download/skoon/');
+        final appDir = Directory('/storage/emulated/0/Download/ghaith/');
         // final ffmpeg = FlutterFFmpeg();
         PermissionStatus status = await Permission.storage.request();
         //PermissionStatus status1 = await Permission.accessMediaLocation.request();
-        PermissionStatus status2 =
-            await Permission.manageExternalStorage.request();
+        PermissionStatus status2 = await Permission.manageExternalStorage.request();
         print('status $status   -> $status2');
         if (status.isGranted && status2.isGranted) {
           print(true);
@@ -175,19 +168,17 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
 
         List reciterLinks = surahNumbers
             .map((e) => {
-                  'link':
-                      "${event.moshaf.server}/${e.toString().padLeft(3, "0")}.mp3",
+                  'link': "${event.moshaf.server}/${e.toString().padLeft(3, "0")}.mp3",
                   'suraNumber': e
                 })
             .toList();
 
         final dio = Dio();
-        final appDir = Directory('/storage/emulated/0/Download/skoon/');
+        final appDir = Directory('/storage/emulated/0/Download/Ghaith/');
         // final ffmpeg = FlutterFFmpeg();
         PermissionStatus status = await Permission.storage.request();
         //PermissionStatus status1 = await Permission.accessMediaLocation.request();
-        PermissionStatus status2 =
-            await Permission.manageExternalStorage.request();
+        PermissionStatus status2 = await Permission.manageExternalStorage.request();
         print('status $status   -> $status2');
         if (status.isGranted && status2.isGranted) {
           print(true);

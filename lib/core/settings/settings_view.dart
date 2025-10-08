@@ -34,13 +34,13 @@ class _SettingsViewState extends State<SettingsView> {
             title: Text(
               'settings'.tr(),
               style: TextStyle(
-                color: isDark ? backgroundColor : orangeColor,
+                color: isDark ? backgroundColor : darkModeSecondaryColor,
                 fontFamily: "cairo",
                 fontSize: 24.sp,
               ),
             ),
             centerTitle: true,
-            foregroundColor: isDark ? backgroundColor : orangeColor,
+            foregroundColor: isDark ? backgroundColor : darkModeSecondaryColor,
           ),
           body: SingleChildScrollView(
             child: Padding(
@@ -115,10 +115,8 @@ class _SettingsViewState extends State<SettingsView> {
                     },
                     child: listTileSettingsView(
                       "notifications".tr(),
-                      const Icon(
-                        Icons.notifications_active_outlined,
-                        size: 32,
-                      ),
+                      Icon(Icons.notifications_active_outlined,
+                          color: isDark ? backgroundColor : orangeColor, size: 32),
                       Container(
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(40),
@@ -132,6 +130,7 @@ class _SettingsViewState extends State<SettingsView> {
                   ),
                   const SizedBox(height: 8),
                   const RateShareSection(),
+                   const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -159,7 +158,7 @@ class _SettingsViewState extends State<SettingsView> {
           title,
           textAlign: TextAlign.start,
           style: TextStyle(
-            color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
+            color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
             fontFamily: "cairo",
             fontSize: 22.sp,
           ),

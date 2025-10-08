@@ -69,7 +69,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             // ),
                             CupertinoSwitch(
                                 // overrides the default green color of the track
-                                activeColor: blueColor,
+                                activeColor: orangeColor,
                                 // color of the round icon, which moves from right to left
                                 thumbColor: Colors.white,
                                 // when the switch is off
@@ -157,7 +157,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           children: [
                             CupertinoSwitch(
                                 // overrides the default green color of the track
-                                activeColor: blueColor,
+                                activeColor: orangeColor,
                                 // color of the round icon, which moves from right to left
                                 thumbColor: Colors.white,
                                 // when the switch is off
@@ -353,7 +353,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           children: [
                             CupertinoSwitch(
                                 // overrides the default green color of the track
-                                activeColor: blueColor,
+                                activeColor: orangeColor,
                                 // color of the round icon, which moves from right to left
                                 thumbColor: Colors.white,
                                 // when the switch is off
@@ -552,7 +552,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             // ),
                             CupertinoSwitch(
                                 // overrides the default green color of the track
-                                activeColor: blueColor,
+                                activeColor: orangeColor,
                                 // color of the round icon, which moves from right to left
                                 thumbColor: Colors.white,
                                 // when the switch is off
@@ -740,7 +740,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             // ),
                             CupertinoSwitch(
                                 // overrides the default green color of the track
-                                activeColor: blueColor,
+                                activeColor: orangeColor,
                                 // color of the round icon, which moves from right to left
                                 thumbColor: Colors.white,
                                 // when the switch is off

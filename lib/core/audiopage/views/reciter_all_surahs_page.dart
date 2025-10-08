@@ -147,7 +147,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
 
   var selectedMode = "all";
   var searchQuery = "";
-  final appDir = Directory("/storage/emulated/0/Download/skoon/");
+  final appDir = Directory("/storage/emulated/0/Download/Ghaith/");
 
   TextEditingController textEditingController = TextEditingController();
   @override

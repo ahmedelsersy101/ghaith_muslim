@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/main.dart';
 
 class AddTasbeehDialog extends StatefulWidget {
   Function function;
@@ -17,14 +18,13 @@ class _AddTasbeehDialogState extends State<AddTasbeehDialog> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: backgroundColor.withOpacity(.9),
+      color: isDarkModeNotifier.value ? darkPrimaryColor.withOpacity(0.6) : backgroundColor,
       borderRadius: BorderRadius.circular(18.r),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           SizedBox(
-            height: 30.h,
+            height: 50.h,
           ),
           Text(
             "Add To Sibha".tr(),
@@ -33,10 +33,23 @@ class _AddTasbeehDialogState extends State<AddTasbeehDialog> {
           SizedBox(
             height: 30.h,
           ),
-          TextField(
-            controller: textEditingController,
-            onChanged: (ca) {},
-            decoration: InputDecoration(hintText: "Enter Custom Zikr".tr()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              controller: textEditingController,
+              onChanged: (ca) {},
+              cursorColor: Colors.black,
+              decoration: InputDecoration(
+                hintText: "Enter Custom Zikr".tr(),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(width: 1, color: Colors.black)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(width: 1, color: Colors.black),
+                ),
+              ),
+            ),
           ),
           SizedBox(
             height: 30.h,
@@ -51,12 +64,17 @@ class _AddTasbeehDialogState extends State<AddTasbeehDialog> {
                       widget.function(textEditingController.text);
                     }
                   },
-                  child: Text("Add".tr())),
+                  child: Text(
+                    "Add".tr(),
+                    style: TextStyle(color: isDarkModeNotifier.value ? Colors.white : Colors.black),
+                  )),
               TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("cancel".tr())),
+                  child: Text("cancel".tr(),
+                      style: TextStyle(
+                          color: isDarkModeNotifier.value ? Colors.white : Colors.black))),
             ],
           ),
           SizedBox(

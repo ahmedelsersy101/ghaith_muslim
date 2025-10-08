@@ -221,9 +221,13 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
     return Scaffold(
       appBar: AppBar(
         actions: const [],
-        backgroundColor: isDarkModeNotifier.value ? darkModeSecondaryColor : blueColor,
+        backgroundColor: isDarkModeNotifier.value ? darkModeSecondaryColor : orangeColor,
         elevation: 0,
-        title: Text("preview".tr()),
+        foregroundColor: Colors.white,
+        title: Text(
+          "preview".tr(),
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
       body: Center(
         child: ListView(
@@ -755,14 +759,14 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Image(
-                                    image: const AssetImage("assets/images/iconlauncher2.png"),
+                                    image: const AssetImage("assets/images/ghaith.png"),
                                     height: 25.h,
                                   ),
                                   SizedBox(
                                     width: 6.w,
                                   ),
                                   Text(
-                                    "Shared with skoon",
+                                    "تطبيق غيث المسلم",
                                     style: TextStyle(
                                         fontSize: 10.sp, color: primaryColors[indexOfTheme]),
                                   ),

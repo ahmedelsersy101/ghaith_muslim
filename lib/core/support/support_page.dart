@@ -77,7 +77,7 @@ class _SupportPageState extends State<SupportPage> {
                   ElevatedButton(
                     onPressed: () {
                       Share.share(
-                          "Skoon - سكون : https://play.google.com/store/apps/details?id=com.ghaith.muslim.app");
+                          "Ghaith - غيث : https://play.google.com/store/apps/details?id=com.ghaith.muslim.app");
                       // Add your sharing logic here
                     },
                     child: Text("share".tr()),

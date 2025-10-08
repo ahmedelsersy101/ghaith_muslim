@@ -163,7 +163,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     await permissions.request();
-    MediaStore.appFolder = "Skoon";
+    MediaStore.appFolder = "ghaith";
     initMessaging();
     setOptimalDisplayMode();
   }
@@ -217,8 +217,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   Image.asset(
                     "assets/images/ghaith.png",
-                    height: 220,
-                    width: 220,
+                    height: 140,
+                    width: 140,
                   ),
                   LottieBuilder.asset(
                     "assets/images/loading.json",

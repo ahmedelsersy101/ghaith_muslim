@@ -696,9 +696,7 @@ class _SurahListPageState extends State<SurahListPage> {
                                               child: Text(
                                                 suraNumberInQuran.toString(),
                                                 style: TextStyle(
-                                                    color: isDarkModeNotifier.value
-                                                        ? Colors.white70
-                                                        : orangeColor,
+                                                    color: getValue("darkMode") ? Colors.white70 : Colors.black,
                                                     fontSize: 14.sp),
                                               ),
                                             ),
@@ -716,7 +714,7 @@ class _SurahListPageState extends State<SurahListPage> {
                                                       // fontWeight: FontWeight.bold,
                                                       color: getValue("darkMode")
                                                           ? Colors.white70
-                                                          : orangeColor,
+                                                          : Colors.black,
                                                       fontSize: 14.sp,
                                                       fontWeight: FontWeight.w700, // Text color
                                                       fontFamily: "uthmanic"),

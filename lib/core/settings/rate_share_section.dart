@@ -31,7 +31,7 @@ class RateShareSection extends StatelessWidget {
             ('rateShare').tr(),
             textAlign: TextAlign.start,
             style: TextStyle(
-                color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
+                color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
                 fontFamily: "cairo",
                 fontSize: 24.sp),
           ),
@@ -57,7 +57,8 @@ class RateShareSection extends StatelessWidget {
                       ('rateApp').tr(),
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                          color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
+                          color:
+                              isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
                           fontFamily: "cairo",
                           fontSize: 16.sp),
                     ),
@@ -75,7 +76,8 @@ class RateShareSection extends StatelessWidget {
                       '5.0',
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                          color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
+                          color:
+                              isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
                           fontFamily: "cairo",
                           fontSize: 16.sp),
                     ),
@@ -119,13 +121,13 @@ class RateShareSection extends StatelessWidget {
                 Row(
                   children: [
                     Icon(Icons.share,
-                        color: isDarkModeNotifier.value ? backgroundColor : orangeColor, size: 20),
+                        color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       ('shareAppTitle').tr(),
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                          color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
+                          color:  isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
                           fontFamily: "cairo",
                           fontSize: 16.sp),
                     ),
@@ -136,7 +138,7 @@ class RateShareSection extends StatelessWidget {
                   ('shareAppSubtitle').tr(),
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                      color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
+                      color:  isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
                       fontFamily: "cairo",
                       fontSize: 12.sp),
                 ),

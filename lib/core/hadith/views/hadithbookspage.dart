@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ghaith/GlobalHelpers/hive_helper.dart';
 import 'package:ghaith/main.dart';
 
 import 'package:dio/dio.dart';
@@ -133,14 +134,14 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
                             Text(
                               categories[index].title,
                               style: TextStyle(
-                                color: isDarkModeNotifier.value ? Colors.white : orangeColor,
+                                color: getValue("darkMode") ? Colors.white70 : Colors.black,
                                 fontSize: 14.sp,
                               ),
                             ),
                             Text(
                               "Hadith Count: ${categories[index].hadeethsCount}",
                               style: TextStyle(
-                                  color:  isDarkModeNotifier.value ? Colors.white : Colors.black,
+                                  color:  isDarkModeNotifier.value ? Colors.white : Colors.black38,
                               ),
                             )
                           ],
@@ -153,7 +154,7 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
                                 context.locale.languageCode == "ar"
                                     ? Entypo.left_open
                                     : Entypo.right_open,
-                                color:  isDarkModeNotifier.value ? Colors.white : orangeColor,
+                                color:  getValue("darkMode") ? Colors.white70 : Colors.black,
                                 size: 26.sp,
                               ),
                             ],

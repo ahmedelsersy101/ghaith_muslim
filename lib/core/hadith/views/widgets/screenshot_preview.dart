@@ -29,8 +29,7 @@ class HadithScreenShotPreviewPage extends StatefulWidget {
   // var options;
 
   @override
-  State<HadithScreenShotPreviewPage> createState() =>
-      _ScreenShotPreviewPageState();
+  State<HadithScreenShotPreviewPage> createState() => _ScreenShotPreviewPageState();
 }
 
 class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
@@ -52,9 +51,12 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
     return Scaffold(
       appBar: AppBar(
         actions: const [],
-        backgroundColor: quranPagesColorDark,
+        backgroundColor: backgroundColor,
         elevation: 0,
-        title: Text("preview".tr()),
+        title: Text(
+          "preview".tr(),
+          style: const TextStyle(color: Colors.black),
+        ),
       ),
       body: Center(
         child: ListView(
@@ -62,8 +64,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
             Row(
               children: [
                 Checkbox(
-                  fillColor: WidgetStatePropertyAll(
-                      primaryColors[getValue("quranPageolorsIndex")]),
+                  fillColor: WidgetStatePropertyAll(primaryColors[getValue("quranPageolorsIndex")]),
                   checkColor: backgroundColors[getValue("quranPageolorsIndex")],
                   value: addAppSlogan,
                   onChanged: (newValue) {
@@ -108,8 +109,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                         decoration: const BoxDecoration(
                             color: Colors.white,
                             image: DecorationImage(
-                                image: AssetImage(
-                                    "assets/images/mosquepnggold.png"),
+                                image: AssetImage("assets/images/mosquepnggold.png"),
                                 opacity: .1,
                                 alignment: Alignment.bottomCenter)),
 
@@ -129,8 +129,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                 height: 10.h,
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 12),
+                                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
                                 child: Text(
                                   widget.hadithAr.hadeeth,
                                   textDirection: m.TextDirection.rtl,
@@ -144,8 +143,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(
-                                    bottom: 4.0, right: 12),
+                                padding: const EdgeInsets.only(bottom: 4.0, right: 12),
                                 child: Directionality(
                                   textDirection: m.TextDirection.rtl,
                                   child: Row(
@@ -158,8 +156,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                         textAlign: TextAlign.right,
                                         style: TextStyle(
                                           //fontFamily: 'roboto',
-                                          color: const Color(
-                                              0xffAE8422), //fontFamily: 'Amiri',
+                                          color: const Color(0xffAE8422), //fontFamily: 'Amiri',
                                           fontSize: textSize.sp,
                                           fontFamily: 'Taha',
                                         ),
@@ -170,8 +167,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                               ),
                               if (widget.addExplanation)
                                 Padding(
-                                  padding: const EdgeInsets.only(
-                                      bottom: 4.0, right: 12),
+                                  padding: const EdgeInsets.only(bottom: 4.0, right: 12),
                                   child: Text(
                                     "الشرح: \n${widget.hadithAr.explanation}",
                                     textDirection: m.TextDirection.rtl,
@@ -179,8 +175,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                     textAlign: TextAlign.right,
                                     style: TextStyle(
                                       //fontFamily: 'roboto',
-                                      color:
-                                          Colors.black87, //fontFamily: 'Amiri',
+                                      color: Colors.black87, //fontFamily: 'Amiri',
                                       fontSize: textSize.sp, fontFamily: 'Taha',
                                     ),
                                   ),
@@ -191,25 +186,21 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                               if (widget.addMeanings)
                                 Column(
                                   children: [
-                                    if (widget
-                                        .hadithAr.wordsMeanings.isNotEmpty)
+                                    if (widget.hadithAr.wordsMeanings.isNotEmpty)
                                       Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: 4.0, right: 12),
+                                        padding: const EdgeInsets.only(bottom: 4.0, right: 12),
                                         child: Directionality(
                                           textDirection: m.TextDirection.rtl,
                                           child: Row(
                                             children: [
                                               Text(
                                                 'معاني الكلمات:',
-                                                textDirection:
-                                                    m.TextDirection.rtl,
+                                                textDirection: m.TextDirection.rtl,
                                                 locale: const Locale("ar"),
                                                 textAlign: TextAlign.right,
                                                 style: TextStyle(
                                                   //fontFamily: 'roboto',
-                                                  color: Colors
-                                                      .black87, //fontFamily: 'Amiri',
+                                                  color: Colors.black87, //fontFamily: 'Amiri',
                                                   fontSize: textSize.sp,
                                                   fontFamily: 'Amiri',
                                                 ),
@@ -219,14 +210,11 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                         ),
                                       ),
                                     Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: 4.0, right: 12),
+                                        padding: const EdgeInsets.only(bottom: 4.0, right: 12),
                                         child: ListView.builder(
                                           shrinkWrap: true,
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
-                                          itemCount: widget
-                                              .hadithAr.wordsMeanings.length,
+                                          physics: const NeverScrollableScrollPhysics(),
+                                          itemCount: widget.hadithAr.wordsMeanings.length,
                                           itemBuilder: (c, i) => Text(
                                             "- ${widget.hadithAr.wordsMeanings[i].word}:${widget.hadithAr.wordsMeanings[i].meaning}",
                                             textDirection: m.TextDirection.rtl,
@@ -234,8 +222,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                             textAlign: TextAlign.right,
                                             style: TextStyle(
                                               //fontFamily: 'roboto',
-                                              color: Colors
-                                                  .black87, //fontFamily: 'Amiri',
+                                              color: Colors.black87, //fontFamily: 'Amiri',
                                               fontSize: textSize.sp,
                                               fontFamily: 'Amiri',
                                             ),
@@ -245,8 +232,8 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                 ),
                               if (context.locale.languageCode != "ar")
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
                                   child: Text(
                                     widget.hadithOtherLanguage["hadeeth"],
                                     // textAlign: TextAlign.center,
@@ -259,8 +246,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                 ),
                               if (context.locale.languageCode != "ar")
                                 Padding(
-                                  padding: const EdgeInsets.only(
-                                      bottom: 4.0, left: 12),
+                                  padding: const EdgeInsets.only(bottom: 4.0, left: 12),
                                   child: Row(
                                     children: [
                                       Text(
@@ -268,8 +254,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                         // textDirection: m.TextDirection.rtl,locale: const Locale("ar"),textAlign: TextAlign.right,
                                         style: TextStyle(
                                           //fontFamily: 'roboto',
-                                          color: const Color(
-                                              0xffAE8422), //fontFamily: 'Taha',
+                                          color: const Color(0xffAE8422), //fontFamily: 'Taha',
                                           fontSize: 16.sp, fontFamily: 'roboto',
                                         ),
                                       ),
@@ -288,15 +273,14 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Image(
-                                      image: const AssetImage(
-                                          "assets/images/iconlauncher2.png"),
+                                      image: const AssetImage("assets/images/ghaith.png"),
                                       height: 25.h,
                                     ),
                                     SizedBox(
                                       width: 6.w,
                                     ),
                                     Text(
-                                      "Shared with skoon",
+                                      "تطبيق غيث المسلم",
                                       style: TextStyle(
                                           fontSize: 10.sp,
                                           color: const Color(0xffA28858),
@@ -319,16 +303,14 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(color: Colors.white, boxShadow: [
           BoxShadow(
-            color:
-                primaryColors[getValue("quranPageolorsIndex")].withOpacity(.4),
+            color: primaryColors[getValue("quranPageolorsIndex")].withOpacity(.4),
             blurRadius: 1,
             spreadRadius: 1,
             offset: const Offset(1, 0),
           )
         ]),
         child: Padding(
-          padding:
-              const EdgeInsets.only(left: 25.0, right: 25, bottom: 10, top: 10),
+          padding: const EdgeInsets.only(left: 25.0, right: 25, bottom: 10, top: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -365,9 +347,9 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                       //   isShooting = true;
                       // });
 
-                      await screenshotController.capture().then(
-                          (capturedImage) =>
-                              saveImageToGallery(capturedImage!));
+                      await screenshotController
+                          .capture()
+                          .then((capturedImage) => saveImageToGallery(capturedImage!));
                       // setState(() {
                       //   isShooting = false;
                       // });
@@ -376,9 +358,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
                     child: Text(
                       "savetogallery".tr(),
                       style: TextStyle(
-                          fontSize: context.locale.languageCode == "ar"
-                              ? 12.sp
-                              : 15.sp,
+                          fontSize: context.locale.languageCode == "ar" ? 12.sp : 15.sp,
                           color: Colors.white),
                     )),
               ),

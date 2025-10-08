@@ -60,7 +60,7 @@ class _PlayerBarState extends State<PlayerBar> {
     setState(() {});
   }
 
-  final appDir = Directory('/storage/emulated/0/Download/skoon/');
+  final appDir = Directory('/storage/emulated/0/Download/Ghaith/');
   bool isPlaylistShown = false;
   bool isMinimized = true;
   @override

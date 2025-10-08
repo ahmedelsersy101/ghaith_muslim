@@ -521,10 +521,20 @@ class _HomeState extends State<Home>
                 crossAxisCount: 2,
                 children: <Widget>[
                   SuperellipseButton(
+                      text: "asmaa".tr(),
+                      onPressed: () {
+                        Navigator.push(
+                            context, CupertinoPageRoute(builder: (c) => const AllahNamesPage()));
+                      },
+                      imagePath: isDarkModeNotifier.value
+                          ? "assets/images/wnames.png"
+                          : "assets/images/names.png"),
+                  SuperellipseButton(
                       text: "Hadith".tr(),
                       onPressed: () {
                         // SystemChrome.setEnabledSystemUIMode(
                         //     SystemUiMode.immersiveSticky);
+
                         Navigator.push(
                             context,
                             CupertinoPageRoute(
@@ -553,15 +563,6 @@ class _HomeState extends State<Home>
                           ? "assets/images/wquranlogo.png"
                           : "assets/images/quranlogo.png"),
 
-                  SuperellipseButton(
-                      text: "asmaa".tr(),
-                      onPressed: () {
-                        Navigator.push(
-                            context, CupertinoPageRoute(builder: (c) => const AllahNamesPage()));
-                      },
-                      imagePath: isDarkModeNotifier.value
-                          ? "assets/images/wnames.png"
-                          : "assets/images/names.png"),
                   SuperellipseButton(
                       text: "azkar".tr(),
                       onPressed: () {

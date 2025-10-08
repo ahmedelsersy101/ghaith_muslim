@@ -201,8 +201,7 @@ class _SibhaPageState extends State<SibhaPage> {
             IconButton(
                 onPressed: () {
                   showDialog(
-                      // alignment: Alignment.center,
-                      // animationType: DialogTransitionType.,
+                     
                       context: context,
                       builder: (c) => AddTasbeehDialog(
                             function: addCustomTasbeeh,

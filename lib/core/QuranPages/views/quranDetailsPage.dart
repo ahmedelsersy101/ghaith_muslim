@@ -4382,13 +4382,13 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
                                 }
                                 Share.share(
                                   // "",
-                                  "{${removeDiacritics(verses.join(''))}} [${quran.getSurahNameArabic(surahNumber)}: $firstVerse : $lastVerse]\n\n${removeHtmlTags(removeDiacritics(tafseer))}\n\n${getValue("addAppSlogan") ? "Shared with Skoon - faithful companion" : ""}",
+                                  "{${removeDiacritics(verses.join(''))}} [${quran.getSurahNameArabic(surahNumber)}: $firstVerse : $lastVerse]\n\n${removeHtmlTags(removeDiacritics(tafseer))}\n\n${getValue("addAppSlogan") ? "تطبيق غيث المسلم - faithful companion" : ""}",
                                   // "text/plain"
                                 );
                               } else {
                                 Share.share(
                                   // "",
-                                  "{${removeDiacritics(verses.join(''))}} [${quran.getSurahNameArabic(surahNumber)}: $firstVerse : $lastVerse]${getValue("addAppSlogan") ? "Shared with Skoon - faithful companion" : ""}",
+                                  "{${removeDiacritics(verses.join(''))}} [${quran.getSurahNameArabic(surahNumber)}: $firstVerse : $lastVerse]${getValue("addAppSlogan") ? "تطبيق غيث المسلم - faithful companion" : ""}",
                                   // "text/plain"
                                 );
                               }
@@ -4406,13 +4406,13 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
                                 }
                                 Share.share(
                                   // "",
-                                  "{${verses.join('')}} [${quran.getSurahNameArabic(surahNumber)}: $firstVerse : $lastVerse]\n\n${translationDataList[getValue("addTafseerValue")].typeTextInRelatedLanguage}:\n${removeHtmlTags(tafseer)}\n\n${getValue("addAppSlogan") ? "Shared with Skoon" : ""}",
+                                  "{${verses.join('')}} [${quran.getSurahNameArabic(surahNumber)}: $firstVerse : $lastVerse]\n\n${translationDataList[getValue("addTafseerValue")].typeTextInRelatedLanguage}:\n${removeHtmlTags(tafseer)}\n\n${getValue("addAppSlogan") ? "تطبيق غيث المسلم" : ""}",
                                   // "text/plain"
                                 );
                               } else {
                                 Share.share(
                                   // "",
-                                  "{${verses.join('')}} [${quran.getSurahNameArabic(surahNumber)}: $firstVerse : $lastVerse]${getValue("addAppSlogan") ? "Shared with Skoon" : ""}",
+                                  "{${verses.join('')}} [${quran.getSurahNameArabic(surahNumber)}: $firstVerse : $lastVerse]${getValue("addAppSlogan") ? "تطبيق غيث المسلم" : ""}",
                                   // "text/plain"
                                 );
                               }

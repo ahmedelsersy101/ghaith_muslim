@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/core/hadith/models/hadith.dart';
 import 'package:ghaith/core/hadith/views/widgets/screenshot_preview.dart';
 import 'package:share_plus/share_plus.dart';
@@ -113,7 +114,7 @@ class _SharingOptionsState extends State<SharingOptions> {
                       : Share.share("$textAr\n$textOtherLanguage");
                 }),
                 borderRadius: 22,
-                color: Colors.blueAccent,
+                color: orangeColor,
                 child: Text(
                   widget.isImage ? "preview".tr() : "share".tr(),
                   style: TextStyle(
