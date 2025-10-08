@@ -5,8 +5,9 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-android {        ndkVersion = "29.0.13599879"
-    namespace = "com.ghaith.muslim.app"
+android {        
+    ndkVersion = "29.0.13599879"
+    namespace = "com.skoon.muslim.app"
     compileSdk = flutter.compileSdkVersion
 
 
@@ -23,7 +24,7 @@ android {        ndkVersion = "29.0.13599879"
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.ghaith.muslim.app"
+        applicationId = "com.skoon.muslim.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24

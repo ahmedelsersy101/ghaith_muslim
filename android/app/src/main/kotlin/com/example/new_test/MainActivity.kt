@@ -1,4 +1,4 @@
-package com.ghaith.muslim.app
+package com.skoon.muslim.app
 
 import androidx.annotation.NonNull
 import com.ryanheise.audioservice.AudioServiceActivity
