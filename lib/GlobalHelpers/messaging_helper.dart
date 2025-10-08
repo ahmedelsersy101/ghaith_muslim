@@ -11,8 +11,7 @@ Future<void> _firebaseMessagingBackgroundHandler(message) async {
   print('Handling a background message ${message.messageId}');
 }
 
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 void initMessaging() async {
   AndroidNotificationChannel channel;
@@ -31,8 +30,7 @@ void initMessaging() async {
 
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
   // await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
@@ -40,8 +38,8 @@ void initMessaging() async {
   //   badge: true,
   //   sound: true,
   // );
-  flutterLocalNotificationsPlugin.initialize(const InitializationSettings(
-      android: AndroidInitializationSettings('icon')));
+  flutterLocalNotificationsPlugin.initialize(
+      const InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
 
   // FirebaseMessaging.instance
   //     .getInitialMessage()

@@ -162,7 +162,8 @@ void callbackDispatcher() {
                   "channelId2",
                   importance: notificationPlugin.Importance.max,
                   groupKey: "zikr,",
-                  "Zikr")));
+                  "Zikr",
+                  icon: '@mipmap/ic_launcher')));
 
       ///show local notification
       ///
@@ -186,8 +187,8 @@ void callbackDispatcher() {
                   "channelId2",
                   importance: notificationPlugin.Importance.max,
                   groupKey: "zikr,",
-                  "Zikr" //,ongoing: true
-                  )));
+                  "Zikr", //,ongoing: true
+                  icon: '@mipmap/ic_launcher')));
 
       ///show local notification
       ///
@@ -210,7 +211,8 @@ void callbackDispatcher() {
                   "channelId",
                   importance: notificationPlugin.Importance.max,
                   groupKey: "verses,",
-                  "verses")));
+                  "verses",
+                  icon: '@mipmap/ic_launcher')));
 
       ///show local notification
       ///
@@ -232,7 +234,8 @@ void callbackDispatcher() {
                   "channelId",
                   importance: notificationPlugin.Importance.max,
                   groupKey: "verses,",
-                  "verses")));
+                  "verses",
+                  icon: '@mipmap/ic_launcher')));
 
       ///show local notification
       ///
@@ -253,7 +256,8 @@ void callbackDispatcher() {
                   "channelId",
                   importance: notificationPlugin.Importance.max,
                   groupKey: "vehadith,",
-                  "hadith")));
+                  "hadith",
+                  icon: '@mipmap/ic_launcher')));
     } else if (task == "hadithNotTest") {
       int suraNumber = Random().nextInt(42);
       flutterLocalNotificationsPlugin.show(
@@ -271,7 +275,8 @@ void callbackDispatcher() {
                   "channelId",
                   importance: notificationPlugin.Importance.max,
                   groupKey: "vehadith,",
-                  "hadith")));
+                  "hadith",
+                  icon: '@mipmap/ic_launcher')));
 
       ///show local notification
       ///
@@ -287,7 +292,8 @@ void callbackDispatcher() {
                   importance: notificationPlugin.Importance.max,
                   groupKey: "sallah",
                   "Sally",
-                  ongoing: true)));
+                  ongoing: true,
+                  icon: '@mipmap/ic_launcher')));
     } else if (task == "sallahDisable") {
       flutterLocalNotificationsPlugin.cancel(3);
     }
@@ -350,7 +356,7 @@ class _MyAppState extends State<MyApp> {
                 builder: (context, isDark, child) {
                   return MaterialApp(
                     debugShowCheckedModeBanner: false,
-                    title: 'Skoon',
+                    title: 'غيث المسلم',
                     localizationsDelegates: context.localizationDelegates,
                     supportedLocales: context.supportedLocales,
                     locale: context.locale,

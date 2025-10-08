@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:ghaith/core/calender/calender.dart';
+import 'package:ghaith/core/notifications/views/all_notification_page.dart';
 import 'package:ghaith/core/settings/settings_view.dart';
 import 'package:ghaith/core/widgets/superellipse_button.dart';
 import 'package:ghaith/main.dart';
@@ -509,7 +510,9 @@ class _HomeState extends State<Home>
                                 quarterjsonData: quarterjsonData,
                               )));
                 },
-                imagePath: isDarkModeNotifier.value ? "assets/images/wqlogo.png" :"assets/images/qlogo.png"),
+                imagePath: isDarkModeNotifier.value
+                    ? "assets/images/wqlogo.png"
+                    : "assets/images/qlogo.png"),
             GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -532,7 +535,7 @@ class _HomeState extends State<Home>
                       },
                       imagePath: isDarkModeNotifier.value
                           ? "assets/images/wmuhammed.png"
-                          : "assets/images/muhammed.png" ),
+                          : "assets/images/muhammed.png"),
                   SuperellipseButton(
                       text: "audios".tr(),
                       onPressed: () {
@@ -546,9 +549,9 @@ class _HomeState extends State<Home>
                                       ),
                                     )));
                       },
-                      imagePath:isDarkModeNotifier.value
+                      imagePath: isDarkModeNotifier.value
                           ? "assets/images/wquranlogo.png"
-                          :"assets/images/quranlogo.png"),
+                          : "assets/images/quranlogo.png"),
 
                   SuperellipseButton(
                       text: "asmaa".tr(),
@@ -558,7 +561,7 @@ class _HomeState extends State<Home>
                       },
                       imagePath: isDarkModeNotifier.value
                           ? "assets/images/wnames.png"
-                          :"assets/images/names.png"),
+                          : "assets/images/names.png"),
                   SuperellipseButton(
                       text: "azkar".tr(),
                       onPressed: () {
@@ -566,8 +569,8 @@ class _HomeState extends State<Home>
                             CupertinoPageRoute(builder: ((context) => const AzkarHomePage())));
                         //boxController.openBox();
                       },
-                      imagePath:isDarkModeNotifier.value
-                          ?  "assets/images/wazkar.png"
+                      imagePath: isDarkModeNotifier.value
+                          ? "assets/images/wazkar.png"
                           : "assets/images/azkar.png"),
 
                   SuperellipseButton(
@@ -576,7 +579,7 @@ class _HomeState extends State<Home>
                         Navigator.push(
                             context, CupertinoPageRoute(builder: (builder) => const SibhaPage()));
                       },
-                      imagePath:isDarkModeNotifier.value
+                      imagePath: isDarkModeNotifier.value
                           ? "assets/images/wsibha.png"
                           : "assets/images/sibha.png"),
                   SuperellipseButton(
@@ -586,7 +589,8 @@ class _HomeState extends State<Home>
                             CupertinoPageRoute(builder: (builder) => const CalenderPage()));
                       },
                       imagePath: isDarkModeNotifier.value
-                          ? "assets/images/wcalender.png" :"assets/images/calender.png"),
+                          ? "assets/images/wcalender.png"
+                          : "assets/images/calender.png"),
                   // SuperellipseButton(
                   //     text: "qibla".tr(),
                   //     onPressed: () {
@@ -594,14 +598,14 @@ class _HomeState extends State<Home>
                   //           CupertinoPageRoute(builder: (builder) => const CompassWithQibla()));
                   //     },
                   //     imagePath: "assets/images/kabaa.png"),
-                  // SuperellipseButton(
-                  //     text: "notifications".tr(),
-                  //     onPressed: () async {
-                  //       // await FlutterOverlayWindow.requestPermission();
-                  //       Navigator.push(context,
-                  //           CupertinoPageRoute(builder: (builder) => const NotificationsPage()));
-                  //     },
-                  //     imagePath: "assets/images/notifications.png"),
+                  SuperellipseButton(
+                      text: "notifications".tr(),
+                      onPressed: () async {
+                        // await FlutterOverlayWindow.requestPermission();
+                        Navigator.push(context,
+                            CupertinoPageRoute(builder: (builder) => const NotificationsPage()));
+                      },
+                      imagePath: "assets/images/notifications.png"),
                   // SuperellipseButton(
                   //     text: "livetv".tr(),
                   //     onPressed: () async {
