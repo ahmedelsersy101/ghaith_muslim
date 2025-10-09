@@ -121,13 +121,15 @@ class RateShareSection extends StatelessWidget {
                 Row(
                   children: [
                     Icon(Icons.share,
-                        color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor, size: 20),
+                        color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
+                        size: 20),
                     const SizedBox(width: 8),
                     Text(
                       ('shareAppTitle').tr(),
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                          color:  isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
+                          color:
+                              isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
                           fontFamily: "cairo",
                           fontSize: 16.sp),
                     ),
@@ -138,7 +140,7 @@ class RateShareSection extends StatelessWidget {
                   ('shareAppSubtitle').tr(),
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                      color:  isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
+                      color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
                       fontFamily: "cairo",
                       fontSize: 12.sp),
                 ),
@@ -225,10 +227,11 @@ class RateShareSection extends StatelessWidget {
   Future<void> _shareApp() async {
     try {
       await Share.share(
-        'Check out Weekly App - Your Personal Task Manager! 📱✨\n\n'
-        'Stay organized and productive with this amazing app!\n\n'
-        'Download now: https://play.google.com/store/apps/details?id=com.ghaith.muslim.app',
-        subject: 'Weekly App - Task Management Made Simple',
+        'اكتشف تطبيق غيث المسلم📿✨\n\n'
+        'تطبيق واحد يجمع بين جمال القرآن الكريم، ونور الأحاديث النبوية، وروحانية الأذكار والأدعية.\n'
+        'عيش تجربة إيمانية متكاملة تساعدك على تعزيز صلتك بالله في كل وقت.\n\n'
+        'حمّل التطبيق الآن من متجر Google Play:\nhttps://play.google.com/store/apps/details?id=com.ghaith.muslim.app',
+        subject: 'غيث المسلم - دليلك اليومي للإيمان والسكينة',
       );
     } catch (e) {
       print('Error sharing app: $e');

@@ -93,7 +93,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             Row(
                               children: [
                                 Text(
-                                  "${"Muhammed Notification".tr()} ﷺ",
+                                  "ﷺ ${"الصلاة علي النبي "} ﷺ",
                                   style: TextStyle(
                                       fontSize: 18.sp,
                                       color: isDarkModeNotifier.value ? Colors.white : Colors.black,
@@ -261,7 +261,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
                       Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Image.asset("assets/images/ayahNotification.jpg"),
+                        child: Image.asset("assets/images/ayahNotification.jpeg"),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(3.0),
@@ -458,7 +458,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
                       Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Image.asset("assets/images/hadithNotification.jpg"),
+                        child: Image.asset("assets/images/hadithNotification.jpeg"),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(3.0),
@@ -646,7 +646,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       ,
                       Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Image.asset("assets/images/zikrnotification2.jpg"),
+                        child: Image.asset("assets/images/zikrnotification2.jpeg"),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(3.0),
