@@ -29,7 +29,6 @@ import 'package:ghaith/GlobalHelpers/initializeData.dart';
 import 'package:ghaith/core/QuranPages/helpers/convertNumberToAr.dart';
 import 'package:ghaith/core/QuranPages/views/quran_sura_list.dart';
 import 'package:ghaith/core/QuranPages/views/screenshot_preview.dart';
-import 'package:ghaith/core/allah_names/allah_names_page.dart';
 import 'package:ghaith/core/audiopage/views/audio_home_page.dart';
 import 'package:ghaith/core/azkar/views/azkar_homepage.dart';
 import 'package:ghaith/core/hadith/views/hadithbookspage.dart';
@@ -413,16 +412,7 @@ class _HomeState extends State<Home>
                               fontFamily: "cairo",
                               fontSize: 32.sp),
                         ),
-                        leading: IconButton(
-                          icon: Icon(
-                            Icons.settings,
-                            color: isDarkModeNotifier.value ? Colors.white70 : Colors.black,
-                          ),
-                          onPressed: () {
-                            Navigator.push(context,
-                                CupertinoPageRoute(builder: (builder) => const SettingsView()));
-                          },
-                        ),
+                        automaticallyImplyLeading: false,
                       ),
                       body: SizedBox(
                         width: screenSize.width,
@@ -520,15 +510,15 @@ class _HomeState extends State<Home>
                 mainAxisSpacing: 4,
                 crossAxisCount: 2,
                 children: <Widget>[
-                  SuperellipseButton(
-                      text: "asmaa".tr(),
-                      onPressed: () {
-                        Navigator.push(
-                            context, CupertinoPageRoute(builder: (c) => const AllahNamesPage()));
-                      },
-                      imagePath: isDarkModeNotifier.value
-                          ? "assets/images/wnames.png"
-                          : "assets/images/names.png"),
+                  // SuperellipseButton(
+                  //     text: "asmaa".tr(),
+                  //     onPressed: () {
+                  //       Navigator.push(
+                  //           context, CupertinoPageRoute(builder: (c) => const AllahNamesPage()));
+                  //     },
+                  //     imagePath: isDarkModeNotifier.value
+                  //         ? "assets/images/wnames.png"
+                  //         : "assets/images/names.png"),
                   SuperellipseButton(
                       text: "Hadith".tr(),
                       onPressed: () {
@@ -547,6 +537,16 @@ class _HomeState extends State<Home>
                           ? "assets/images/wmuhammed.png"
                           : "assets/images/muhammed.png"),
                   SuperellipseButton(
+                      text: "azkar".tr(),
+                      onPressed: () {
+                        Navigator.push(context,
+                            CupertinoPageRoute(builder: ((context) => const AzkarHomePage())));
+                        //boxController.openBox();
+                      },
+                      imagePath: isDarkModeNotifier.value
+                          ? "assets/images/wazkar.png"
+                          : "assets/images/azkar.png"),
+                  SuperellipseButton(
                       text: "audios".tr(),
                       onPressed: () {
                         Navigator.push(
@@ -563,16 +563,6 @@ class _HomeState extends State<Home>
                           ? "assets/images/wquranlogo.png"
                           : "assets/images/quranlogo.png"),
 
-                  SuperellipseButton(
-                      text: "azkar".tr(),
-                      onPressed: () {
-                        Navigator.push(context,
-                            CupertinoPageRoute(builder: ((context) => const AzkarHomePage())));
-                        //boxController.openBox();
-                      },
-                      imagePath: isDarkModeNotifier.value
-                          ? "assets/images/wazkar.png"
-                          : "assets/images/azkar.png"),
 
                   SuperellipseButton(
                       text: "sibha".tr(),
@@ -592,13 +582,15 @@ class _HomeState extends State<Home>
                       imagePath: isDarkModeNotifier.value
                           ? "assets/images/wcalender.png"
                           : "assets/images/calender.png"),
-                  // SuperellipseButton(
-                  //     text: "qibla".tr(),
-                  //     onPressed: () {
-                  //       Navigator.push(context,
-                  //           CupertinoPageRoute(builder: (builder) => const CompassWithQibla()));
-                  //     },
-                  //     imagePath: "assets/images/kabaa.png"),
+                  SuperellipseButton(
+                      text: "settings".tr(),
+                      onPressed: () {
+                        Navigator.push(context,
+                            CupertinoPageRoute(builder: (builder) => const SettingsView()));
+                      },
+                      imagePath: isDarkModeNotifier.value
+                          ? "assets/images/wsetting.png"
+                          : "assets/images/setting.png"),
                   // SuperellipseButton(
                   //     text: "notifications".tr(),
                   //     onPressed: () async {
@@ -617,27 +609,27 @@ class _HomeState extends State<Home>
                   //                   const LiveTvPage()));
                   //     },
                   //     imagePath: "assets/images/tv.png"),
-                  // SuperellipseButton(
-                  //     text: "radios".tr(),
-                  //     onPressed: () {
-                  //       Navigator.push(
-                  //           context,
-                  //           CupertinoPageRoute(
-                  //               builder: (builder) =>
-                  //                   const RadioPage()));
-                  //     },
-                  //     imagePath:
-                  //         "assets/images/radio.png"),
-                  //         SuperellipseButton(
-                  // text: "Short Videos".tr(),
-                  // onPressed: () {
-                  //   Navigator.push(
-                  //       context,
-                  //       CupertinoPageRoute(
-                  //           builder: (builder) =>
-                  //               const ContentScreen()));
-                  // },
-                  // imagePath: "assets/images/play.png"),
+                //   SuperellipseButton(
+                //       text: "radios".tr(),
+                //       onPressed: () {
+                //         Navigator.push(
+                //             context,
+                //             CupertinoPageRoute(
+                //                 builder: (builder) =>
+                //                     const RadioPage()));
+                //       },
+                //       imagePath:
+                //           "assets/images/radio.png"),
+                //           SuperellipseButton(
+                //   text: "Short Videos".tr(),
+                //   onPressed: () {
+                //     Navigator.push(
+                //         context,
+                //         CupertinoPageRoute(
+                //             builder: (builder) =>
+                //                 const ContentScreen()));
+                //   },
+                //   imagePath: "assets/images/play.png"),
                 ]),
             wedgitAya(context, screenSize),
             wedgitHadith(screenSize),

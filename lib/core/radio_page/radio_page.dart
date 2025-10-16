@@ -5,8 +5,8 @@
 // import 'package:easy_localization/easy_localization.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:ghaith/main.dart';
 // import 'package:lottie/lottie.dart';
-// // import 'package:flutter_radio_player/flutter_radio_player.dart';
 // import 'package:ghaith/GlobalHelpers/constants.dart';
 // import 'package:ghaith/GlobalHelpers/hive_helper.dart';
 // import 'package:radio_player/radio_player.dart';

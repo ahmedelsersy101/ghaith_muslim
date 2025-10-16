@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   navigateToHome(context) async {
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 3));
     Navigator.pushAndRemoveUntil(
         context,
         CupertinoPageRoute(
@@ -196,7 +196,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: const Color(0xfffff9de),
+        backgroundColor: quranPagesColorLight,
         body: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Stack(children: [

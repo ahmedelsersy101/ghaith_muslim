@@ -640,7 +640,9 @@ class _RecitersPageState extends State<RecitersPage> {
                                                 favoriteRecitersList.contains(reciter)
                                                     ? FontAwesome.heart
                                                     : FontAwesome.heart_empty,
-                                                color: Colors.redAccent.withOpacity(.6),
+                                                color: isDarkModeNotifier.value
+                                                    ? backgroundColor
+                                                    : orangeColor,
                                               )),
                                         ],
                                       ),
@@ -770,20 +772,20 @@ class _RecitersPageState extends State<RecitersPage> {
                                                                       icon: Icon(
                                                                         size: 20.sp,
                                                                         Icons.play_circle_outline,
-                                                                        color: orangeColor,
+                                                                        color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
                                                                       )),
-                                                                  IconButton(
-                                                                      onPressed: () {
-                                                                        playerPageBloc.add(
-                                                                            DownloadAllSurahs(
-                                                                                moshaf: e,
-                                                                                reciter: reciter));
-                                                                      },
-                                                                      icon: Icon(
-                                                                        size: 20.sp,
-                                                                        Icons.download,
-                                                                        color: blueColor,
-                                                                      )),
+                                                                  // IconButton(
+                                                                  //     onPressed: () {
+                                                                  //       playerPageBloc.add(
+                                                                  //           DownloadAllSurahs(
+                                                                  //               moshaf: e,
+                                                                  //               reciter: reciter));
+                                                                  //     },
+                                                                  //     icon: Icon(
+                                                                  //       size: 20.sp,
+                                                                  //       Icons.download,
+                                                                  //       color: blueColor,
+                                                                  //     )),
                                                                   //  SizedBox(
                                                                   //   width:
                                                                   //       10.w,

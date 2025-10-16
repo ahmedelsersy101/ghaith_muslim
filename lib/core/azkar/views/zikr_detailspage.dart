@@ -5,6 +5,7 @@ import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';
 import 'package:ghaith/core/azkar/model/dua_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ghaith/main.dart';
 
 class ZikrPage extends StatefulWidget {
   DuaModel zikr;
@@ -25,18 +26,18 @@ class _ZikrPageState extends State<ZikrPage> {
     }
   }
 
-  int count = 1;
+  int count = 0;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height,
-      decoration: const BoxDecoration(
-          color: darkPrimaryColor,
-          image: DecorationImage(
-              fit: BoxFit.fill,
+      decoration: BoxDecoration(
+          color: isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight,
+          image: const DecorationImage(
+              fit: BoxFit.cover,
               image: AssetImage(
-                "assets/images/zikrbkg.png",
+                "assets/images/mosquepnggold.png",
               ),
               alignment: Alignment.center,
               opacity: .15)),
@@ -48,14 +49,7 @@ class _ZikrPageState extends State<ZikrPage> {
                 child: Column(
                   children: [
                     SizedBox(
-                      height: 50.h,
-                    ),
-                    Text(
-                      widget.zikr.category,
-                      style: TextStyle(fontFamily: "cairo", color: Colors.white, fontSize: 16.sp),
-                    ),
-                    SizedBox(
-                      height: 10.h,
+                      height: 20.h,
                     ),
                     SizedBox(
                         height: (MediaQuery.of(context).size.height * .78) - 30.h,
@@ -72,7 +66,7 @@ class _ZikrPageState extends State<ZikrPage> {
                                 SizedBox(
                                   width: MediaQuery.of(context).size.width,
                                   child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 50.0.w),
+                                    padding: EdgeInsets.symmetric(horizontal: 16.w),
                                     child: GestureDetector(
                                       onLongPress: () {
                                         Clipboard.setData(ClipboardData(
@@ -92,9 +86,12 @@ class _ZikrPageState extends State<ZikrPage> {
                                         textDirection: TextDirection.rtl,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
-                                            color: Colors.white,
+                                            color: isDarkModeNotifier.value
+                                                ? Colors.white
+                                                : Colors.black,
                                             locale: const Locale("ar"),
-                                            fontSize: 19.sp),
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18.sp),
                                       ),
                                     ),
                                   ),
@@ -102,168 +99,177 @@ class _ZikrPageState extends State<ZikrPage> {
                               ],
                             ),
                           ),
-                        )
-
-                        //      PageView.builder(
-                        // onPageChanged: (c) {
-                        //   updateValue("${widget.zikr.category}zikrIndex", c);
-                        // },
-                        // itemCount: widget.zikr.array.length,
-                        // itemBuilder: (d, index) {
-                        //   return SizedBox(
-                        //     height: MediaQuery.of(context).size.height,
-                        //     child: Column(
-                        //       mainAxisAlignment: MainAxisAlignment.center,
-                        //       children: [
-                        //         Padding(
-                        //           padding:
-                        //               EdgeInsets.symmetric(horizontal: 50.0.w),
-                        //           child: Text(
-                        //             widget.zikr.array[index].text,
-                        //             textDirection: TextDirection.rtl,
-                        //             textAlign: TextAlign.center,
-                        //             style: TextStyle(
-                        //                 color: Colors.white,
-                        //                 locale: const Locale("ar"),
-                        //                 fontSize: 19.sp),
-                        //           ),
-                        //         )
-                        //       ],
-                        //     ),
-                        //   );
-                        // }),
-                        ),
+                        )),
                     SizedBox(
                       height: 10.h,
                     ),
                   ],
                 )),
             Positioned(
-                bottom: 30.h,
+                bottom: 50.h,
                 width: MediaQuery.of(context).size.width,
                 child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Column(
                     children: [
-                      InkWell(
-                          overlayColor: WidgetStatePropertyAll(Colors.white.withOpacity(.25)),
-                          splashColor: Colors.white.withOpacity(.25),
-                          focusColor: Colors.white.withOpacity(.25),
-                          hoverColor: Colors.white.withOpacity(.25),
-                          highlightColor: Colors.white.withOpacity(.15),
-                          borderRadius: BorderRadius.circular(200),
-                          onTap: () {
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
                             count++;
 
-                            setState(() {});
-                          },
-                          child: Center(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(200),
-                                color: Colors.grey.withOpacity(.1),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(40.0),
-                                child: Text("$count",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 40.sp,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: "roboto")),
+                            // عدد التكرارات المطلوبة للذكر الحالي
+                            int requiredCount = widget
+                                .zikr.array[getValue("${widget.zikr.category}zikrIndex")].count;
+
+                            // ✅ لو وصل للعدد المطلوب.. اقلب للذكر اللي بعده
+                            if (count >= requiredCount) {
+                              // لو لسه في أذكار تانية
+                              if (getValue("${widget.zikr.category}zikrIndex") + 1 <
+                                  widget.zikr.array.length) {
+                                updateValue(
+                                  "${widget.zikr.category}zikrIndex",
+                                  getValue("${widget.zikr.category}zikrIndex") + 1,
+                                );
+                              } else {
+                                // لو وصلنا لنهاية الأذكار
+                                Fluttertoast.showToast(msg: "🎉 تم الانتهاء من الأذكار");
+                              }
+
+                              // رجع العدّاد للصفر
+                              count = 0;
+                            }
+                          });
+                        },
+                        child: Center(
+                          child: Container(
+                            height: 150.h,
+                            width: 150.h,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              color: isDarkModeNotifier.value
+                                  ? Colors.white.withOpacity(.1)
+                                  : Colors.black.withOpacity(.2),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "$count",
+                                style: TextStyle(
+                                  color: isDarkModeNotifier.value ? Colors.black : Colors.white,
+                                  fontSize: 50.sp,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "roboto",
+                                ),
                               ),
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 22.h,
+                      ),
+                      SizedBox(
+                        width: 120.w,
+                        child: LinearProgressIndicator(
+                          value: count /
+                              widget.zikr.array[getValue("${widget.zikr.category}zikrIndex")].count,
+                          backgroundColor: Colors.grey.withOpacity(.3),
+                          color: Colors.green,
+                          minHeight: 5.h,
+                        ),
+                      ),
                     ],
                   ),
                 )),
             Positioned(
                 width: MediaQuery.of(context).size.width,
-                top: MediaQuery.of(context).size.height * .45,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (getValue("${widget.zikr.category}zikrIndex") != 0) {
-                          updateValue("${widget.zikr.category}zikrIndex",
-                              getValue("${widget.zikr.category}zikrIndex") - 1);
-                        }
-                        setState(() {
-                          count = 1;
-                        });
-                      },
-                      child: Container(
-                        height: 40.h,
-                        width: 40.h,
-                        decoration:
-                            const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
-                        child: Center(
-                          child: Icon(
-                            Icons.arrow_back_ios,
-                            color: getValue("${widget.zikr.category}zikrIndex") == 0
-                                ? Colors.grey
-                                : Colors.white,
-                            size: 28.sp,
+                top: MediaQuery.of(context).size.height * .71,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          if (getValue("${widget.zikr.category}zikrIndex") != 0) {
+                            updateValue("${widget.zikr.category}zikrIndex",
+                                getValue("${widget.zikr.category}zikrIndex") - 1);
+                          }
+                          setState(() {
+                            count = 0;
+                          });
+                        },
+                        child: Container(
+                          height: 50.h,
+                          width: 50.w,
+                          decoration: BoxDecoration(
+                              color: isDarkModeNotifier.value
+                                  ? Colors.white.withOpacity(.1)
+                                  : Colors.black.withOpacity(.2),
+                              borderRadius: BorderRadius.circular(32)),
+                          child: Center(
+                            child: Icon(
+                              Icons.arrow_back_ios_new_outlined,
+                              color: isDarkModeNotifier.value ? Colors.black : Colors.white,
+                              size: 20.sp,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        if (getValue("${widget.zikr.category}zikrIndex") + 1 !=
-                            widget.zikr.array.length) {
-                          updateValue("${widget.zikr.category}zikrIndex",
-                              getValue("${widget.zikr.category}zikrIndex") + 1);
-                          count = 1;
-                        }
+                      GestureDetector(
+                        onTap: () {
+                          if (getValue("${widget.zikr.category}zikrIndex") + 1 !=
+                              widget.zikr.array.length) {
+                            updateValue("${widget.zikr.category}zikrIndex",
+                                getValue("${widget.zikr.category}zikrIndex") + 1);
+                            count = 0;
+                          }
 
-                        setState(() {});
-                      },
-                      child: Container(
-                        height: 40.h,
-                        width: 40.h,
-                        decoration:
-                            const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
-                        child: Center(
-                          child: Icon(
-                            Icons.arrow_forward_ios,
-                            color: getValue("${widget.zikr.category}zikrIndex") + 1 ==
-                                    widget.zikr.array.length
-                                ? Colors.grey
-                                : Colors.white,
-                            size: 28.sp,
+                          setState(() {});
+                        },
+                        child: Container(
+                          height: 50.h,
+                          width: 50.w,
+                          decoration: BoxDecoration(
+                              color: isDarkModeNotifier.value
+                                  ? Colors.white.withOpacity(.1)
+                                  : Colors.black.withOpacity(.2),
+                              borderRadius: BorderRadius.circular(32)),
+                          child: Center(
+                            child: Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              color: isDarkModeNotifier.value ? Colors.black : Colors.white,
+                              size: 20.sp,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ))
           ],
         ),
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-              )),
+          title: Text(
+            widget.zikr.category,
+            style: TextStyle(
+                fontFamily: "cairo",
+                color: isDarkModeNotifier.value ? Colors.white : Colors.black,
+                fontSize: 16.sp),
+          ),
+          backgroundColor: Colors.transparent,
           actions: [
             IconButton(
                 onPressed: () {
                   updateValue("${widget.zikr.category}zikrIndex", 0);
-                  count = 1;
+                  count = 0;
                   setState(() {});
                 },
-                icon: const Icon(
+                icon: Icon(
                   Icons.replay_outlined,
-                  color: Colors.white,
+                  color: isDarkModeNotifier.value ? Colors.white : Colors.black,
+                  size: 24.sp,
                 ))
           ],
-          backgroundColor: Colors.transparent,
           centerTitle: true,
           elevation: 0,
         ),
