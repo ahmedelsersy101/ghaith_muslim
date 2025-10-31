@@ -16,7 +16,7 @@ Color quranPagesColorDark = const Color(0xff292C31);
 const Color darkModeSecondaryColor = Color.fromRGBO(17, 18, 27, 1);
 const Color darkPrimaryColor = Color.fromARGB(255, 17, 18, 27);
 Color orangeColor = const Color(0xff6a1e2c);
-Color blueColor = const Color(0xff00a2b5);
+Color blueColor = const Color(0xFF00A2B5);
 List colorsOfBookmarks = [
   Colors.greenAccent.withOpacity(.1),
   Colors.redAccent.withOpacity(.1),

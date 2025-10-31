@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   navigateToHome(context) async {
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 4));
     Navigator.pushAndRemoveUntil(
         context,
         CupertinoPageRoute(
@@ -154,7 +154,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Permission.storage,
     ];
 
-    if ((await mediaStorePlugin.getPlatformSDKInt()) >= 33) {
+    if ((await mediaStorePlugin.getPlatformSDKInt()) >= 35) {
       permissions.add(Permission.photos);
       permissions.add(Permission.audio);
       permissions.add(Permission.location);

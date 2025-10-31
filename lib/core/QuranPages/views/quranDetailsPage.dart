@@ -3,10 +3,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
+import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
+import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
 import 'package:ghaith/core/QuranPages/helpers/remove_html_tags.dart';
 import 'package:ghaith/core/QuranPages/widgets/bookmark_dialog.dart';
+import 'package:ghaith/core/home.dart';
 import '../helpers/translation/get_translation_data.dart' as get_translation_data;
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/mfg_labs_icons.dart';
@@ -84,6 +88,13 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
     bookmarks = json.decode(getValue("bookmarks"));
     setState(() {});
   }
+String fixAudioUrl(String url) {
+  // لو الرابط قديم، غيره إلى المسار الجديد
+  if (url.contains('audio-surah')) {
+    return url.replaceAll('audio-surah', 'audio');
+  }
+  return url;
+}
 
   var dataOfCurrentTranslation;
   getTranslationData() async {
@@ -1820,435 +1831,372 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
   }
 
   showAyahOptionsSheet(
-    index,
-    surahNumber,
-    verseNumber,
+    int index,
+    int surahNumber,
+    int verseNumber,
   ) {
-    // print(/
-    // "$surahNumber: $verseNumber",
-    // );
-    // print(quran.getVerse(surahNumber, verseNumber));
+    // ✅ خزن الـ context الأصلي علشان نقدر نستخدمه داخل الـ bottom sheet
+    final parentContext = context;
+
     showMaterialModalBottomSheet(
-        enableDrag: true,
-        duration: const Duration(milliseconds: 500),
-        backgroundColor: Colors.transparent,
-        context: context,
-        animationCurve: Curves.easeInOutQuart,
-        elevation: 0,
-        bounce: true,
-        // barrierColor: Colors.transparent,
-        // context: context,
-        builder: (c) => StatefulBuilder(builder: (context, setstatee) {
-              return Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: backgroundColors[getValue("quranPageolorsIndex")],
+      enableDrag: true,
+      duration: const Duration(milliseconds: 500),
+      backgroundColor: Colors.transparent,
+      context: parentContext,
+      animationCurve: Curves.easeInOutQuart,
+      elevation: 0,
+      bounce: true,
+      builder: (c) => StatefulBuilder(
+        builder: (context, setstatee) {
+          return Padding(
+            padding: const EdgeInsets.all(0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: backgroundColors[getValue("quranPageolorsIndex")],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: Text(
+                      "${context.locale.languageCode == "ar" ? quran.getSurahNameArabic(surahNumber) : quran.getSurahNameEnglish(surahNumber)}: $verseNumber",
+                      style: TextStyle(color: primaryColors[getValue("quranPageolorsIndex")]),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: Text(
-                            "${context.locale.languageCode == "ar" ? quran.getSurahNameArabic(surahNumber) : quran.getSurahNameEnglish(surahNumber)}: $verseNumber",
-                            style: TextStyle(color: primaryColors[getValue("quranPageolorsIndex")]),
-                          ),
-                          trailing: SizedBox(
-                            width: 200.w,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                    onPressed: () {
-                                      isVerseStarred(surahNumber, verseNumber)
-                                          ? removeStarredVerse(surahNumber, verseNumber)
-                                          : addStarredVerse(surahNumber, verseNumber);
-                                      setstatee(() {});
-                                      setState(() {});
-                                      richTextKeys[index - 1].currentState?.build(context);
-                                    },
-                                    icon: Icon(
-                                      isVerseStarred(surahNumber, verseNumber)
-                                          ? FontAwesome.star
-                                          : FontAwesome.star_empty,
-                                      color: primaryColors[getValue("quranPageolorsIndex")],
-                                    )),
-                                IconButton(
-                                    onPressed: () {
-                                      takeScreenshotFunction(index, surahNumber, verseNumber);
-                                    },
-                                    icon: Icon(Icons.share,
-                                        color: primaryColors[getValue("quranPageolorsIndex")])),
-                              ],
+                    trailing: SizedBox(
+                      width: 200.w,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              isVerseStarred(surahNumber, verseNumber)
+                                  ? removeStarredVerse(surahNumber, verseNumber)
+                                  : addStarredVerse(surahNumber, verseNumber);
+                              setstatee(() {});
+                              setState(() {});
+                              richTextKeys[index - 1].currentState?.build(context);
+                            },
+                            icon: Icon(
+                              isVerseStarred(surahNumber, verseNumber)
+                                  ? FontAwesome.star
+                                  : FontAwesome.star_empty,
+                              color: primaryColors[getValue("quranPageolorsIndex")],
                             ),
                           ),
-                        ),
-                        Divider(
-                          height: 10.h,
-                          color: primaryColors[getValue("quranPageolorsIndex")],
-                        ),
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color:
-                                  primaryColors[getValue("quranPageolorsIndex")].withOpacity(.05),
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  if (bookmarks.isNotEmpty)
-                                    ListView.separated(
-                                        separatorBuilder: (context, index) => const Divider(),
-                                        shrinkWrap: true,
-                                        physics: const NeverScrollableScrollPhysics(),
-                                        itemCount: bookmarks.length,
-                                        itemBuilder: (c, i) {
-                                          return GestureDetector(
-                                            // color: Colors.transparent,
-                                            onTap: () async {
-                                              List bookmarks = json.decode(getValue("bookmarks"));
+                          IconButton(
+                              onPressed: () {
+                                takeScreenshotFunction(index, surahNumber, verseNumber);
+                              },
+                              icon: Icon(Icons.share,
+                                  color: primaryColors[getValue("quranPageolorsIndex")])),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    height: 10.h,
+                    color: primaryColors[getValue("quranPageolorsIndex")],
+                  ),
+                  SizedBox(height: 10.h),
 
-                                              bookmarks[i]["verseNumber"] = verseNumber;
-
-                                              bookmarks[i]["suraNumber"] = surahNumber;
-
-                                              updateValue("bookmarks", json.encode(bookmarks));
-                                              // print(getValue("bookmarks"));
-                                              setState(() {});
-                                              fetchBookmarks();
-                                              Navigator.of(context).pop(); // Close the dialog
-                                            },
-                                            child: SizedBox(
-                                              width: MediaQuery.of(context).size.width,
-                                              child: Row(
-                                                children: [
-                                                  SizedBox(
-                                                    width: 20.w,
-                                                  ),
-                                                  Icon(
-                                                    Icons.bookmark,
-                                                    color: Color(
-                                                        int.parse("0x${bookmarks[i]["color"]}")),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 20.w,
-                                                  ),
-                                                  Text(bookmarks[i]["name"],
-                                                      style: TextStyle(
-                                                          fontFamily: "cairo",
-                                                          fontSize: 14.sp,
-                                                          color: primaryColors[
-                                                              getValue("quranPageolorsIndex")])),
-                                                  SizedBox(
-                                                    width: 30.w,
-                                                  ),
-                                                  // if (getValue("redBookmark") != null)
-                                                  Expanded(
-                                                    child: Align(
-                                                      alignment: Alignment.centerRight,
-                                                      child: Text(
-                                                          getVerse(
-                                                            int.parse(bookmarks[i]["suraNumber"]
-                                                                .toString()),
-                                                            int.parse(bookmarks[i]["verseNumber"]
-                                                                .toString()),
-                                                          ),
-                                                          textDirection: m.TextDirection.rtl,
-                                                          style: TextStyle(
-                                                              fontFamily: fontFamilies[0],
-                                                              fontSize: 13.sp,
-                                                              color: primaryColors[
-                                                                  getValue("quranPageolorsIndex")],
-                                                              overflow: TextOverflow.ellipsis)),
-                                                    ),
-                                                  ),
-
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        //  String bookmarkName = _nameController.text;
-
-                                                        List bookmarks =
-                                                            json.decode(getValue("bookmarks"));
-                                                        // String hexCode =
-                                                        //     _selectedColor.value.toRadixString(16).padLeft(8, '0');
-                                                        Fluttertoast.showToast(
-                                                            msg: "${bookmarks[i]["name"]} removed");
-
-                                                        bookmarks.removeWhere((e) =>
-                                                            e["color"] == bookmarks[i]["color"]);
-                                                        updateValue(
-                                                            "bookmarks", json.encode(bookmarks));
-                                                        // print(getValue("bookmarks"));
-                                                        setState(() {});
-                                                        fetchBookmarks();
-                                                        Navigator.of(context)
-                                                            .pop(); // Close the dialog
-                                                      },
-                                                      icon: Icon(
-                                                        Icons.delete,
-                                                        color: Color(int.parse(
-                                                            "0x${bookmarks[i]["color"]}")),
-                                                      ))
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        }),
-                                  if (bookmarks.isNotEmpty) const Divider(),
-                                  EasyContainer(
-                                    color: Colors.transparent,
+                  // ✅ قائمة العلامات المرجعية (Bookmarks)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: primaryColors[getValue("quranPageolorsIndex")].withOpacity(.05),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            if (bookmarks.isNotEmpty)
+                              ListView.separated(
+                                separatorBuilder: (context, index) => const Divider(),
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: bookmarks.length,
+                                itemBuilder: (c, i) {
+                                  return GestureDetector(
                                     onTap: () async {
-                                      await showDialog(
-                                          context: context,
-                                          builder: (context) => BookmarksDialog(
-                                                suraNumber: surahNumber,
-                                                verseNumber: verseNumber,
-                                              ));
-
+                                      List bookmarks = json.decode(getValue("bookmarks"));
+                                      bookmarks[i]["verseNumber"] = verseNumber;
+                                      bookmarks[i]["suraNumber"] = surahNumber;
+                                      updateValue("bookmarks", json.encode(bookmarks));
+                                      setState(() {});
                                       fetchBookmarks();
+                                      Navigator.of(context).pop();
                                     },
                                     child: SizedBox(
                                       width: MediaQuery.of(context).size.width,
                                       child: Row(
                                         children: [
-                                          SizedBox(
-                                            width: 20.w,
+                                          SizedBox(width: 20.w),
+                                          Icon(Icons.bookmark,
+                                              color:
+                                                  Color(int.parse("0x${bookmarks[i]["color"]}"))),
+                                          SizedBox(width: 20.w),
+                                          Text(
+                                            bookmarks[i]["name"],
+                                            style: TextStyle(
+                                              fontFamily: "cairo",
+                                              fontSize: 14.sp,
+                                              color: primaryColors[getValue("quranPageolorsIndex")],
+                                            ),
                                           ),
-                                          Icon(
-                                            Icons.bookmark_add,
-                                            color: secondaryColors[getValue("quranPageolorsIndex")],
-                                          ),
-                                          SizedBox(
-                                            width: 20.w,
-                                          ),
-                                          Text("newBookmark".tr(),
-                                              style: TextStyle(
-                                                  fontFamily: "cairo",
-                                                  fontSize: 14.sp,
+                                          const Spacer(),
+                                          Expanded(
+                                            child: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Text(
+                                                getVerse(
+                                                  int.parse(bookmarks[i]["suraNumber"].toString()),
+                                                  int.parse(bookmarks[i]["verseNumber"].toString()),
+                                                ),
+                                                textDirection: m.TextDirection.rtl,
+                                                style: TextStyle(
+                                                  fontFamily: fontFamilies[0],
+                                                  fontSize: 13.sp,
                                                   color: primaryColors[
-                                                      getValue("quranPageolorsIndex")])),
-                                          SizedBox(
-                                            width: 30.w,
-                                          ),
-                                          if (getValue("redBookmark") != null)
-                                            Expanded(
-                                              child: Align(
-                                                alignment: Alignment.centerRight,
-                                                child: Text(
-                                                    getVerse(
-                                                      int.parse(getValue("redBookmark")
-                                                          .toString()
-                                                          .split('-')[0]),
-                                                      int.parse(getValue("redBookmark")
-                                                          .toString()
-                                                          .split('-')[1]),
-                                                    ),
-                                                    textDirection: m.TextDirection.rtl,
-                                                    style: TextStyle(
-                                                        fontFamily: fontFamilies[0],
-                                                        fontSize: 13.sp,
-                                                        color: primaryColors[
-                                                            getValue("quranPageolorsIndex")],
-                                                        overflow: TextOverflow.ellipsis)),
+                                                      getValue("quranPageolorsIndex")],
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
                                               ),
-                                            )
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              List bookmarks = json.decode(getValue("bookmarks"));
+                                              Fluttertoast.showToast(
+                                                msg: "${bookmarks[i]["name"]} removed",
+                                              );
+                                              bookmarks.removeWhere(
+                                                  (e) => e["color"] == bookmarks[i]["color"]);
+                                              updateValue("bookmarks", json.encode(bookmarks));
+                                              setState(() {});
+                                              fetchBookmarks();
+                                              Navigator.of(context).pop();
+                                            },
+                                            icon: Icon(
+                                              Icons.delete,
+                                              color: Color(int.parse("0x${bookmarks[i]["color"]}")),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
-                                  )
-                                ],
+                                  );
+                                },
                               ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: EasyContainer(
-                            color: primaryColors[getValue("quranPageolorsIndex")].withOpacity(.05),
-                            borderRadius: 12,
-                            onTap: () {
-                              showMaterialModalBottomSheet(
-                                  enableDrag: true,
-                                  // backgroundColor: Colors.transparent,
+                            if (bookmarks.isNotEmpty) const Divider(),
+                            EasyContainer(
+                              color: Colors.transparent,
+                              onTap: () async {
+                                await showDialog(
                                   context: context,
-                                  animationCurve: Curves.easeInOutQuart,
-                                  elevation: 0,
-                                  bounce: true,
-                                  duration: const Duration(milliseconds: 400),
-                                  backgroundColor: backgroundColor,
-                                  // Set this to true
-                                  // backgroundColor: Colors.transparent, // Set background color to transparent
-                                  // useSafeArea: true,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(13.r),
-                                          topLeft: Radius.circular(13.r))),
-                                  isDismissible: true,
-                                  // constraints: BoxConstraints.expand(
-                                  //   height: MediaQuery.of(context).size.height,
-                                  // ),
-                                  builder: (d) {
-                                    return TafseerAndTranslateSheet(
-                                        surahNumber: surahNumber,
-                                        isVerseByVerseSelection: false,
-                                        verseNumber: verseNumber);
-                                  });
-                            },
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 20.w,
+                                  builder: (context) => BookmarksDialog(
+                                    suraNumber: surahNumber,
+                                    verseNumber: verseNumber,
                                   ),
-                                  Icon(
-                                    FontAwesome5.book_open,
-                                    color: getValue("quranPageolorsIndex") == 0
-                                        ? secondaryColors[getValue("quranPageolorsIndex")]
-                                        : highlightColors[getValue("quranPageolorsIndex")],
-                                  ),
-                                  SizedBox(
-                                    width: 20.w,
-                                  ),
-                                  Text("${"tafseer".tr()} - ${"translation".tr()}",
+                                );
+                                fetchBookmarks();
+                              },
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 20.w),
+                                    Icon(Icons.bookmark_add,
+                                        color: secondaryColors[getValue("quranPageolorsIndex")]),
+                                    SizedBox(width: 20.w),
+                                    Text(
+                                      "newBookmark".tr(),
                                       style: TextStyle(
-                                          fontFamily: "cairo",
-                                          fontSize: 14.sp,
-                                          color: primaryColors[getValue("quranPageolorsIndex")])),
-                                  SizedBox(
-                                    width: 30.w,
-                                  )
-                                ],
+                                        fontFamily: "cairo",
+                                        fontSize: 14.sp,
+                                        color: primaryColors[getValue("quranPageolorsIndex")],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                        // EasyContainer(
-                        //   borderRadius: 8,
-                        //   color: primaryColors[getValue("quranPageolorsIndex")].withOpacity(.05),
-                        //   onTap: () async {
-                        //     Navigator.pop(context);
-                        //     // print(getValue("lastRead"));
-                        //     // print(quran.getAudioURLBySurah(
-                        //     //     surahNumber, reciters[2].identifier));
-                        //     // print(quran.getAudioURLByVerse(surahNumber,
-                        //     //     verseNumber, reciters[2].identifier));
-                        //     await downloadAndCacheSuraAudio(
-                        //         quran.getSurahNameEnglish(surahNumber),
-                        //         quran.getVerseCount(surahNumber),
-                        //         surahNumber,
-                        //         reciters[getValue("reciterIndex")].identifier);
-                        //     // print("lastt read ${getValue("lastRead")}");
-
-                        //     // BlocProvider.of<QuranPagePlayerBloc>(context, listen: false)
-                        //     // if (playerPageBloc.state is PlayerBlocPlaying) {
-                        //     //   if (mounted) {
-                        //     //     await showDialog(
-                        //     //         context: context,
-                        //     //         builder: (a) {
-                        //     //           return AlertDialog(
-                        //     //             content: Text("closeplayer".tr()),
-                        //     //             actions: [
-                        //     //               TextButton(
-                        //     //                   onPressed: () {
-                        //     //                     Navigator.pop(context);
-                        //     //                   },
-                        //     //                   child: Text("back".tr())),
-                        //     //               TextButton(
-                        //     //                   onPressed: () {
-                        //     //                     // playerPageBloc.add(ClosePlayerEvent());
-                        //     //                     Navigator.of(context).pop();
-                        //     //                   },
-                        //     //                   child: Text("close".tr())),
-                        //     //             ],
-                        //     //           );
-                        //     //         });
-                        //     //   }
-                        //     // }
-                        //     if (qurapPagePlayerBloc.state is QuranPagePlayerPlaying) {
-                        //       qurapPagePlayerBloc.add(KillPlayerEvent());
-                        //     }
-
-                        //     qurapPagePlayerBloc.add(PlayFromVerse(
-                        //         verseNumber,
-                        //         reciters[getValue("reciterIndex")].identifier,
-                        //         surahNumber,
-                        //         quran.getSurahNameEnglish(surahNumber)));
-                        //     if (getValue("alignmentType") == "verticalview" &&
-                        //         quran.getPageNumber(surahNumber, verseNumber) > 600) {
-                        //       await Future.delayed(const Duration(milliseconds: 1000));
-                        //       itemScrollController.jumpTo(
-                        //           index: quran.getPageNumber(surahNumber, verseNumber));
-                        //     }
-                        //   },
-                        //   child: SizedBox(
-                        //     width: MediaQuery.of(context).size.width,
-                        //     child: Row(
-                        //       children: [
-                        //         SizedBox(
-                        //           width: 20.w,
-                        //         ),
-                        //         Icon(
-                        //           FontAwesome5.book_reader,
-                        //           color: getValue("quranPageolorsIndex") == 0
-                        //               ? secondaryColors[getValue("quranPageolorsIndex")]
-                        //               : highlightColors[getValue("quranPageolorsIndex")],
-                        //         ),
-                        //         SizedBox(
-                        //           width: 20.w,
-                        //         ),
-                        //         Text("play".tr(),
-                        //             style: TextStyle(
-                        //                 fontFamily: "cairo",
-                        //                 fontSize: 14.sp,
-                        //                 color: primaryColors[getValue("quranPageolorsIndex")])),
-                        //         SizedBox(
-                        //           width: 30.w,
-                        //         ),
-                        //         DropdownButton<int>(
-                        //           value: getValue("reciterIndex"),
-                        //           dropdownColor: backgroundColors[getValue("quranPageolorsIndex")],
-                        //           onChanged: (int? newIndex) {
-                        //             updateValue("reciterIndex", newIndex);
-                        //             setState(() {});
-                        //             setstatee(() {});
-                        //           },
-                        //           items: reciters.map((reciter) {
-                        //             return DropdownMenuItem<int>(
-                        //               value: reciters.indexOf(reciter),
-                        //               child: Text(
-                        //                   context.locale.languageCode == "ar"
-                        //                       ? reciter.name
-                        //                       : reciter.englishName,
-                        //                   style: TextStyle(
-                        //                       color:
-                        //                           primaryColors[getValue("quranPageolorsIndex")])),
-                        //             );
-                        //           }).toList(),
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                      ],
+                      ),
                     ),
-                  ));
-            }));
+                  ),
+
+                  SizedBox(height: 10.h),
+
+                  // ✅ التفسير والترجمة
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: EasyContainer(
+                      color: primaryColors[getValue("quranPageolorsIndex")].withOpacity(.05),
+                      borderRadius: 12,
+                      onTap: () {
+                        showMaterialModalBottomSheet(
+                          enableDrag: true,
+                          context: context,
+                          animationCurve: Curves.easeInOutQuart,
+                          elevation: 0,
+                          bounce: true,
+                          duration: const Duration(milliseconds: 400),
+                          backgroundColor: backgroundColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(13.r),
+                              topLeft: Radius.circular(13.r),
+                            ),
+                          ),
+                          isDismissible: true,
+                          builder: (d) {
+                            return TafseerAndTranslateSheet(
+                              surahNumber: surahNumber,
+                              isVerseByVerseSelection: false,
+                              verseNumber: verseNumber,
+                            );
+                          },
+                        );
+                      },
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Row(
+                          children: [
+                            SizedBox(width: 20.w),
+                            Icon(
+                              FontAwesome5.book_open,
+                              color: getValue("quranPageolorsIndex") == 0
+                                  ? secondaryColors[getValue("quranPageolorsIndex")]
+                                  : highlightColors[getValue("quranPageolorsIndex")],
+                            ),
+                            SizedBox(width: 20.w),
+                            Text(
+                              "${"tafseer".tr()} - ${"translation".tr()}",
+                              style: TextStyle(
+                                fontFamily: "cairo",
+                                fontSize: 14.sp,
+                                color: primaryColors[getValue("quranPageolorsIndex")],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 10.h),
+
+                  // ✅ تشغيل التلاوة
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: EasyContainer(
+                      borderRadius: 8,
+                      color: primaryColors[getValue("quranPageolorsIndex")].withOpacity(.05),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        print(getValue("lastRead"));
+                        print(quran.getAudioURLBySurah(
+                            surahNumber, reciters[getValue("reciterIndex")].identifier));
+                        print(quran.getAudioURLByVerse(
+                            surahNumber, verseNumber, reciters[getValue("reciterIndex")].identifier));
+                    
+                        await downloadAndCacheSuraAudio(
+                          quran.getSurahNameEnglish(surahNumber),
+                          quran.getVerseCount(surahNumber),
+                          surahNumber,
+                          reciters[getValue("reciterIndex")].identifier,
+                        );
+                    
+                        print("lastt read ${getValue("lastRead")}");
+                    
+                        // ✅ استخدم الـ context الأصلي للوصول إلى الـ Bloc
+                        final quranPagePlayerBloc =
+                            BlocProvider.of<QuranPagePlayerBloc>(parentContext, listen: false);
+                    
+                        // أوقف التشغيل الحالي إن وجد
+                        if (quranPagePlayerBloc.state is QuranPagePlayerPlaying) {
+                          quranPagePlayerBloc.add(KillPlayerEvent());
+                        }
+                    
+                        // شغل من الآية المطلوبة
+                        quranPagePlayerBloc.add(
+                          PlayFromVerse(
+                            verseNumber,
+                            reciters[getValue("reciterIndex")].identifier,
+                            surahNumber,
+                            quran.getSurahNameEnglish(surahNumber),
+                          ),
+                        );
+                    
+                        // لو العرض عمودي، ارجع للآية الحالية بعد التشغيل
+                        if (getValue("alignmentType") == "verticalview" &&
+                            quran.getPageNumber(surahNumber, verseNumber) > 600) {
+                          await Future.delayed(const Duration(milliseconds: 1000));
+                          itemScrollController.jumpTo(
+                            index: quran.getPageNumber(surahNumber, verseNumber),
+                          );
+                        }
+                      },
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Row(
+                          children: [
+                            SizedBox(width: 8.w),
+                            Icon(
+                              FontAwesome5.book_reader,
+                              color: getValue("quranPageolorsIndex") == 0
+                                  ? secondaryColors[getValue("quranPageolorsIndex")]
+                                  : highlightColors[getValue("quranPageolorsIndex")],
+                            ),
+                            SizedBox(width: 8.w),
+                            Text(
+                              "play".tr(),
+                              style: TextStyle(
+                                fontFamily: "cairo",
+                                fontSize: 14.sp,
+                                color: primaryColors[getValue("quranPageolorsIndex")],
+                              ),
+                            ),
+                            SizedBox(width: 8.w),
+                            DropdownButton<int>(
+                              value: getValue("reciterIndex"),
+                              dropdownColor: backgroundColors[getValue("quranPageolorsIndex")],
+                              onChanged: (int? newIndex) {
+                                updateValue("reciterIndex", newIndex);
+                                setState(() {});
+                                setstatee(() {});
+                              },
+                              items: reciters.map((reciter) {
+                                return DropdownMenuItem<int>(
+                                  value: reciters.indexOf(reciter),
+                                  child: Text(
+                                    context.locale.languageCode == "ar"
+                                        ? reciter.name
+                                        : reciter.englishName,
+                                    style: TextStyle(
+                                      color: primaryColors[getValue("quranPageolorsIndex")],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   bool showSuraHeader = true;
@@ -2739,7 +2687,6 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
                               MaterialPageRoute(
                                   builder: (builder) => ScreenShotPreviewPage(
                                       index: index,
-                                      isQCF: getValue("alignmentType") == "pageview",
                                       surahNumber: surahNumber,
                                       jsonData: widget.jsonData,
                                       firstVerse: firstVerse,
@@ -2806,6 +2753,9 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
   }
 
   bool isDownloading = false;
+
+  Future<void> downloadAndCacheSuraAudio(
+      String surahNameEnglish, int verseCount, surahNumber, String identifier) async {}
 }
 
 class Result {

@@ -1,6 +1,5 @@
 part of 'quran_page_player_bloc.dart';
 
-@immutable
 class QuranPagePlayerState {}
 
 class QuranPagePlayerInitial extends QuranPagePlayerState {}

@@ -17,6 +17,7 @@ import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';
 import 'package:ghaith/core/home.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:quran/quran.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -60,7 +61,22 @@ class _PlayerBarState extends State<PlayerBar> {
     setState(() {});
   }
 
-  final appDir = Directory('/storage/emulated/0/Download/Ghaith/');
+  Future<Directory> getSafeDownloadDirectory() async {
+    final dir = await getExternalStorageDirectory();
+    final path = Directory('${dir!.path}/Ghaith');
+    if (!(await path.exists())) {
+      await path.create(recursive: true);
+    }
+    return path;
+  }
+Future<Directory> getAppDirectory() async {
+    final dir = await getExternalStorageDirectory();
+    final appDir = Directory('${dir!.path}/Ghaith');
+    if (!(await appDir.exists())) {
+      await appDir.create(recursive: true);
+    }
+    return appDir;
+  }
   bool isPlaylistShown = false;
   bool isMinimized = true;
   @override
@@ -579,30 +595,47 @@ class _PlayerBarState extends State<PlayerBar> {
                                                       color: Colors.white,
                                                     ),
                                                     IconButton(
-                                                      onPressed: () {
-                                                        //               "${event.moshaf.server}/${e.toString().padLeft(3, "0")}.mp3"
-                                                        // .replace(scheme: 'http');
+                                                      onPressed: () async {
+                                                        final appDir = await getAppDirectory();
+                                                        final file = File(
+                                                            '${appDir.path}/${state.reciter.name}-${state.moshaf.id}-${getSurahNameArabic(int.parse(state.surahNumbers[state.audioPlayer.currentIndex!]))}.mp3');
 
-                                                        if (File(
-                                                                '${appDir.path}${state.reciter.name}-${state.moshaf.id}-${getSurahNameArabic(int.parse(state.surahNumbers[state.audioPlayer.currentIndex!]))}.mp3')
-                                                            .existsSync()) {
+                                                        if (file.existsSync()) {
+                                                          // ممكن تضيف هنا كود لو عايز تحذف الملف مثلاً
+                                                          print(
+                                                              'File already exists: ${file.path}');
                                                         } else {
-                                                          playerPageBloc.add(DownloadSurah(
+                                                          playerPageBloc.add(
+                                                            DownloadSurah(
                                                               reciter: state.reciter,
                                                               moshaf: state.moshaf,
                                                               suraNumber: state.surahNumbers[
                                                                   state.audioPlayer.currentIndex!],
                                                               url:
-                                                                  "${state.moshaf.server}/${state.surahNumbers[state.audioPlayer.currentIndex!].padLeft(3, "0")}.mp3"));
-                                                        } // .replace(scheme: 'http')));
+                                                                  "${state.moshaf.server}/${state.surahNumbers[state.audioPlayer.currentIndex!].padLeft(3, "0")}.mp3",
+                                                            ),
+                                                          );
+                                                        }
                                                       },
-                                                      icon: Icon(
-                                                          File('${appDir.path}${state.reciter.name}-${state.moshaf.id}-${getSurahNameArabic(int.parse(state.surahNumbers[state.audioPlayer.currentIndex!]))}.mp3')
-                                                                  .existsSync()
-                                                              ? Icons.download_done
-                                                              : Icons.download,
-                                                          size: 24.sp),
-                                                      color: Colors.white,
+                                                      icon: FutureBuilder<Directory>(
+                                                        future: getAppDirectory(),
+                                                        builder: (context, snapshot) {
+                                                          if (!snapshot.hasData) {
+                                                            return const Icon(Icons.download);
+                                                          }
+                                                          final appDir = snapshot.data!;
+                                                          final file = File(
+                                                              '${appDir.path}/${state.reciter.name}-${state.moshaf.id}-${getSurahNameArabic(int.parse(state.surahNumbers[state.audioPlayer.currentIndex!]))}.mp3');
+
+                                                          return Icon(
+                                                            file.existsSync()
+                                                                ? Icons.download_done
+                                                                : Icons.download,
+                                                            size: 24.sp,
+                                                            color: Colors.white,
+                                                          );
+                                                        },
+                                                      ),
                                                     ),
                                                   ],
                                                 ),

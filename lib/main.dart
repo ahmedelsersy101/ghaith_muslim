@@ -10,6 +10,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as notificationPlugin;
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ghaith/blocs/bloc/bloc/player_bar_bloc.dart';
+import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
+import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 // import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -74,7 +77,13 @@ void main() async {
       ],
       path: 'assets/translations', // <-- change the path of the translation files
       fallbackLocale: const Locale('ar'),
-      child: const MyApp()));
+      child: MultiBlocProvider(
+         providers: [
+        BlocProvider(create: (_) => PlayerBlocBloc()),
+        BlocProvider(create: (_) => QuranPagePlayerBloc()),
+        BlocProvider(create: (_) => PlayerBarBloc()),
+      ],
+        child: const MyApp())));
 }
 
 @pragma("vm:entry-point")

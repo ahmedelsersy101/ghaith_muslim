@@ -25,17 +25,21 @@ class StartPlaying extends PlayerBlocEvent {
 }
 
 class DownloadSurah extends PlayerBlocEvent {
-  Moshaf moshaf;
-  Reciter reciter;
-  String suraNumber;
-  String url;
+  final Reciter reciter;
+  final Moshaf moshaf;
+  final String suraNumber;
+  final String url;
+  final String? savePath; // 👈 أضف هذا السطر
+
   DownloadSurah({
     required this.reciter,
     required this.moshaf,
     required this.suraNumber,
-    required this.url, // required String surahName,
+    required this.url,
+    this.savePath, // 👈 أضف هذا السطر كمان
   });
 }
+
 
 class DownloadAllSurahs extends PlayerBlocEvent {
   Moshaf moshaf;

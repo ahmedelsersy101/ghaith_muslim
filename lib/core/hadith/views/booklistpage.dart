@@ -117,8 +117,7 @@ class _HadithListState extends State<HadithList> {
                         color: isDarkModeNotifier.value
                             ? Colors.white.withOpacity(.87)
                             : Colors.black87),
-                    backgroundColor:
-                       isDarkModeNotifier.value
+                    backgroundColor: isDarkModeNotifier.value
                         ? darkModeSecondaryColor
                         : const Color(0xffF5EFE8).withOpacity(.3),
                     elevation: 0, // No shadow
@@ -151,9 +150,9 @@ class _HadithListState extends State<HadithList> {
                             Expanded(
                               child: TextField(
                                 style: TextStyle(
-                                    color: isDarkModeNotifier.value
-                                      ? darkModeSecondaryColor
-                                      : const Color(0xffF5EFE8).withOpacity(.3),
+                                  color: isDarkModeNotifier.value
+                                      ? const Color(0xffF5EFE8).withOpacity(.3)
+                                      : darkModeSecondaryColor,
                                 ),
                                 onChanged: (val) {
                                   searchFunction(val);

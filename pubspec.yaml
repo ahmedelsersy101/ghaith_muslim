@@ -31,8 +31,6 @@ environment:
 dependencies:
   adhan: null
   after_layout: ^1.2.0
-  # flutter_media_metadata: ^1.0.0
-  # uri_to_file: ^0.2.0
   animate_do: null
   animations: null
   arabic_roman_conv: null
@@ -42,19 +40,13 @@ dependencies:
   auto_size_text: ^3.0.0
   azlistview: ^2.0.0
   back_button_interceptor: null
-  # firebase_core:
-  # firebase_analytics:
   cached_network_image: null
   chewie: null
   contextmenu: ^3.0.0
-  # image:
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   dio: null
   easy_container: null
   easy_localization: ^3.0.3
-  # ffmpeg_kit_flutter_new: ^3.2.0
   flutter:
     sdk: flutter
   flutter_bloc: null
@@ -62,43 +54,34 @@ dependencies:
   flutter_displaymode: ^0.6.0
   flutter_html: null
   flutter_keyboard_visibility: ^6.0.0
-  # flutter_ffmpeg: ^0.4.2
   flutter_local_notifications: ^19.4.0
   flutter_overlay_window: null
   flutter_screenutil: null
-  # flutter_qiblah:
   flutter_svg: null
   fluttericon: null
   fluttertoast: null
-  # circular_progress_bar:
   geocoding: null
   geolocator: null
   group_list_view: ^1.1.1
   hijri: null
   hive: null
+  http: ^1.5.0
   iconsax: null
   image_gallery_saver_plus: ^4.0.1
   in_app_review: null
   in_app_update: null
   indexed_list_view: ^4.0.0
-
   intl: null
-  # periodic_alarm:
-  #   path: ./periodic_alarm
   jhijri_picker: null
-  # flutter_animated_dialog:   # auto_size_text: ^3.0.0
-  just_audio: any # substitute version number
-  just_audio_background: any # substitute version number
-  lottie: # ffmpeg_kit_flutter:
-    null
+  just_audio: any
+  just_audio_background: any
+  lottie: null
   media_store_plus: null
   modal_bottom_sheet: ^3.0.0
   path_provider: ^2.1.5
-
   permission_handler: null
   quran:
     path: ./quran-1.2.2
-  # smooth_compass: 2.0.17
   radio_player: null
   screenshot: ^3.0.0
   scrollable_positioned_list: null
@@ -107,7 +90,6 @@ dependencies:
   shimmer: ^3.0.0
   simple_annimated_staggered: ^0.0.3
   snapx_scroll_physics: ^1.0.1
-  # in_app_review: ^2.0.8
   string_validator: null
   superellipse_shape: null
   syncfusion_flutter_sliders: null

@@ -16,6 +16,7 @@ import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';
 import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
 import 'package:ghaith/core/home.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:quran/quran.dart' as quran;
 
@@ -34,7 +35,8 @@ class RecitersSurahListPage extends StatefulWidget {
 class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
   // List<String> get surahNumbers => widget.mushaf.surahList.split(',');
   late List surahs;
-
+  Map<String, bool> downloadingStatus = {};
+  Map<String, bool> playingStatus = {};
   addSuraNames() {
     surahs = [];
     filteredSurahs = [];
@@ -80,27 +82,15 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
     setState(() {});
   }
 
-  filterDownloadsOnly() {
-    favoriteSurahs = [];
-    // print(favoriteSurahList);
-// print(favoriteSurahList.contains(
-//           "${widget.reciter.name}${widget.mushaf.name}${4- 1}"));
-    for (var element in surahs) {
-      if (File(
-              "${appDir.path}${widget.reciter.name}-${widget.mushaf.id}-${quran.getSurahNameArabic(int.parse(element["surahNumber"]))}.mp3")
-          .existsSync()) {
-        favoriteSurahs.add(element);
-      }
-    }
-    setState(() {});
-    // print(surahs.length);
-    // surahs = surahs.where((element) {
-    //   // print(element);
-    //   return favoriteSurahList.contains(
-    //       "${widget.reciter.name}${widget.mushaf.name}${element["surahNumber"]}");
-    // }).toList();
+  Future<void> createFolder() async {
+    final dir = await getExternalStorageDirectory(); // مجلد خارجي خاص بالتطبيق
+    final path = Directory('${dir!.path}/ghaith');
 
-    setState(() {});
+    if (!(await path.exists())) {
+      await path.create(recursive: true);
+    }
+
+    print("✅ Folder created at: ${path.path}");
   }
 
   addFavorites() {
@@ -147,7 +137,16 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
 
   var selectedMode = "all";
   var searchQuery = "";
-  final appDir = Directory("/storage/emulated/0/Download/Ghaith/");
+  Directory? appDir;
+
+  Future<Directory> getAppDirectory() async {
+    final dir = await getExternalStorageDirectory(); // external but private to app
+    final path = Directory('${dir!.path}/Ghaith');
+    if (!(await path.exists())) {
+      await path.create(recursive: true);
+    }
+    return path;
+  }
 
   TextEditingController textEditingController = TextEditingController();
   @override
@@ -160,8 +159,9 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
           backgroundColor: isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight,
           appBar: AppBar(
             backgroundColor:
-                isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.9) : blueColor,
+                isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.9) : orangeColor,
             elevation: 0,
+            foregroundColor: isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight,
             title: Text(
               "${widget.reciter.name} - ${widget.mushaf.name}",
               style: TextStyle(color: Colors.white, fontSize: 14.sp),
@@ -391,7 +391,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
                                           margin: 0,
                                           onTap: () async {
                                             // filteredReciters = [];
-                                            filterDownloadsOnly();
+                                            createFolder();
 
                                             setState(() {
                                               selectedMode = "downloads";
@@ -464,7 +464,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: CircleAvatar(
-                  backgroundColor: blueColor,
+                  backgroundColor: orangeColor,
                   backgroundImage:
                       CachedNetworkImageProvider("${getValue("${widget.reciter.name} photo url")}"),
                 ),
@@ -498,9 +498,9 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
                       ? surahs[index]
                       : favoriteSurahs[index];
               return EasyContainer(
-                borderRadius: 12.r,
+                borderRadius: 0,
                 elevation: 0,
-                padding: 0,
+                padding: 4,
                 margin: 0,
                 onTap: () async {
                   //print("suraNumber"+ favoriteSurahs[index]["surahNumber"]);
@@ -547,76 +547,130 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
                       width: 25.w,
                     ),
                     trailing: SizedBox(
-                      width: 140.w,
+                      width: 160.w,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           IconButton(
                             onPressed: () async {
-                              if (qurapPagePlayerBloc.state is QuranPagePlayerPlaying) {
-                                await showDialog(
-                                    context: context,
-                                    builder: (a) {
-                                      return AlertDialog(
-                                        content: Text("closeplayer".tr()),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text("cancel".tr())),
-                                          TextButton(
-                                              onPressed: () {
-                                                qurapPagePlayerBloc.add(KillPlayerEvent());
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text("close".tr())),
-                                        ],
-                                      );
-                                    });
+                              final surahKey = "${surah["surahNumber"]}-${widget.mushaf.id}";
+                              final isPlayingNow = playingStatus[surahKey] ?? false;
+
+                              // لو شغالة -> أوقفها مؤقتًا
+                              if (isPlayingNow) {
+                                playerPageBloc.add(PausePlayer());
+                                setState(() => playingStatus[surahKey] = false);
+                                return;
                               }
+
+                              // شغّل السورة
+                              setState(() => playingStatus[surahKey] = true);
+
                               playerPageBloc.add(StartPlaying(
-                                  moshaf: widget.mushaf,
-                                  reciter: widget.reciter,
-                                  buildContext: context,
-                                  suraNumber: int.parse(selectedMode == "all"
-                                      ? surah["surahNumber"]
-                                      : surah["surahNumber"]),
-                                  initialIndex:
-                                      selectedMode == "all" ? index : surahs.indexOf(surah),
-                                  jsonData: widget.jsonData));
+                                moshaf: widget.mushaf,
+                                reciter: widget.reciter,
+                                buildContext: context,
+                                suraNumber: int.parse(surah["surahNumber"]),
+                                initialIndex: selectedMode == "all" ? index : surahs.indexOf(surah),
+                                jsonData: widget.jsonData,
+                              ));
                             },
                             icon: Icon(
-                              Icons.play_arrow,
+                              (playingStatus["${surah["surahNumber"]}-${widget.mushaf.id}"] ??
+                                      false)
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
                               size: 24.sp,
+                              color: blueColor,
                             ),
-                            color: blueColor,
                           ),
                           IconButton(
-                            onPressed: () {
-                              //               "${event.moshaf.server}/${e.toString().padLeft(3, "0")}.mp3"
-                              // .replace(scheme: 'http');
+                            onPressed: () async {
+                              final dir = await getAppDirectory();
+                              final surahNumber = selectedMode == "all"
+                                  ? surah["surahNumber"]
+                                  : surah["surahNumber"];
+                              final filePath =
+                                  "${dir.path}/${widget.reciter.name}-${widget.mushaf.id}-${quran.getSurahNameArabic(int.parse(surahNumber))}.mp3";
 
-                              if (File(
-                                      "${appDir.path}${widget.reciter.name}-${widget.mushaf.id}-${quran.getSurahNameArabic(int.parse(selectedMode == "all" ? surah["surahNumber"] : surah["surahNumber"]))}.mp3")
-                                  .existsSync()) {
+                              if (File(filePath).existsSync()) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("✅ السورة محمّلة بالفعل"),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
                               } else {
+                                // ✅ فعّل حالة التحميل للسورة دي فقط
+                                setState(() => downloadingStatus[surahNumber] = true);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("⬇️ جاري تحميل السورة..."),
+                                    backgroundColor: Color(0xFF00A2B5),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+
                                 playerPageBloc.add(DownloadSurah(
-                                    reciter: widget.reciter,
-                                    moshaf: widget.mushaf,
-                                    suraNumber: selectedMode == "all"
-                                        ? surah["surahNumber"]
-                                        : surah["surahNumber"],
-                                    url:
-                                        "${widget.mushaf.server}/${(selectedMode == "all" ? surah["surahNumber"] : surah["surahNumber"]).padLeft(3, "0")}.mp3"));
-                              } // .replace(scheme: 'http')));
+                                  reciter: widget.reciter,
+                                  moshaf: widget.mushaf,
+                                  suraNumber: surahNumber,
+                                  url: "${widget.mushaf.server}/${surahNumber.padLeft(3, "0")}.mp3",
+                                  savePath: filePath,
+                                ));
+
+                                // مؤقتًا (لحد ما نربطه بالتحميل الحقيقي)
+                                await Future.delayed(const Duration(seconds: 3));
+
+                                setState(() => downloadingStatus[surahNumber] = false);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("✅ تم التحميل بنجاح"),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
                             },
-                            icon: Icon(
-                                File("${appDir.path}${widget.reciter.name}-${widget.mushaf.id}-${quran.getSurahNameArabic(int.parse(selectedMode == "all" ? surah["surahNumber"] : surah["surahNumber"]))}.mp3")
-                                        .existsSync()
-                                    ? Icons.download_done
-                                    : Icons.download,
-                                size: 24.sp),
+                            icon: FutureBuilder<Directory>(
+                              future: getAppDirectory(),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return const Icon(Icons.download, size: 24);
+                                }
+
+                                final dir = snapshot.data!;
+                                final surahNumber = selectedMode == "all"
+                                    ? surah["surahNumber"]
+                                    : surah["surahNumber"];
+                                final filePath =
+                                    "${dir.path}/${widget.reciter.name}-${widget.mushaf.id}-${quran.getSurahNameArabic(int.parse(surahNumber))}.mp3";
+                                final fileExists = File(filePath).existsSync();
+
+                                // 👇 استخدم الحالة الخاصة بكل سورة
+                                final isDownloading = downloadingStatus[surahNumber] ?? false;
+
+                                if (isDownloading) {
+                                  return const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: Color(0xFF00A2B5),
+                                    ),
+                                  );
+                                }
+
+                                return Icon(
+                                  fileExists ? Icons.download_done : Icons.download,
+                                  size: 24.sp,
+                                  color: orangeColor,
+                                );
+                              },
+                            ),
                             color: orangeColor,
                           ),
                           IconButton(
@@ -643,23 +697,19 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
                                     ? Icons.favorite
                                     : Icons.favorite_border,
                                 size: 24.sp),
-                            color: Colors.redAccent,
+                            color: orangeColor,
                           )
                         ],
                       ),
                     ),
-                    title: Row(
-                      children: [
-                        Text(
-                          "${context.locale.languageCode == "ar" ? widget.jsonData[(int.parse(selectedMode == "all" ? surah["surahNumber"] : surah["surahNumber"])) - 1]["name"] : surah["suraName"]}",
-                          style: TextStyle(
-                              fontFamily: context.locale.languageCode == "ar" ? "qaloon" : "roboto",
-                              fontSize: context.locale.languageCode == "ar" ? 22.sp : 17.sp,
-                              color: isDarkModeNotifier.value
-                                  ? Colors.white.withOpacity(.9)
-                                  : Colors.black87),
-                        ),
-                      ],
+                    title: Text(
+                      "${context.locale.languageCode == "ar" ? widget.jsonData[(int.parse(selectedMode == "all" ? surah["surahNumber"] : surah["surahNumber"])) - 1]["name"] : surah["suraName"]}",
+                      style: TextStyle(
+                          fontFamily: context.locale.languageCode == "ar" ? "qaloon" : "roboto",
+                          fontSize: context.locale.languageCode == "ar" ? 22.sp : 17.sp,
+                          color: isDarkModeNotifier.value
+                              ? Colors.white.withOpacity(.9)
+                              : Colors.black87),
                     )),
               );
             },

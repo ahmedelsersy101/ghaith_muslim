@@ -405,14 +405,26 @@ class _HomeState extends State<Home>
                             ? quranPagesColorDark.withOpacity(0.5)
                             : quranPagesColorLight,
                         centerTitle: true,
-                        title: Text(
-                          'main'.tr(),
-                          style: TextStyle(
-                              color: isDarkModeNotifier.value ? backgroundColor : Colors.black,
-                              fontFamily: "cairo",
-                              fontSize: 32.sp),
+                        title: Column(
+                          children: [
+                            Text(
+                              'main'.tr(),
+                              style: TextStyle(
+                                  color: isDarkModeNotifier.value ? backgroundColor : Colors.black,
+                                  fontFamily: "cairo",
+                                  fontSize: 32.sp),
+                            ),
+                          ],
                         ),
-                        automaticallyImplyLeading: false,
+                        leading: IconButton(
+                            onPressed: () {
+                              Navigator.push(context,
+                                  CupertinoPageRoute(builder: (builder) => const SettingsView()));
+                            },
+                            icon: const Icon(
+                              Icons.settings,
+                              color: Colors.black,
+                            )),
                       ),
                       body: SizedBox(
                         width: screenSize.width,
@@ -503,6 +515,23 @@ class _HomeState extends State<Home>
                 imagePath: isDarkModeNotifier.value
                     ? "assets/images/wqlogo.png"
                     : "assets/images/qlogo.png"),
+            SuperellipseButton(
+                text: "Hadith".tr(),
+                onPressed: () {
+                  // SystemChrome.setEnabledSystemUIMode(
+                  //     SystemUiMode.immersiveSticky);
+
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (builder) => BlocProvider(
+                                create: (context) => hadithPageBloc,
+                                child: HadithBooksPage(locale: context.locale.languageCode),
+                              )));
+                },
+                imagePath: isDarkModeNotifier.value
+                    ? "assets/images/wmuhammed.png"
+                    : "assets/images/muhammed.png"),
             GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -519,23 +548,7 @@ class _HomeState extends State<Home>
                   //     imagePath: isDarkModeNotifier.value
                   //         ? "assets/images/wnames.png"
                   //         : "assets/images/names.png"),
-                  SuperellipseButton(
-                      text: "Hadith".tr(),
-                      onPressed: () {
-                        // SystemChrome.setEnabledSystemUIMode(
-                        //     SystemUiMode.immersiveSticky);
 
-                        Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (builder) => BlocProvider(
-                                      create: (context) => hadithPageBloc,
-                                      child: HadithBooksPage(locale: context.locale.languageCode),
-                                    )));
-                      },
-                      imagePath: isDarkModeNotifier.value
-                          ? "assets/images/wmuhammed.png"
-                          : "assets/images/muhammed.png"),
                   SuperellipseButton(
                       text: "azkar".tr(),
                       onPressed: () {
@@ -563,7 +576,6 @@ class _HomeState extends State<Home>
                           ? "assets/images/wquranlogo.png"
                           : "assets/images/quranlogo.png"),
 
-
                   SuperellipseButton(
                       text: "sibha".tr(),
                       onPressed: () async {
@@ -582,15 +594,15 @@ class _HomeState extends State<Home>
                       imagePath: isDarkModeNotifier.value
                           ? "assets/images/wcalender.png"
                           : "assets/images/calender.png"),
-                  SuperellipseButton(
-                      text: "settings".tr(),
-                      onPressed: () {
-                        Navigator.push(context,
-                            CupertinoPageRoute(builder: (builder) => const SettingsView()));
-                      },
-                      imagePath: isDarkModeNotifier.value
-                          ? "assets/images/wsetting.png"
-                          : "assets/images/setting.png"),
+                  // SuperellipseButton(
+                  //     text: "settings".tr(),
+                  //     onPressed: () {
+                  //       Navigator.push(context,
+                  //           CupertinoPageRoute(builder: (builder) => const SettingsView()));
+                  //     },
+                  //     imagePath: isDarkModeNotifier.value
+                  //         ? "assets/images/wsetting.png"
+                  //         : "assets/images/setting.png"),
                   // SuperellipseButton(
                   //     text: "notifications".tr(),
                   //     onPressed: () async {
@@ -609,27 +621,27 @@ class _HomeState extends State<Home>
                   //                   const LiveTvPage()));
                   //     },
                   //     imagePath: "assets/images/tv.png"),
-                //   SuperellipseButton(
-                //       text: "radios".tr(),
-                //       onPressed: () {
-                //         Navigator.push(
-                //             context,
-                //             CupertinoPageRoute(
-                //                 builder: (builder) =>
-                //                     const RadioPage()));
-                //       },
-                //       imagePath:
-                //           "assets/images/radio.png"),
-                //           SuperellipseButton(
-                //   text: "Short Videos".tr(),
-                //   onPressed: () {
-                //     Navigator.push(
-                //         context,
-                //         CupertinoPageRoute(
-                //             builder: (builder) =>
-                //                 const ContentScreen()));
-                //   },
-                //   imagePath: "assets/images/play.png"),
+                  //   SuperellipseButton(
+                  //       text: "radios".tr(),
+                  //       onPressed: () {
+                  //         Navigator.push(
+                  //             context,
+                  //             CupertinoPageRoute(
+                  //                 builder: (builder) =>
+                  //                     const RadioPage()));
+                  //       },
+                  //       imagePath:
+                  //           "assets/images/radio.png"),
+                  //           SuperellipseButton(
+                  //   text: "Short Videos".tr(),
+                  //   onPressed: () {
+                  //     Navigator.push(
+                  //         context,
+                  //         CupertinoPageRoute(
+                  //             builder: (builder) =>
+                  //                 const ContentScreen()));
+                  //   },
+                  //   imagePath: "assets/images/play.png"),
                 ]),
             wedgitAya(context, screenSize),
             wedgitHadith(screenSize),
@@ -826,7 +838,6 @@ class _HomeState extends State<Home>
                                                                             CupertinoPageRoute(
                                                                                 builder: (builder) =>
                                                                                     ScreenShotPreviewPage(
-                                                                                        isQCF: true,
                                                                                         index: 5,
                                                                                         surahNumber:
                                                                                             suranumber,

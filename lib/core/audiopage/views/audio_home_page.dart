@@ -774,22 +774,22 @@ class _RecitersPageState extends State<RecitersPage> {
                                                                         Icons.play_circle_outline,
                                                                         color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
                                                                       )),
-                                                                  // IconButton(
-                                                                  //     onPressed: () {
-                                                                  //       playerPageBloc.add(
-                                                                  //           DownloadAllSurahs(
-                                                                  //               moshaf: e,
-                                                                  //               reciter: reciter));
-                                                                  //     },
-                                                                  //     icon: Icon(
-                                                                  //       size: 20.sp,
-                                                                  //       Icons.download,
-                                                                  //       color: blueColor,
-                                                                  //     )),
-                                                                  //  SizedBox(
-                                                                  //   width:
-                                                                  //       10.w,
-                                                                  // ),
+                                                                  IconButton(
+                                                                      onPressed: () {
+                                                                        playerPageBloc.add(
+                                                                            DownloadAllSurahs(
+                                                                                moshaf: e,
+                                                                                reciter: reciter));
+                                                                      },
+                                                                      icon: Icon(
+                                                                        size: 20.sp,
+                                                                        Icons.download,
+                                                                        color: blueColor,
+                                                                      )),
+                                                                   SizedBox(
+                                                                    width:
+                                                                        10.w,
+                                                                  ),
                                                                 ],
                                                               ),
                                                             ),

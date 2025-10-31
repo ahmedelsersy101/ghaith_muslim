@@ -1,4 +1,7 @@
 // ignore_for_file: prefer_single_quotes, unused_field
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
+import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
 import 'package:ghaith/main.dart';
 import 'dart:convert';
 import 'package:easy_container/easy_container.dart';
@@ -646,9 +649,7 @@ class _SurahListPageState extends State<SurahListPage> {
                           child: Center(
                             child: Text(
                               suraNumberInQuran.toString(),
-                              style: TextStyle(
-                                  color: getValue("darkMode") ? Colors.white70 : Colors.black,
-                                  fontSize: 12.sp),
+                              style: TextStyle(color: orangeColor, fontSize: 14.sp),
                             ),
                           ),
                         ) //  Material(
@@ -659,17 +660,14 @@ class _SurahListPageState extends State<SurahListPage> {
                           width: 90.w,
                           child: Row(
                             children: [
-                              RichText(
-                                text: TextSpan(
-                                  text: "$suraNumber",
-                                  style: TextStyle(
-                                      // fontWeight: FontWeight.bold,
-                                      color: getValue("darkMode")
-                                          ? Colors.white70
-                                          : Colors.black, //fontWeight: FontWeight.bold,
-                                      fontSize: 28.sp, // Text color
-                                      fontFamily: "arsura"),
-                                ),
+                              Text(
+                                suraName,
+                                style: TextStyle(
+                                    // fontWeight: FontWeight.bold,
+                                    color: getValue("darkMode") ? Colors.white70 : Colors.black,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w700, // Text color
+                                    fontFamily: "uthmanic"),
                               ),
                               if (bookmarks.indexWhere((a) {
                                     return a.toString().split("-")[0] == "$suraNumberInQuran";
@@ -684,24 +682,39 @@ class _SurahListPageState extends State<SurahListPage> {
                             ],
                           ),
                         ),
-                        trailing: Text(
-                          "آيـاتها ($ayahCount)",
+                        subtitle: Text(
+                          "$suraNameEnglishTranslated ($ayahCount)",
                           style: TextStyle(
                               fontFamily: "uthmanic",
                               fontSize: 14.sp,
                               color: Colors.grey.withOpacity(.8)),
                         ),
+                        trailing: RichText(
+                          text: TextSpan(
+                            text: "$suraNumber",
+                            style: TextStyle(
+                                // fontWeight: FontWeight.bold,
+                                color: getValue("darkMode")
+                                    ? Colors.white70
+                                    : Colors.black, //fontWeight: FontWeight.bold,
+                                fontSize: 28.sp, // Text color
+                                fontFamily: "arsura"),
+                          ),
+                        ),
                         onTap: () async {
                           await Navigator.push(
                               context,
                               CupertinoPageRoute(
-                                  builder: (builder) => QuranDetailsPage(
-                                      shouldHighlightSura: true,
-                                      shouldHighlightText: false,
-                                      highlightVerse: "",
-                                      jsonData: widget.jsonData,
-                                      quarterJsonData: widget.quarterjsonData,
-                                      pageNumber: quran.getPageNumber(suraNumberInQuran, 1))));
+                                  builder: (builder) => BlocProvider(
+                                        create: (context) => QuranPagePlayerBloc(),
+                                        child: QuranDetailsPage(
+                                            shouldHighlightSura: true,
+                                            shouldHighlightText: false,
+                                            highlightVerse: "",
+                                            jsonData: widget.jsonData,
+                                            quarterJsonData: widget.quarterjsonData,
+                                            pageNumber: quran.getPageNumber(suraNumberInQuran, 1)),
+                                      )));
                           // Handle tapping on a sura item here
                           // You can navigate to the sura details page or perform any other action.
                         },
@@ -756,77 +769,77 @@ class _SurahListPageState extends State<SurahListPage> {
 
   PreferredSize appBarSurahListView(BuildContext context) {
     return PreferredSize(
-              preferredSize: Size(MediaQuery.of(context).size.width.w, 80.h),
-              child: AppBar(
-                actions: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4.0.w, vertical: 8.h),
-                    child: Builder(builder: (context) {
-                      return IconButton(
-                          onPressed: () {
-                            Scaffold.of(context).openEndDrawer();
-                          },
-                          icon: const Icon(
-                            Iconsax.bookmark,
-                            color: backgroundColor,
-                          ));
-                    }),
-                  )
-                ],
-                leading: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: 8.h),
-                  child: IconButton(
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        size: 20.sp,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      }),
-                ),
-                bottom: PreferredSize(
-                  preferredSize: Size(
-                    MediaQuery.of(context).size.width,
-                    MediaQuery.of(context).size.height * 0.04,
-                  ),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * 0.04,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent, // Change this to your desired color
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: TabBar(
-                      indicatorPadding: EdgeInsets.symmetric(horizontal: 35.w),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicatorColor: Colors.white,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white,
-                      indicatorWeight: 4,
-                      indicatorAnimation: TabIndicatorAnimation.elastic,
-                      tabs: tabs,
-                      onTap: (index) {
-                        setState(() {
-                          _currentIndex = index;
-                        });
-                        // if(index==1)getJuzNumber();
-                      },
-                    ),
-                  ),
-                ),
-                elevation: 0,
-                centerTitle: true,
-                backgroundColor: isDarkModeNotifier.value ? darkModeSecondaryColor : orangeColor,
-                title: Text(
-                  "alQuran".tr(),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.sp,
-                  ),
-                ),
+      preferredSize: Size(MediaQuery.of(context).size.width.w, 80.h),
+      child: AppBar(
+        actions: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.0.w, vertical: 8.h),
+            child: Builder(builder: (context) {
+              return IconButton(
+                  onPressed: () {
+                    Scaffold.of(context).openEndDrawer();
+                  },
+                  icon: const Icon(
+                    Iconsax.bookmark,
+                    color: backgroundColor,
+                  ));
+            }),
+          )
+        ],
+        leading: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: 8.h),
+          child: IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 20.sp,
+                color: Colors.white,
               ),
-            );
+              onPressed: () {
+                Navigator.pop(context);
+              }),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size(
+            MediaQuery.of(context).size.width,
+            MediaQuery.of(context).size.height * 0.04,
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.04,
+            decoration: BoxDecoration(
+              color: Colors.transparent, // Change this to your desired color
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: TabBar(
+              indicatorPadding: EdgeInsets.symmetric(horizontal: 35.w),
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorColor: Colors.white,
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white,
+              indicatorWeight: 4,
+              indicatorAnimation: TabIndicatorAnimation.elastic,
+              tabs: tabs,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+                // if(index==1)getJuzNumber();
+              },
+            ),
+          ),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: isDarkModeNotifier.value ? darkModeSecondaryColor : orangeColor,
+        title: Text(
+          "alQuran".tr(),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.sp,
+          ),
+        ),
+      ),
+    );
   }
 
   Container bookMarksListView(BuildContext context) {

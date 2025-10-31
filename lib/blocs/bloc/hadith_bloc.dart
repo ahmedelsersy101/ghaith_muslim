@@ -19,18 +19,31 @@ class HadithBloc extends Bloc<HadithEvent, HadithState> {
       if (event is DownloadHadithBook) {
         var appDir = await path_provider.getTemporaryDirectory();
 
-        PermissionStatus status = await Permission.storage.request();
-        //PermissionStatus status1 = await Permission.accessMediaLocation.request();
-        PermissionStatus status2 =
-            await Permission.manageExternalStorage.request();
-        print('status $status   -> $status2');
-        if (status.isGranted && status2.isGranted) {
-          print(true);
-        } else if (status.isPermanentlyDenied || status2.isPermanentlyDenied) {
-          await openAppSettings();
-        } else if (status.isDenied) {
-          print('Permission Denied');
+        // 🧠 طلب صلاحيات التخزين حسب نظام التشغيل
+        if (Platform.isAndroid) {
+          if (await Permission.manageExternalStorage.isGranted ||
+              await Permission.storage.isGranted ||
+              await Permission.mediaLibrary.isGranted ||
+              await Permission.videos.isGranted ||
+              await Permission.photos.isGranted) {
+            print('✅ Storage permission already granted');
+          } else {
+            final statuses = await [
+              Permission.manageExternalStorage,
+              Permission.storage,
+              Permission.mediaLibrary,
+            ].request();
+
+            if (statuses.values.any((status) => status.isGranted)) {
+              print('✅ Permission granted');
+            } else {
+              print('❌ Permission denied');
+              await openAppSettings();
+              return;
+            }
+          }
         }
+
 
         await dio.Dio().download(
           "$baseHadithUrl/${event.filename}",
