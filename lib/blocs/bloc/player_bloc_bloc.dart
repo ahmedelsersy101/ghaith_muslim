@@ -49,12 +49,11 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           } else {
             return {
               'link': Uri.parse("${event.moshaf.server}/${e.toString().padLeft(3, "0")}.mp3")
-                  .replace(scheme: 'http'),
+                  .replace(scheme: 'https'),
               'suraNumber': e,
             };
           }
         }).toList();
-
         var playList = reciterLinks.map((e) {
           return AudioSource.uri(
             e['link'],
@@ -191,7 +190,6 @@ class PlayerBlocBloc extends Bloc<PlayerBlocEvent, PlayerBlocState> {
           }
         }
       }
-
       // 🎧 إغلاق المشغّل
       else if (event is ClosePlayerEvent) {
         audioPlayer.dispose();

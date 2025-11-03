@@ -5,126 +5,265 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:share_plus/share_plus.dart';
+
+// =============================================
+// 📁 IMPORTS - يمكن نقلها لملف imports منفصل
+// =============================================
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/core/hadith/models/hadith.dart';
 import 'package:ghaith/core/hadith/views/widgets/screenshot_preview.dart';
-import 'package:share_plus/share_plus.dart';
+
+// =============================================
+// 🏗️ MAIN WIDGET - Sharing Options
+// =============================================
 
 class SharingOptions extends StatefulWidget {
-  final data;
+  final dynamic data;
   final bool isImage;
-  const SharingOptions({super.key, required this.data, required this.isImage});
+
+  const SharingOptions({
+    super.key,
+    required this.data,
+    required this.isImage,
+  });
 
   @override
   State<SharingOptions> createState() => _SharingOptionsState();
 }
 
+// =============================================
+// 🔧 STATE CLASS - Sharing Options Logic
+// =============================================
+
 class _SharingOptionsState extends State<SharingOptions> {
-  bool val1 = false;
-  bool val2 = false;
-  bool val3 = false;
-  bool val4 = true;
+  // =============================================
+  // 🎛️ STATE VARIABLES - خيارات المشاركة
+  // =============================================
+  bool _includeExplanation = false;
+  bool _includeMeanings = false;
+  final bool _includeArabic = true;
+
+  // =============================================
+  // 🎯 MAIN BUILD METHOD
+  // =============================================
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(12), topRight: Radius.circular(12)),
-          color: Colors.white),
+      decoration: _buildContainerDecoration(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: Text(
-              widget.isImage ? "asimage".tr() : "astext".tr(),
-              style: TextStyle(fontSize: 18.sp),
-            ),
-          ),
-          // if (context.locale.languageCode != "ar")
-          //   SwitchListTile(
-          //       title: const Text("Share Arabic"),
-          //       value: val4,
-          //       onChanged: (v) {
-          //         setState(() {
-          //           val4 = v;
-          //         });
-          //       }),
-          SwitchListTile(
-              title: Text("explanation".tr()),
-              value: val1,
-              onChanged: (v) {
-                setState(() {
-                  val1 = v;
-                });
-              }),
-          SwitchListTile(
-              title: Text("meanings".tr()),
-              value: val2,
-              onChanged: (v) {
-                setState(() {
-                  val2 = v;
-                });
-              }),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: EasyContainer(
-                onTap: (() {
-                  String textAr = "";
-                  String textOtherLanguage = "";
-                  var hadithOtherLanguage = widget.data["hadithOtherLanguage"];
-                  Hadith hadithAr = widget.data["hadithAr"];
-                  if (val4) {
-                    textAr = hadithAr.hadeeth +
-                        "\n" +
-                        '[${hadithAr.attribution}] - [${hadithAr.grade}]';
-                    if (context.locale.languageCode != "ar") {
-                      textOtherLanguage = hadithOtherLanguage["hadeeth"] +
-                          "\n" +
-                          '${hadithOtherLanguage["attribution"]} - [${hadithOtherLanguage["grade"]}]';
-                    }
-                  }
-                  if (val1) {
-                    textAr = "$textAr\n\nشرح الحديث: \n${hadithAr.explanation}";
-                    if (context.locale.languageCode != "ar") {
-                      textOtherLanguage =
-                          "$textOtherLanguage/n Explanation :${hadithOtherLanguage["explanation"]}";
-                    }
-                  }
-
-                  if (val2 && hadithAr.wordsMeanings.isNotEmpty) {
-                    textAr = "$textAr\nمعاني الكلمات :\n";
-                    for (var i = 0; i < hadithAr.wordsMeanings.length; i++) {
-                      textAr =
-                          "$textAr${"- ${hadithAr.wordsMeanings[i].word}:${hadithAr.wordsMeanings[i].meaning}"}";
-                    }
-                  }
-
-                  widget.isImage
-                      ? Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (builder) => HadithScreenShotPreviewPage(
-                                    hadithAr: hadithAr,
-                                    addExplanation: val1,
-                                    addMeanings: val2,
-                                    hadithOtherLanguage: hadithOtherLanguage,
-                                  )))
-                      : Share.share("$textAr\n$textOtherLanguage");
-                }),
-                borderRadius: 22,
-                color: orangeColor,
-                child: Text(
-                  widget.isImage ? "preview".tr() : "share".tr(),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.sp,
-                  ),
-                )),
-          )
+          _buildHeader(),
+          _buildSharingOptions(),
+          _buildActionButton(),
         ],
       ),
     );
+  }
+
+  // =============================================
+  // 🧩 WIDGET COMPONENTS - يمكن نقلها لملف widgets منفصل
+  // =============================================
+
+  // [CAN_BE_EXTRACTED] -> widgets/decorations.dart
+  BoxDecoration _buildContainerDecoration() {
+    return const BoxDecoration(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(12),
+        topRight: Radius.circular(12),
+      ),
+      color: Colors.white,
+    );
+  }
+
+  // [CAN_BE_EXTRACTED] -> widgets/sharing_header.dart
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Text(
+        widget.isImage ? "asimage".tr() : "astext".tr(),
+        style: TextStyle(fontSize: 18.sp),
+      ),
+    );
+  }
+
+  // [CAN_BE_EXTRACTED] -> widgets/sharing_options_list.dart
+  Widget _buildSharingOptions() {
+    return Column(
+      children: [
+        // يمكن إضافة خيار اللغة العربية لاحقاً إذا لزم الأمر
+        // _buildArabicOption(),
+        _buildExplanationOption(),
+        _buildMeaningsOption(),
+      ],
+    );
+  }
+
+  // [CAN_BE_EXTRACTED] -> widgets/switch_option.dart
+  Widget _buildExplanationOption() {
+    return SwitchListTile(
+      title: Text("explanation".tr()),
+      value: _includeExplanation,
+      onChanged: _onExplanationChanged,
+    );
+  }
+
+  // [CAN_BE_EXTRACTED] -> widgets/switch_option.dart
+  Widget _buildMeaningsOption() {
+    return SwitchListTile(
+      title: Text("meanings".tr()),
+      value: _includeMeanings,
+      onChanged: _onMeaningsChanged,
+    );
+  }
+
+  // [CAN_BE_EXTRACTED] -> widgets/action_button.dart
+  Widget _buildActionButton() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: EasyContainer(
+        onTap: _handleSharingAction,
+        borderRadius: 22,
+        color: orangeColor,
+        child: Text(
+          widget.isImage ? "preview".tr() : "share".tr(),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18.sp,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =============================================
+  // 🔧 EVENT HANDLERS - معالجات الأحداث
+  // =============================================
+
+  void _onExplanationChanged(bool value) {
+    setState(() {
+      _includeExplanation = value;
+    });
+  }
+
+  void _onMeaningsChanged(bool value) {
+    setState(() {
+      _includeMeanings = value;
+    });
+  }
+
+  // =============================================
+  // 🚀 SHARING LOGIC - منطق المشاركة
+  // =============================================
+
+  // [CAN_BE_EXTRACTED] -> services/sharing_service.dart
+  void _handleSharingAction() {
+    if (widget.isImage) {
+      _navigateToImagePreview();
+    } else {
+      _shareAsText();
+    }
+  }
+
+  // [CAN_BE_EXTRACTED] -> services/sharing_service.dart
+  void _navigateToImagePreview() {
+    final hadithAr = widget.data["hadithAr"] as Hadith;
+    final hadithOtherLanguage = widget.data["hadithOtherLanguage"];
+
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (builder) => HadithScreenShotPreviewPage(
+          hadithAr: hadithAr,
+          addExplanation: _includeExplanation,
+          addMeanings: _includeMeanings,
+          hadithOtherLanguage: hadithOtherLanguage,
+        ),
+      ),
+    );
+  }
+
+  // [CAN_BE_EXTRACTED] -> services/sharing_service.dart
+  void _shareAsText() {
+    final shareText = _buildShareText();
+    Share.share(shareText);
+  }
+
+  // [CAN_BE_EXTRACTED] -> services/text_builder_service.dart
+  String _buildShareText() {
+    final hadithAr = widget.data["hadithAr"] as Hadith;
+    final hadithOtherLanguage = widget.data["hadithOtherLanguage"];
+
+    String arabicText = _buildArabicText(hadithAr);
+    String otherLanguageText = _buildOtherLanguageText(hadithOtherLanguage);
+
+    return _combineTexts(arabicText, otherLanguageText);
+  }
+
+  // [CAN_BE_EXTRACTED] -> services/text_builder_service.dart
+  String _buildArabicText(Hadith hadithAr) {
+    if (!_includeArabic) return "";
+
+    String text = "${hadithAr.hadeeth}\n" '[${hadithAr.attribution}] - [${hadithAr.grade}]';
+
+    if (_includeExplanation) {
+      text = "$text\n\nشرح الحديث: \n${hadithAr.explanation}";
+    }
+
+    if (_includeMeanings && hadithAr.wordsMeanings.isNotEmpty) {
+      text = "$text\nمعاني الكلمات :\n${_buildWordsMeanings(hadithAr)}";
+    }
+
+    return text;
+  }
+
+  // [CAN_BE_EXTRACTED] -> services/text_builder_service.dart
+  String _buildOtherLanguageText(dynamic hadithOtherLanguage) {
+    if (context.locale.languageCode == "ar") return "";
+
+    String text = "";
+
+    if (_includeArabic) {
+      text = "${hadithOtherLanguage["hadeeth"]}\n" '${hadithOtherLanguage["attribution"]} - [${hadithOtherLanguage["grade"]}]';
+    }
+
+    if (_includeExplanation) {
+      final explanationText = _includeArabic
+          ? "/n Explanation :${hadithOtherLanguage["explanation"]}"
+          : "Explanation :${hadithOtherLanguage["explanation"]}";
+      text = "$text$explanationText";
+    }
+
+    return text;
+  }
+
+  // [CAN_BE_EXTRACTED] -> services/text_builder_service.dart
+  String _buildWordsMeanings(Hadith hadithAr) {
+    final wordsMeanings = StringBuffer();
+
+    for (var i = 0; i < hadithAr.wordsMeanings.length; i++) {
+      wordsMeanings.write(
+        "- ${hadithAr.wordsMeanings[i].word}:${hadithAr.wordsMeanings[i].meaning}",
+      );
+
+      if (i < hadithAr.wordsMeanings.length - 1) {
+        wordsMeanings.write("\n");
+      }
+    }
+
+    return wordsMeanings.toString();
+  }
+
+  // [CAN_BE_EXTRACTED] -> services/text_builder_service.dart
+  String _combineTexts(String arabicText, String otherLanguageText) {
+    if (arabicText.isNotEmpty && otherLanguageText.isNotEmpty) {
+      return "$arabicText\n\n$otherLanguageText";
+    } else if (arabicText.isNotEmpty) {
+      return arabicText;
+    } else {
+      return otherLanguageText;
+    }
   }
 }

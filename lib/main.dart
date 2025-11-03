@@ -10,312 +10,119 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as notificationPlugin;
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
+import 'package:easy_localization/easy_localization.dart' as ez;
+import 'package:workmanager/workmanager.dart';
+
+// =============================================
+// 📁 IMPORTS - يمكن نقلها لملف imports منفصل
+// =============================================
 import 'package:ghaith/blocs/bloc/bloc/player_bar_bloc.dart';
 import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
 import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
-import 'package:just_audio/just_audio.dart';
-// import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 import 'package:ghaith/blocs/bloc/observer.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';
-import 'package:easy_localization/easy_localization.dart' as ez;
+import 'package:ghaith/GlobalHelpers/messaging_helper.dart';
 import 'package:ghaith/core/home.dart';
 import 'package:ghaith/core/notifications/data/40hadith.dart';
 import 'package:ghaith/core/notifications/views/small_notification_popup.dart';
 import 'package:ghaith/core/splash/splash_screen.dart';
-// import 'package:ghaith/views/notifications/alert_window_notifcations.dart';
 import 'package:quran/quran.dart';
-// import 'package:flutter_sliding_box/flutter_sliding_box.dart';
-import 'package:workmanager/workmanager.dart';
-import 'GlobalHelpers/messaging_helper.dart';
 
-// import 'package:alarm/alarm.dart';
+// =============================================
+// 🎛️ GLOBAL VARIABLES & INITIALIZATION
+// =============================================
+
+// [CAN_BE_EXTRACTED] -> globals/app_globals.dart
 final AudioPlayer audioPlayer = AudioPlayer();
 final ValueNotifier<bool> isDarkModeNotifier = ValueNotifier(getValue("darkMode") ?? false);
 
-// import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await ez.EasyLocalization.ensureInitialized();
+// =============================================
+// 🚀 MAIN APPLICATION ENTRY POINT
+// =============================================
 
-// await PeriodicAlarm.init();
+void main() async {
+  await _initializeApp();
+
+  runApp(ez.EasyLocalization(
+    supportedLocales: const [
+      Locale("ar"),
+      Locale('en'),
+      Locale('de'),
+      Locale("am"),
+      Locale("ms"),
+      Locale("pt"),
+      Locale("tr"),
+      Locale("ru")
+    ],
+    path: 'assets/translations',
+    fallbackLocale: const Locale('ar'),
+    child: MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => PlayerBlocBloc()),
+        BlocProvider(create: (_) => QuranPagePlayerBloc()),
+        BlocProvider(create: (_) => PlayerBarBloc()),
+      ],
+      child: const MyApp(),
+    ),
+  ));
+}
+
+// =============================================
+// 🔧 INITIALIZATION METHODS - يمكن نقلها لملف initialization_service.dart
+// =============================================
+
+// [CAN_BE_EXTRACTED] -> services/initialization_service.dart
+Future<void> _initializeApp() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await _initializeDependencies();
+  await _configureSystemSettings();
+  await _initializeWorkManager();
+}
+
+// [CAN_BE_EXTRACTED] -> services/initialization_service.dart
+Future<void> _initializeDependencies() async {
+  await ez.EasyLocalization.ensureInitialized();
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.yourapp.audio',
     androidNotificationChannelName: 'Quran Player',
     androidNotificationOngoing: true,
   );
-
-  // we are not checking the status as it is an example app. You should (must) check it in a production app
-
-  // You have set this otherwise it throws AppFolderNotSetException
-
-  // HydratedBloc.storage = await HydratedStorage.build(
-  //   storageDirectory: await getApplicationDocumentsDirectory(),
-  // );
-  Workmanager().initialize(callbackDispatcher, // The top level function, aka callbackDispatcher
-      isInDebugMode:
-          false // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-      );
-  // await AndroidAlarmManager.initialize();
   await initializeHive();
+}
+
+// [CAN_BE_EXTRACTED] -> services/initialization_service.dart
+Future<void> _configureSystemSettings() async {
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, statusBarIconBrightness: Brightness.light));
-  Bloc.observer = SimpleBlocObserver();
-  runApp(ez.EasyLocalization(
-      //startLocale: const Locale("ar"),
-      supportedLocales: const [
-        Locale("ar"),
-        Locale('en'),
-        Locale('de'),
-        Locale("am"),
-        // Locale("jp"),
-        Locale("ms"),
-        Locale("pt"),
-        Locale("tr"),
-        Locale("ru")
-      ],
-      path: 'assets/translations', // <-- change the path of the translation files
-      fallbackLocale: const Locale('ar'),
-      child: MultiBlocProvider(
-         providers: [
-        BlocProvider(create: (_) => PlayerBlocBloc()),
-        BlocProvider(create: (_) => QuranPagePlayerBloc()),
-        BlocProvider(create: (_) => PlayerBarBloc()),
-      ],
-        child: const MyApp())));
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+  ));
+
+  await _setOptimalDisplayMode();
 }
 
-@pragma("vm:entry-point")
-void overlayMain() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    const TrueCallerOverlay(),
+// [CAN_BE_EXTRACTED] -> services/initialization_service.dart
+Future<void> _initializeWorkManager() async {
+  Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: false,
   );
+
+  Bloc.observer = SimpleBlocObserver();
 }
 
-@pragma('vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    WidgetsFlutterBinding.ensureInitialized();
+// =============================================
+// 🎯 DISPLAY OPTIMIZATION - يمكن نقلها لملف display_service.dart
+// =============================================
 
-    if (task == "zikrNotification") {
-      if (await FlutterOverlayWindow.isActive()) {
-        FlutterOverlayWindow.closeOverlay();
-        // return;
-      }
-      //300/700 ان الله وملائكته
-      //سبحان الله      //  height: 150,
-      // width: 240,
-      // final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      // int? index = prefs.getInt("zikrNotificationindex") ?? 0;
-// Calculate the text size
-      // print(ayahNotfications[index].trim().length *3);
-      // print(ayahNotfications[index].trim().length *3);
-
-      await FlutterOverlayWindow.showOverlay(
-        enableDrag: true,
-        overlayTitle: "Zikr Notification",
-        alignment: OverlayAlignment.center,
-        overlayContent: 'Overlay Enabled',
-        flag: OverlayFlag.defaultFlag,
-        visibility: NotificationVisibility.visibilityPublic,
-        positionGravity: PositionGravity.auto,
-        height: 400,
-        width: WindowSize.matchParent,
-      );
-    } else if (task == "zikrNotificationTest") {
-      if (await FlutterOverlayWindow.isActive()) {
-        FlutterOverlayWindow.closeOverlay();
-        // return;
-      }
-      //300/700 ان الله وملائكته
-      //سبحان الله      //  height: 150,
-      // width: 240,
-      // final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      // int? index = prefs.getInt("zikrNotificationindex") ?? 0;
-// Calculate the text size
-      // print(ayahNotfications[index].trim().length *3);
-      // print(ayahNotfications[index].trim().length *3);
-
-      await FlutterOverlayWindow.showOverlay(
-        enableDrag: true,
-        overlayTitle: "Zikr Notification",
-        alignment: OverlayAlignment.center,
-        overlayContent: 'Overlay Enabled',
-        flag: OverlayFlag.defaultFlag,
-        visibility: NotificationVisibility.visibilityPublic,
-        positionGravity: PositionGravity.auto,
-        height: 400,
-        width: WindowSize.matchParent,
-      );
-    } else if (task == "zikrNotification2") {
-//  final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      int? index = Random().nextInt(zikrNotfications.length);
-
-      flutterLocalNotificationsPlugin.show(
-          2,
-          zikrNotfications[index],
-          "",
-          notificationPlugin.NotificationDetails(
-              android: notificationPlugin.AndroidNotificationDetails(
-                  styleInformation: notificationPlugin.BigTextStyleInformation(
-                    zikrNotfications[index], contentTitle: "Zikr",
-                    htmlFormatBigText: true,
-
-                    // htmlFormatBigText: true
-                  ),
-                  "channelId2",
-                  importance: notificationPlugin.Importance.max,
-                  groupKey: "zikr,",
-                  "Zikr",
-                  icon: '@mipmap/ic_launcher')));
-
-      ///show local notification
-      ///
-    } else if (task == "zikrNotificationTest2") {
-      int? index = Random().nextInt(zikrNotfications.length);
-
-      flutterLocalNotificationsPlugin.show(
-          2,
-          zikrNotfications[index],
-          "",
-          notificationPlugin.NotificationDetails(
-              android: notificationPlugin.AndroidNotificationDetails(
-                  color: Colors.white,
-                  colorized: true,
-                  styleInformation: notificationPlugin.BigTextStyleInformation(
-                    zikrNotfications[index], contentTitle: "Zikr",
-                    htmlFormatBigText: true,
-
-                    // htmlFormatBigText: true
-                  ),
-                  "channelId2",
-                  importance: notificationPlugin.Importance.max,
-                  groupKey: "zikr,",
-                  "Zikr", //,ongoing: true
-                  icon: '@mipmap/ic_launcher')));
-
-      ///show local notification
-      ///
-    } else if (task == "ayahNot") {
-      int suraNumber = Random().nextInt(114) + 1;
-      int verseNumber = Random().nextInt(getVerseCount(suraNumber)) + 1;
-      flutterLocalNotificationsPlugin.show(
-          1,
-          getVerse(suraNumber, verseNumber),
-          "",
-          notificationPlugin.NotificationDetails(
-              android: notificationPlugin.AndroidNotificationDetails(
-                  color: Colors.white,
-                  styleInformation: notificationPlugin.BigTextStyleInformation(
-                    getVerse(suraNumber, verseNumber), contentTitle: "Ayah",
-                    htmlFormatBigText: true,
-
-                    // htmlFormatBigText: true
-                  ),
-                  "channelId",
-                  importance: notificationPlugin.Importance.max,
-                  groupKey: "verses,",
-                  "verses",
-                  icon: '@mipmap/ic_launcher')));
-
-      ///show local notification
-      ///
-    } else if (task == "ayahNotTest") {
-      int suraNumber = Random().nextInt(114) + 1;
-      int verseNumber = Random().nextInt(getVerseCount(suraNumber)) + 1;
-      flutterLocalNotificationsPlugin.show(
-          1,
-          getVerse(suraNumber, verseNumber),
-          "",
-          notificationPlugin.NotificationDetails(
-              android: notificationPlugin.AndroidNotificationDetails(
-                  color: Colors.white,
-                  styleInformation: notificationPlugin.BigTextStyleInformation(
-                    getVerse(suraNumber, verseNumber),
-                    contentTitle: "Ayah",
-                    htmlFormatBigText: true,
-                  ),
-                  "channelId",
-                  importance: notificationPlugin.Importance.max,
-                  groupKey: "verses,",
-                  "verses",
-                  icon: '@mipmap/ic_launcher')));
-
-      ///show local notification
-      ///
-    } else if (task == "hadithNot") {
-      int suraNumber = Random().nextInt(42);
-      flutterLocalNotificationsPlugin.show(
-          3,
-          hadithes[suraNumber]["hadith"],
-          "",
-          notificationPlugin.NotificationDetails(
-              android: notificationPlugin.AndroidNotificationDetails(
-                  color: Colors.white,
-                  styleInformation: notificationPlugin.BigTextStyleInformation(
-                    hadithes[suraNumber]["hadith"],
-                    contentTitle: "Hadith",
-                    htmlFormatBigText: true,
-                  ),
-                  "channelId",
-                  importance: notificationPlugin.Importance.max,
-                  groupKey: "vehadith,",
-                  "hadith",
-                  icon: '@mipmap/ic_launcher')));
-    } else if (task == "hadithNotTest") {
-      int suraNumber = Random().nextInt(42);
-      flutterLocalNotificationsPlugin.show(
-          3,
-          hadithes[suraNumber]["hadith"],
-          "",
-          notificationPlugin.NotificationDetails(
-              android: notificationPlugin.AndroidNotificationDetails(
-                  color: Colors.white,
-                  styleInformation: notificationPlugin.BigTextStyleInformation(
-                    hadithes[suraNumber]["hadith"],
-                    contentTitle: "Hadith",
-                    htmlFormatBigText: true,
-                  ),
-                  "channelId",
-                  importance: notificationPlugin.Importance.max,
-                  groupKey: "vehadith,",
-                  "hadith",
-                  icon: '@mipmap/ic_launcher')));
-
-      ///show local notification
-      ///
-    } else if (task == "sallahEnable") {
-      flutterLocalNotificationsPlugin.show(
-          3,
-          "صلِّ على النبي ﷺ",
-          "",
-          const notificationPlugin.NotificationDetails(
-              android: notificationPlugin.AndroidNotificationDetails(
-                  color: Colors.white,
-                  "channelId3",
-                  importance: notificationPlugin.Importance.max,
-                  groupKey: "sallah",
-                  "Sally",
-                  ongoing: true,
-                  icon: '@mipmap/ic_launcher')));
-    } else if (task == "sallahDisable") {
-      flutterLocalNotificationsPlugin.cancel(3);
-    }
-    print("Native called background task: $task"); //simpleTask will be emitted here.
-    return Future.value(true);
-  });
-}
-
-Future<void> setOptimalDisplayMode() async {
+// [CAN_BE_EXTRACTED] -> services/display_service.dart
+Future<void> _setOptimalDisplayMode() async {
   final List<DisplayMode> supported = await FlutterDisplayMode.supported;
   final DisplayMode active = await FlutterDisplayMode.active;
-// print(supported);
-// print(active.refreshRate);
 
   final List<DisplayMode> sameResolution = supported
       .where((DisplayMode m) => m.width == active.width && m.height == active.height)
@@ -323,13 +130,184 @@ Future<void> setOptimalDisplayMode() async {
     ..sort((DisplayMode a, DisplayMode b) => b.refreshRate.compareTo(a.refreshRate));
 
   final DisplayMode mostOptimalMode = sameResolution.isNotEmpty ? sameResolution.first : active;
-// print(mostOptimalMode.refreshRate);
-  /// This setting is per session.
-  /// Please ensure this was placed with `initState` of your root widget.
+
   await FlutterDisplayMode.setPreferredMode(mostOptimalMode);
-  //  final activee = await FlutterDisplayMode.active;
-  //   print(mostOptimalMode.refreshRate);
 }
+
+// =============================================
+// 🔔 OVERLAY ENTRY POINT - يمكن نقلها لملف overlay_service.dart
+// =============================================
+
+@pragma("vm:entry-point")
+void overlayMain() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const TrueCallerOverlay());
+}
+
+// =============================================
+// 📱 BACKGROUND TASK HANDLER - يمكن نقلها لملف notification_service.dart
+// =============================================
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    await _handleBackgroundTask(task);
+
+    print("Native called background task: $task");
+    return Future.value(true);
+  });
+}
+
+// [CAN_BE_EXTRACTED] -> services/notification_service.dart
+Future<void> _handleBackgroundTask(String task) async {
+  switch (task) {
+    case "zikrNotification":
+    case "zikrNotificationTest":
+      await _handleZikrOverlayNotification();
+      break;
+    case "zikrNotification2":
+    case "zikrNotificationTest2":
+      await _handleZikrLocalNotification();
+      break;
+    case "ayahNot":
+    case "ayahNotTest":
+      await _handleAyahNotification();
+      break;
+    case "hadithNot":
+    case "hadithNotTest":
+      await _handleHadithNotification();
+      break;
+    case "sallahEnable":
+      await _handleSalahNotification(true);
+      break;
+    case "sallahDisable":
+      await _handleSalahNotification(false);
+      break;
+  }
+}
+
+// [CAN_BE_EXTRACTED] -> services/notification_service.dart
+Future<void> _handleZikrOverlayNotification() async {
+  if (await FlutterOverlayWindow.isActive()) {
+    FlutterOverlayWindow.closeOverlay();
+  }
+
+  await FlutterOverlayWindow.showOverlay(
+    enableDrag: true,
+    overlayTitle: "Zikr Notification",
+    alignment: OverlayAlignment.center,
+    overlayContent: 'Overlay Enabled',
+    flag: OverlayFlag.defaultFlag,
+    visibility: NotificationVisibility.visibilityPublic,
+    positionGravity: PositionGravity.auto,
+    height: 400,
+    width: WindowSize.matchParent,
+  );
+}
+
+// [CAN_BE_EXTRACTED] -> services/notification_service.dart
+Future<void> _handleZikrLocalNotification() async {
+  final index = Random().nextInt(zikrNotfications.length);
+  final notificationDetails = notificationPlugin.NotificationDetails(
+    android: notificationPlugin.AndroidNotificationDetails(
+      color: Colors.white,
+      colorized: true,
+      styleInformation: notificationPlugin.BigTextStyleInformation(
+        zikrNotfications[index],
+        contentTitle: "Zikr",
+        htmlFormatBigText: true,
+      ),
+      "channelId2",
+      importance: notificationPlugin.Importance.max,
+      groupKey: "zikr,",
+      "Zikr",
+      icon: '@mipmap/ic_launcher',
+    ),
+  );
+
+  await flutterLocalNotificationsPlugin.show(2, zikrNotfications[index], "", notificationDetails);
+}
+
+// [CAN_BE_EXTRACTED] -> services/notification_service.dart
+Future<void> _handleAyahNotification() async {
+  final suraNumber = Random().nextInt(114) + 1;
+  final verseNumber = Random().nextInt(getVerseCount(suraNumber)) + 1;
+  final verseText = getVerse(suraNumber, verseNumber);
+
+  final notificationDetails = notificationPlugin.NotificationDetails(
+    android: notificationPlugin.AndroidNotificationDetails(
+      color: Colors.white,
+      styleInformation: notificationPlugin.BigTextStyleInformation(
+        verseText,
+        contentTitle: "Ayah",
+        htmlFormatBigText: true,
+      ),
+      "channelId",
+      importance: notificationPlugin.Importance.max,
+      groupKey: "verses,",
+      "verses",
+      icon: '@mipmap/ic_launcher',
+    ),
+  );
+
+  await flutterLocalNotificationsPlugin.show(1, verseText, "", notificationDetails);
+}
+
+// [CAN_BE_EXTRACTED] -> services/notification_service.dart
+Future<void> _handleHadithNotification() async {
+  final index = Random().nextInt(42);
+  final hadithText = hadithes[index]["hadith"];
+
+  final notificationDetails = notificationPlugin.NotificationDetails(
+    android: notificationPlugin.AndroidNotificationDetails(
+      color: Colors.white,
+      styleInformation: notificationPlugin.BigTextStyleInformation(
+        hadithText,
+        contentTitle: "Hadith",
+        htmlFormatBigText: true,
+      ),
+      "channelId",
+      importance: notificationPlugin.Importance.max,
+      groupKey: "vehadith,",
+      "hadith",
+      icon: '@mipmap/ic_launcher',
+    ),
+  );
+
+  await flutterLocalNotificationsPlugin.show(3, hadithText, "", notificationDetails);
+}
+
+// [CAN_BE_EXTRACTED] -> services/notification_service.dart
+Future<void> _handleSalahNotification(bool enable) async {
+  if (enable) {
+    const notificationDetails = notificationPlugin.NotificationDetails(
+      android: notificationPlugin.AndroidNotificationDetails(
+        color: Colors.white,
+        "channelId3",
+        importance: notificationPlugin.Importance.max,
+        groupKey: "sallah",
+        "Sally",
+        ongoing: true,
+        icon: '@mipmap/ic_launcher',
+      ),
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      3,
+      "صلِّ على النبي ﷺ",
+      "",
+      notificationDetails,
+    );
+  } else {
+    await flutterLocalNotificationsPlugin.cancel(3);
+  }
+}
+
+// =============================================
+// 🏗️ MAIN APPLICATION WIDGET
+// =============================================
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -338,45 +316,83 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+// =============================================
+// 🔧 MAIN APPLICATION STATE
+// =============================================
+
 class _MyAppState extends State<MyApp> {
-  setup() async {
-    // await    setupServiceLocator();
-  }
+  // =============================================
+  // 🎯 LIFECYCLE METHODS
+  // =============================================
+
   @override
   void initState() {
-    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-
-    // checkNotificationPermission();
-
     super.initState();
+    _setupApp();
   }
 
-  // BoxController boxController = BoxController();
-  // This widget is the root of your application.
+  // =============================================
+  // 🔧 SETUP METHODS - يمكن نقلها لملف app_service.dart
+  // =============================================
+
+  // [CAN_BE_EXTRACTED] -> services/app_service.dart
+  Future<void> _setupApp() async {
+    // يمكن إضافة إعدادات إضافية هنا إذا لزم الأمر
+  }
+
+  // =============================================
+  // 🧩 UI BUILD METHODS
+  // =============================================
+
   @override
   Widget build(BuildContext context) {
-    //print(context.locale.toLanguageTag());
     return ScreenUtilInit(
-        designSize: const Size(392.72727272727275, 800.7272727272727),
-        builder: (context, child) => BlocProvider(
-            create: (context) => playerbarBloc,
-            child: ValueListenableBuilder(
-                valueListenable: isDarkModeNotifier,
-                builder: (context, isDark, child) {
-                  return MaterialApp(
-                    debugShowCheckedModeBanner: false,
-                    title: 'غيث المسلم',
-                    localizationsDelegates: context.localizationDelegates,
-                    supportedLocales: context.supportedLocales,
-                    locale: context.locale,
-                    theme: ThemeData(
-                      fontFamily: context.locale.languageCode == "ar" ? "cairo" : "roboto",
-                      primarySwatch: Colors.blue,
-                    ),
-                    darkTheme: ThemeData.dark(),
-                    themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-                    home: const SplashScreen(),
-                  );
-                })));
+      designSize: const Size(392.72727272727275, 800.7272727272727),
+      builder: (context, child) => BlocProvider(
+        create: (context) => playerbarBloc,
+        child: ValueListenableBuilder(
+          valueListenable: isDarkModeNotifier,
+          builder: (context, isDark, child) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'غيث المسلم',
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
+              theme: _buildTheme(context, false),
+              darkTheme: _buildTheme(context, true),
+              themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+              home: const SplashScreen(),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // =============================================
+  // 🎨 THEME BUILDER - يمكن نقلها لملف app_themes.dart
+  // =============================================
+
+  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
+  ThemeData _buildTheme(BuildContext context, bool isDark) {
+    final fontFamily = _getFontFamily(context);
+
+    return isDark
+        ? ThemeData.dark().copyWith(
+            primaryColor: Colors.blue,
+            textTheme: ThemeData.dark().textTheme.apply(fontFamily: fontFamily),
+            primaryTextTheme: ThemeData.dark().primaryTextTheme.apply(fontFamily: fontFamily),
+          )
+        : ThemeData.light().copyWith(
+            primaryColor: Colors.blue,
+            textTheme: ThemeData.light().textTheme.apply(fontFamily: fontFamily),
+            primaryTextTheme: ThemeData.light().primaryTextTheme.apply(fontFamily: fontFamily),
+          );
+  }
+
+  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
+  String _getFontFamily(BuildContext context) {
+    return context.locale.languageCode == "ar" ? "cairo" : "roboto";
   }
 }

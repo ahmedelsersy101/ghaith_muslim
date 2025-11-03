@@ -11,6 +11,14 @@ class PlayFromVerse extends QuranPagePlayerEvent {
   PlayFromVerse(this.verse, this.reciterIdentifier, this.surahNumber, this.suraName);
 }
 
+class PlayFullSurah extends QuranPagePlayerEvent {
+  final String reciterIdentifier;
+  final int surahNumber;
+  final String suraName;
+
+  PlayFullSurah(this.reciterIdentifier, this.surahNumber, this.suraName);
+}
+
 class PausePlaying extends QuranPagePlayerEvent {}
 
 class StopPlaying extends QuranPagePlayerEvent {}

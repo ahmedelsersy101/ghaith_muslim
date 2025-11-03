@@ -17,7 +17,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.1+3
+version: 1.0.1+7
 
 environment:
   sdk: ">=2.18.2 <3.0.0"
@@ -33,16 +33,10 @@ dependencies:
   after_layout: ^1.2.0
   animate_do: null
   animations: null
-  arabic_roman_conv: null
-  audio_meta: ^1.2.0
   audio_session: null
-  auto_animated_list: ^2.0.0
-  auto_size_text: ^3.0.0
   azlistview: ^2.0.0
   back_button_interceptor: null
   cached_network_image: null
-  chewie: null
-  contextmenu: ^3.0.0
   cupertino_icons: ^1.0.2
   dio: null
   easy_container: null
@@ -52,12 +46,12 @@ dependencies:
   flutter_bloc: null
   flutter_colorpicker: null
   flutter_displaymode: ^0.6.0
+  flutter_downloader: ^1.12.0
   flutter_html: null
   flutter_keyboard_visibility: ^6.0.0
   flutter_local_notifications: ^19.4.0
   flutter_overlay_window: null
   flutter_screenutil: null
-  flutter_svg: null
   fluttericon: null
   fluttertoast: null
   geocoding: null
@@ -68,9 +62,6 @@ dependencies:
   http: ^1.5.0
   iconsax: null
   image_gallery_saver_plus: ^4.0.1
-  in_app_review: null
-  in_app_update: null
-  indexed_list_view: ^4.0.0
   intl: null
   jhijri_picker: null
   just_audio: any
@@ -82,19 +73,15 @@ dependencies:
   permission_handler: null
   quran:
     path: ./quran-1.2.2
-  radio_player: null
   screenshot: ^3.0.0
   scrollable_positioned_list: null
   share_plus: ^11.0.0
   shared_preferences: null
   shimmer: ^3.0.0
   simple_annimated_staggered: ^0.0.3
-  snapx_scroll_physics: ^1.0.1
   string_validator: null
   superellipse_shape: null
-  syncfusion_flutter_sliders: null
-  tiktoklikescroller: null
-  visibility_detector: null
+  url_launcher: ^6.3.2
   workmanager: null
 
 dev_dependencies:

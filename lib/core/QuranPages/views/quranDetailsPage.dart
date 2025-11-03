@@ -6,11 +6,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
-import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
 import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
 import 'package:ghaith/core/QuranPages/helpers/remove_html_tags.dart';
 import 'package:ghaith/core/QuranPages/widgets/bookmark_dialog.dart';
-import 'package:ghaith/core/home.dart';
 import '../helpers/translation/get_translation_data.dart' as get_translation_data;
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/mfg_labs_icons.dart';
@@ -41,6 +39,7 @@ import 'package:quran/quran.dart' as quran;
 import 'package:screenshot/screenshot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:just_audio/just_audio.dart';
 import '../helpers/translation/get_translation_data.dart' as translate;
 
 class QuranReadingPage extends StatefulWidget {
@@ -79,25 +78,87 @@ class QuranDetailsPage extends StatefulWidget {
 }
 
 class QuranDetailsPageState extends State<QuranDetailsPage> {
+  // ==================== Controllers ====================
   final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  late PageController _pageController;
+  ScreenshotController screenshotController = ScreenshotController();
 
+  // ==================== State Variables ====================
+  int index = 0;
+  int playIndexPage = 0;
+  String selectedSpan = "";
+  String isDownloading = "";
+  var highlightVerse;
+  var shouldHighlightText;
+  var currentVersePlaying;
+  var dataOfCurrentTranslation;
+  String? swipeDirection;
+
+  // ==================== Full Surah Playback ====================
+  int? currentSurahNumber;
+  int? currentPlayingVerse = 0; // الآية التي يتم تشغيلها حالياً
+  StreamSubscription<SequenceState?>? positionSubscription;
+  StreamSubscription<ProcessingState>? processingSubscription;
+  Timer? verseTrackingTimer;
+  bool isTrackingStarted = false; // flag لمنع بدء التتبع مرتين
+
+  // ==================== Bookmarks & Starred Verses ====================
   List bookmarks = [];
-  fetchBookmarks() {
+  Set<String> starredVerses = {};
+
+  // ==================== UI State ====================
+  double valueOfSlider = 0;
+  double currentHeight = 2.0;
+  double currentLetterSpacing = 0.0;
+  bool showSuraHeader = true;
+  bool addAppSlogan = true;
+
+  // ==================== Helpers ====================
+  late Timer timer;
+  Directory? appDir;
+  var english = RegExp(r'[a-zA-Z]');
+  List<GlobalKey> richTextKeys = List.generate(604, (_) => GlobalKey());
+  GlobalKey scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // ==================== Reciters ====================
+  List<QuranPageReciter> reciters = [];
+
+  // ==================== Initialization Methods ====================
+
+  void setIndex() {
+    setState(() {
+      index = widget.pageNumber;
+    });
+  }
+
+  Future<void> initialize() async {
+    appDir = await getTemporaryDirectory();
+    getTranslationData();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> checkIfSelectHighlight() async {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (selectedSpan != "") {
+        setState(() {
+          selectedSpan = "";
+        });
+      }
+    });
+  }
+
+  // ==================== Data Fetching Methods ====================
+
+  void fetchBookmarks() {
     bookmarks = json.decode(getValue("bookmarks"));
     setState(() {});
   }
-String fixAudioUrl(String url) {
-  // لو الرابط قديم، غيره إلى المسار الجديد
-  if (url.contains('audio-surah')) {
-    return url.replaceAll('audio-surah', 'audio');
-  }
-  return url;
-}
 
-  var dataOfCurrentTranslation;
-  getTranslationData() async {
+  Future<void> getTranslationData() async {
     if (getValue("indexOfTranslationInVerseByVerse") > 1) {
       File file = File(
           "${appDir!.path}/${translationDataList[getValue("indexOfTranslationInVerseByVerse")].typeText}.json");
@@ -108,62 +169,58 @@ String fixAudioUrl(String url) {
     setState(() {});
   }
 
-  var currentVersePlaying;
-  int index = 0;
-  setIndex() {
-    setState(() {
-      index = widget.pageNumber;
-    });
-  }
-
-  double valueOfSlider = 0;
-
-  late Timer timer;
-  Directory? appDir;
-  initialize() async {
-    appDir = await getTemporaryDirectory();
-    getTranslationData();
-    if (mounted) {
-      setState(() {});
+  // [CAN_BE_EXTRACTED] -> helpers/audio_url_fixer.dart
+  String fixAudioUrl(String url) {
+    if (url.contains('audio-surah')) {
+      return url.replaceAll('audio-surah', 'audio');
     }
+    return url;
   }
-
-  checkIfSelectHighlight() async {
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (selectedSpan != "") {
-        setState(() {
-          selectedSpan = "";
-        });
-      }
-    });
-  }
-
-  int playIndexPage = 0;
 
   @override
   void initState() {
+    super.initState();
+
+    // Initialize data
+    setIndex();
     fetchBookmarks();
     initialize();
     getTranslationData();
-    checkIfSelectHighlight();
-    setIndex();
-    changeHighlightSurah();
-    highlightVerseFunction();
+    addReciters();
+
+    // Setup listeners
     _scrollController.addListener(_scrollListener);
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    checkIfSelectHighlight();
+
+    // Setup page controller
     _pageController = PageController(initialPage: index);
     _pageController.addListener(_pagecontroller_scrollListner);
+
+    // Setup highlight animations
+    changeHighlightSurah();
+    highlightVerseFunction();
+
+    // Configure system UI
+    _configureSystemUI();
+
+    // Save last read position
     updateValue("lastRead", widget.pageNumber);
-    addReciters(); // addValueToFontSize();
-    // updateValue("quranPageolorsIndex", 0);
-    super.initState();
   }
 
-  List<QuranPageReciter> reciters = [];
-  addReciters() {
+  // ==================== System UI Configuration ====================
+
+  void _configureSystemUI() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  }
+
+  // [CAN_BE_EXTRACTED] -> helpers/reciters_helper.dart
+  void addReciters() {
     quran.getReciters().forEach((element) {
-      // if(element.reciterName.contains(quran.getVerse(surahNumber, verseNumber).reciterName)){
       reciters.add(QuranPageReciter(
         identifier: element["identifier"],
         language: element["language"],
@@ -176,12 +233,14 @@ String fixAudioUrl(String url) {
     });
   }
 
+  // ==================== Scroll Listeners ====================
+
   void _scrollListener() {
     if (_scrollController.position.isScrollingNotifier.value && selectedSpan != "") {
       setState(() {
         selectedSpan = "";
       });
-    } else {}
+    }
   }
 
   void _pagecontroller_scrollListner() {
@@ -189,24 +248,42 @@ String fixAudioUrl(String url) {
       setState(() {
         selectedSpan = "";
       });
-    } else {}
+    }
   }
 
-  var highlightVerse;
-  var shouldHighlightText;
-  changeHighlightSurah() async {
+  // ==================== Highlight Functions ====================
+
+  Future<void> changeHighlightSurah() async {
     await Future.delayed(const Duration(seconds: 2));
     widget.shouldHighlightSura = false;
   }
 
-  highlightVerseFunction() {
+  void highlightVerseFunction() {
     setState(() {
       shouldHighlightText = widget.shouldHighlightText;
     });
     if (widget.shouldHighlightText) {
-      setState(() {
+      // إذا كان highlightVerse نص آية، نحوله للتنسيق الجديد
+      if (widget.highlightVerse is String && widget.highlightVerse.toString().isNotEmpty) {
+        // محاولة استخراج رقم السورة والآية من النص
+        final verseText = widget.highlightVerse.toString();
+        // البحث في بيانات الصفحة الحالية للعثور على الآية
+        try {
+          final pageData = quran.getPageData(index > 0 ? index : widget.pageNumber);
+          for (var e in pageData) {
+            for (var i = e["start"]; i <= e["end"]; i++) {
+              if (quran.getVerse(e["surah"], i) == verseText) {
+                highlightVerse = " ${e["surah"]}$i";
+                break;
+              }
+            }
+          }
+        } catch (e) {
+          highlightVerse = widget.highlightVerse;
+        }
+      } else {
         highlightVerse = widget.highlightVerse;
-      });
+      }
 
       Timer.periodic(const Duration(milliseconds: 400), (timer) {
         if (mounted) {
@@ -234,38 +311,44 @@ String fixAudioUrl(String url) {
       });
     }
   }
-
+  
   @override
   void dispose() {
+    // Cancel timers
     timer.cancel();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    verseTrackingTimer?.cancel();
 
+    // Cancel subscriptions
+    positionSubscription?.cancel();
+    processingSubscription?.cancel();
+
+    // Reset system UI
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+    // Cleanup
     getTotalCharacters(quran.getVersesTextByPage(widget.pageNumber));
+
     super.dispose();
   }
+
+  // ==================== Utility Methods ====================
 
   int total = 0;
   int total1 = 0;
   int total3 = 0;
+
   int getTotalCharacters(List<String> stringList) {
     total = 0;
     for (String str in stringList) {
       total += str.length;
     }
-    // print(total);
     return total;
   }
 
-  checkIfAyahIsAStartOfSura() {}
-  String? swipeDirection;
-  late PageController _pageController;
+  void checkIfAyahIsAStartOfSura() {}
 
-  var english = RegExp(r'[a-zA-Z]');
-
-  String selectedSpan = "";
-
-  // ignore: unused_field
-  late Uint8List _imageFile;
+  // [CAN_BE_EXTRACTED] -> helpers/quran_page_helper.dart
   Result checkIfPageIncludesQuarterAndQuarterIndex(array, pageData, indexes) {
     for (int i = 0; i < array.length; i++) {
       int surah = array[i]['surah'];
@@ -288,53 +371,59 @@ String fixAudioUrl(String url) {
       }
     }
     return Result(false, -1, -1, -1);
-  } //Create an instance of ScreenshotController
+  }
 
-  ScreenshotController screenshotController = ScreenshotController();
-
-  double currentHeight = 2.0;
-  // double currentWordSpacing = 0.0;
-  double currentLetterSpacing = 0.0;
-  // ignore: unused_field
-  final bool _isVisible = true;
-
-  List<GlobalKey> richTextKeys = List.generate(
-    604, // Replace with the number of pages in your PageView
-    (_) => GlobalKey(),
-  );
-  GlobalKey scaffoldKey = GlobalKey<ScaffoldState>();
+  // ==================== Build Method ====================
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
-    return Scaffold(
-      key: scaffoldKey,
-      endDrawer: SizedBox(
-        height: screenSize.height,
-        width: screenSize.width * .5,
-      ),
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          Builder(
-            builder: (context2) {
-              if (getValue("alignmentType") == "verticalview") {
-                return alignmentTypeVerticalView(screenSize, context);
-              } else if (getValue("alignmentType") == "pageview") {
-                return alignmentTypePageView(context, screenSize);
-              } else if (getValue("alignmentType") == "versebyverse") {
-                return alignmentTypeVersebyVerse(screenSize, context);
-              }
-              return Container();
-            },
-          ),
+    return BlocBuilder<QuranPagePlayerBloc, QuranPagePlayerState>(
+        builder: (context, state) {
+          return Scaffold(
+            key: scaffoldKey,
+            endDrawer: SizedBox(
+              height: screenSize.height,
+              width: screenSize.width * .5,
+            ),
+            backgroundColor: Colors.transparent,
+            body: Stack(
+              children: [
+                Builder(
+                  builder: (context2) {
+                    return _buildAlignmentView(screenSize, context);
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+      
+    
+  
 
-          //  if(isDownloading)
-        ],
-      ),
-    );
+  // ==================== View Selection ====================
+
+  Widget _buildAlignmentView(Size screenSize, BuildContext context) {
+    final alignmentType = getValue("alignmentType");
+
+    switch (alignmentType) {
+      case "verticalview":
+        return alignmentTypeVerticalView(screenSize, context);
+      case "pageview":
+        return alignmentTypePageView(context, screenSize);
+      case "versebyverse":
+        return alignmentTypeVersebyVerse(screenSize, context);
+      default:
+        return Container();
+    }
   }
+
+  // ==================== Alignment Views ====================
+  // [CAN_BE_EXTRACTED] -> widgets/vertical_view_widget.dart
 
   Scaffold alignmentTypeVersebyVerse(Size screenSize, BuildContext context) {
     return Scaffold(
@@ -478,16 +567,12 @@ String fixAudioUrl(String url) {
                                                       "0x${bookmarks.where((element) => element["suraNumber"] == e["surah"] && element["verseNumber"] == i).first["color"]}"))
                                                   .withOpacity(.19)
                                               : shouldHighlightText
-                                                  ? quran.getVerse(e["surah"], i) ==
-                                                          widget.highlightVerse
+                                                  ? (highlightVerse == " ${e["surah"]}$i" ||
+                                                          selectedSpan == " ${e["surah"]}$i")
                                                       ? highlightColors[
                                                               getValue("quranPageolorsIndex")]
                                                           .withOpacity(.25)
-                                                      : selectedSpan == " ${e["surah"]}$i"
-                                                          ? highlightColors[
-                                                                  getValue("quranPageolorsIndex")]
-                                                              .withOpacity(.25)
-                                                          : Colors.transparent
+                                                      : Colors.transparent
                                                   : selectedSpan == " ${e["surah"]}$i"
                                                       ? highlightColors[
                                                               getValue("quranPageolorsIndex")]
@@ -632,6 +717,46 @@ String fixAudioUrl(String url) {
                       ],
                     ),
                   ),
+                  // // زر تشغيل السورة كاملة
+                  // Expanded(
+                  //   child: Builder(
+                  //     builder: (context) {
+                  //       final blocState = context.watch<QuranPagePlayerBloc>().state;
+                  //       final currentPageSurah = index > 0 && index <= quran.totalPagesCount
+                  //           ? quran.getPageData(index)[0]["surah"]
+                  //           : null;
+                  //       // ✅ التحقق من currentSurahNumber أولاً لتحديث الأيقونة فوراً
+                  //       final isPlaying = currentSurahNumber == currentPageSurah ||
+                  //           (blocState is QuranPagePlayerPlaying &&
+                  //               blocState.suraNumber == currentPageSurah);
+
+                  //       return Center(
+                  //         child: currentPageSurah != null
+                  //             ? IconButton(
+                  //                 onPressed: () {
+                  //                   if (isPlaying) {
+                  //                     // إيقاف التشغيل
+                  //                     BlocProvider.of<QuranPagePlayerBloc>(context, listen: false)
+                  //                         .add(KillPlayerEvent());
+                  //                   } else {
+                  //                     // تشغيل السورة
+                  //                     _playFullSurah(context, currentPageSurah);
+                  //                   }
+                  //                 },
+                  //                 icon: Icon(
+                  //                   isPlaying ? Icons.stop_circle : FontAwesome5.play_circle,
+                  //                   size: 28.sp,
+                  //                   color: isPlaying
+                  //                       ? Colors.red
+                  //                       : primaryColors[getValue("quranPageolorsIndex")],
+                  //                 ),
+                  //                 tooltip: isPlaying ? "إيقاف التشغيل" : "تشغيل السورة كاملة",
+                  //               )
+                  //             : const SizedBox.shrink(),
+                  //       );
+                  //     },
+                  //   ),
+                  // ),
                   SizedBox(
                     width: (screenSize.width * .27).w,
                     child: Row(
@@ -665,9 +790,6 @@ String fixAudioUrl(String url) {
       body: Stack(
         children: [
           ScrollablePositionedList.separated(
-            // ph
-            // physics: const ClampingScrollPhysics(),
-
             itemCount: quran.totalPagesCount + 1,
             separatorBuilder: (context, index) {
               if (index == 0) return Container();
@@ -741,7 +863,6 @@ String fixAudioUrl(String url) {
                                 // print(e);
                                 List<InlineSpan> spans = [];
                                 for (var i = e["start"]; i <= e["end"]; i++) {
-                                  print(index);
                                   // Header
                                   if (i == 1) {
                                     spans.add(WidgetSpan(
@@ -804,15 +925,11 @@ String fixAudioUrl(String url) {
                                                   "0x${bookmarks.where((element) => element["suraNumber"] == e["surah"] && element["verseNumber"] == i).first["color"]}"))
                                               .withOpacity(.19)
                                           : shouldHighlightText
-                                              ? quran.getVerse(e["surah"], i) ==
-                                                      widget.highlightVerse
+                                              ? (highlightVerse == " ${e["surah"]}$i" ||
+                                                      selectedSpan == " ${e["surah"]}$i")
                                                   ? highlightColors[getValue("quranPageolorsIndex")]
                                                       .withOpacity(.25)
-                                                  : selectedSpan == " ${e["surah"]}$i"
-                                                      ? highlightColors[
-                                                              getValue("quranPageolorsIndex")]
-                                                          .withOpacity(.25)
-                                                      : Colors.transparent
+                                                  : Colors.transparent
                                               : selectedSpan == " ${e["surah"]}$i"
                                                   ? highlightColors[getValue("quranPageolorsIndex")]
                                                       .withOpacity(.25)
@@ -902,6 +1019,46 @@ String fixAudioUrl(String url) {
                       ],
                     ),
                   ),
+                  // // زر تشغيل السورة كاملة
+                  // Expanded(
+                  //   child: Builder(
+                  //     builder: (context) {
+                  //       final blocState = context.watch<QuranPagePlayerBloc>().state;
+                  //       final currentPageSurah = index > 0 && index <= quran.totalPagesCount
+                  //           ? quran.getPageData(index)[0]["surah"]
+                  //           : null;
+                  //       // ✅ التحقق من currentSurahNumber أولاً لتحديث الأيقونة فوراً
+                  //       final isPlaying = currentSurahNumber == currentPageSurah ||
+                  //           (blocState is QuranPagePlayerPlaying &&
+                  //               blocState.suraNumber == currentPageSurah);
+
+                  //       return Center(
+                  //         child: currentPageSurah != null
+                  //             ? IconButton(
+                  //                 onPressed: () {
+                  //                   if (isPlaying) {
+                  //                     // إيقاف التشغيل
+                  //                     BlocProvider.of<QuranPagePlayerBloc>(context, listen: false)
+                  //                         .add(KillPlayerEvent());
+                  //                   } else {
+                  //                     // تشغيل السورة
+                  //                     _playFullSurah(context, currentPageSurah);
+                  //                   }
+                  //                 },
+                  //                 icon: Icon(
+                  //                   isPlaying ? Icons.stop_circle : FontAwesome5.play_circle,
+                  //                   size: 28.sp,
+                  //                   color: isPlaying
+                  //                       ? Colors.red
+                  //                       : primaryColors[getValue("quranPageolorsIndex")],
+                  //                 ),
+                  //                 tooltip: isPlaying ? "إيقاف التشغيل" : "تشغيل السورة كاملة",
+                  //               )
+                  //             : const SizedBox.shrink(),
+                  //       );
+                  //     },
+                  //   ),
+                  // ),
                   SizedBox(
                     width: (screenSize.width * .27).w,
                     child: Row(
@@ -1075,7 +1232,6 @@ String fixAudioUrl(String url) {
                                     // print(e);
                                     List<InlineSpan> spans = [];
                                     for (var i = e["start"]; i <= e["end"]; i++) {
-                                      print(index);
                                       // Header
                                       if (i == 1) {
                                         spans.add(WidgetSpan(
@@ -1135,16 +1291,12 @@ String fixAudioUrl(String url) {
                                                       "0x${bookmarks.where((element) => element["suraNumber"] == e["surah"] && element["verseNumber"] == i).first["color"]}"))
                                                   .withOpacity(.19)
                                               : shouldHighlightText
-                                                  ? quran.getVerse(e["surah"], i) ==
-                                                          widget.highlightVerse
+                                                  ? (highlightVerse == " ${e["surah"]}$i" ||
+                                                          selectedSpan == " ${e["surah"]}$i")
                                                       ? highlightColors[
                                                               getValue("quranPageolorsIndex")]
                                                           .withOpacity(.25)
-                                                      : selectedSpan == " ${e["surah"]}$i"
-                                                          ? highlightColors[
-                                                                  getValue("quranPageolorsIndex")]
-                                                              .withOpacity(.25)
-                                                          : Colors.transparent
+                                                      : Colors.transparent
                                                   : selectedSpan == " ${e["surah"]}$i"
                                                       ? highlightColors[
                                                               getValue("quranPageolorsIndex")]
@@ -1289,7 +1441,10 @@ String fixAudioUrl(String url) {
     );
   }
 
-  showSettingsSheet(context) {
+  // ==================== Bottom Sheets ====================
+  // [CAN_BE_EXTRACTED] -> widgets/settings_bottom_sheet.dart
+
+  void showSettingsSheet(context) {
     int index = 0;
 
     showMaterialModalBottomSheet(
@@ -1830,12 +1985,13 @@ String fixAudioUrl(String url) {
     );
   }
 
-  showAyahOptionsSheet(
+  // [CAN_BE_EXTRACTED] -> widgets/ayah_options_bottom_sheet.dart
+
+  void showAyahOptionsSheet(
     int index,
     int surahNumber,
     int verseNumber,
   ) {
-    // ✅ خزن الـ context الأصلي علشان نقدر نستخدمه داخل الـ bottom sheet
     final parentContext = context;
 
     showMaterialModalBottomSheet(
@@ -2089,7 +2245,7 @@ String fixAudioUrl(String url) {
 
                   SizedBox(height: 10.h),
 
-                  // ✅ تشغيل التلاوة
+                  // ✅ تشغيل الآية
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: EasyContainer(
@@ -2097,30 +2253,16 @@ String fixAudioUrl(String url) {
                       color: primaryColors[getValue("quranPageolorsIndex")].withOpacity(.05),
                       onTap: () async {
                         Navigator.pop(context);
-                        print(getValue("lastRead"));
-                        print(quran.getAudioURLBySurah(
-                            surahNumber, reciters[getValue("reciterIndex")].identifier));
-                        print(quran.getAudioURLByVerse(
-                            surahNumber, verseNumber, reciters[getValue("reciterIndex")].identifier));
-                    
-                        await downloadAndCacheSuraAudio(
-                          quran.getSurahNameEnglish(surahNumber),
-                          quran.getVerseCount(surahNumber),
-                          surahNumber,
-                          reciters[getValue("reciterIndex")].identifier,
-                        );
-                    
-                        print("lastt read ${getValue("lastRead")}");
-                    
+
                         // ✅ استخدم الـ context الأصلي للوصول إلى الـ Bloc
                         final quranPagePlayerBloc =
                             BlocProvider.of<QuranPagePlayerBloc>(parentContext, listen: false);
-                    
+
                         // أوقف التشغيل الحالي إن وجد
                         if (quranPagePlayerBloc.state is QuranPagePlayerPlaying) {
                           quranPagePlayerBloc.add(KillPlayerEvent());
                         }
-                    
+
                         // شغل من الآية المطلوبة
                         quranPagePlayerBloc.add(
                           PlayFromVerse(
@@ -2130,7 +2272,7 @@ String fixAudioUrl(String url) {
                             quran.getSurahNameEnglish(surahNumber),
                           ),
                         );
-                    
+
                         // لو العرض عمودي، ارجع للآية الحالية بعد التشغيل
                         if (getValue("alignmentType") == "verticalview" &&
                             quran.getPageNumber(surahNumber, verseNumber) > 600) {
@@ -2145,22 +2287,23 @@ String fixAudioUrl(String url) {
                         child: Row(
                           children: [
                             SizedBox(width: 8.w),
-                            Icon(
-                              FontAwesome5.book_reader,
-                              color: getValue("quranPageolorsIndex") == 0
-                                  ? secondaryColors[getValue("quranPageolorsIndex")]
-                                  : highlightColors[getValue("quranPageolorsIndex")],
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              "play".tr(),
-                              style: TextStyle(
-                                fontFamily: "cairo",
-                                fontSize: 14.sp,
-                                color: primaryColors[getValue("quranPageolorsIndex")],
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              decoration: BoxDecoration(
+                                color:
+                                    primaryColors[getValue("quranPageolorsIndex")].withOpacity(.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                "play".tr(),
+                                style: TextStyle(
+                                  fontFamily: "cairo",
+                                  fontSize: 14.sp,
+                                  color: primaryColors[getValue("quranPageolorsIndex")],
+                                ),
                               ),
                             ),
-                            SizedBox(width: 8.w),
+                            SizedBox(width: 14.w),
                             DropdownButton<int>(
                               value: getValue("reciterIndex"),
                               dropdownColor: backgroundColors[getValue("quranPageolorsIndex")],
@@ -2188,7 +2331,6 @@ String fixAudioUrl(String url) {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 30),
                 ],
               ),
@@ -2199,9 +2341,9 @@ String fixAudioUrl(String url) {
     );
   }
 
-  bool showSuraHeader = true;
-  bool addAppSlogan = true;
-  takeScreenshotFunction(index, surahNumber, verseNumber) {
+  // [CAN_BE_EXTRACTED] -> widgets/screenshot_dialog.dart
+
+  void takeScreenshotFunction(index, surahNumber, verseNumber) {
     int firstVerse = verseNumber;
     int lastVerse = verseNumber;
     showDialog(
@@ -2707,9 +2849,10 @@ String fixAudioUrl(String url) {
     );
   }
 
-  Set<String> starredVerses = {};
+  // ==================== Starred Verses Management ====================
+  // [CAN_BE_EXTRACTED] -> helpers/starred_verses_helper.dart
 
-  addStarredVerse(int surahNumber, int verseNumber) async {
+  Future<void> addStarredVerse(int surahNumber, int verseNumber) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     // Retrieve the data as a string, not as a map
@@ -2728,7 +2871,7 @@ String fixAudioUrl(String url) {
     Fluttertoast.showToast(msg: "Added to Starred verses");
   }
 
-  removeStarredVerse(int surahNumber, int verseNumber) async {
+  Future<void> removeStarredVerse(int surahNumber, int verseNumber) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     // Retrieve the data as a string, not as a map
@@ -2751,11 +2894,6 @@ String fixAudioUrl(String url) {
     final verseKey = "$surahNumber-$verseNumber";
     return starredVerses.contains(verseKey);
   }
-
-  bool isDownloading = false;
-
-  Future<void> downloadAndCacheSuraAudio(
-      String surahNameEnglish, int verseCount, surahNumber, String identifier) async {}
 }
 
 class Result {

@@ -1,6 +1,5 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:dio/dio.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:ghaith/main.dart';
@@ -8,474 +7,491 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/core/hadith/models/hadith.dart';
 import 'package:ghaith/core/hadith/views/widgets/sharing_options.dart';
+import 'package:flutter/services.dart';
 
 class HadithDetailsPage extends StatefulWidget {
-  String id;
-  String locale;
-  String title;
+  final String id;
+  final String locale;
+  final String title;
 
-  HadithDetailsPage({super.key, required this.locale, required this.id, required this.title});
+  const HadithDetailsPage({
+    super.key,
+    required this.locale,
+    required this.id,
+    required this.title,
+  });
 
   @override
   State<HadithDetailsPage> createState() => _HadithDetailsPageState();
 }
 
 class _HadithDetailsPageState extends State<HadithDetailsPage> {
-  bool isLoading = true;
-  late Hadith hadithAr;
-  var hadithOtherLanguage;
-  getHadithData() async {
-    Response responsee = await Dio().get(
-        "https://hadeethenc.com/api/v1/hadeeths/one/?language=${widget.locale}&id=${widget.id}");
-    print("response.data");
-    Response response =
-        await Dio().get("https://hadeethenc.com/api/v1/hadeeths/one/?language=ar&id=${widget.id}");
-    print(response.data);
-    hadithOtherLanguage = responsee.data;
-    hadithAr = Hadith.fromJson(response.data);
-    setState(() {
-      isLoading = false;
-    });
-  }
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل متغيرات الحالة لملف state/hadith_details_state.dart
+  bool _isLoading = true;
+  late Hadith _hadithAr;
+  dynamic _hadithOtherLanguage;
+
+  // 🔹 متغيرات التوسيع/الطي
+  bool _isExpandedExplanation = false;
+  bool _isExpandedWords = false;
+  bool _isExpandedHints = false;
+  bool _isExpandedReference = false;
 
   @override
   void initState() {
-    getHadithData();
+    _getHadithData();
     super.initState();
   }
 
-  bool isExpanded = false;
-  bool isExpanded2 = false;
-  bool isExpanded3 = false;
-  bool isExpanded4 = false;
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل جلب البيانات لملف services/hadith_details_service.dart
+  Future<void> _getHadithData() async {
+    try {
+      final responses = await Future.wait([
+        Dio().get("https://hadeethenc.com/api/v1/hadeeths/one/?language=ar&id=${widget.id}"),
+        Dio().get(
+            "https://hadeethenc.com/api/v1/hadeeths/one/?language=${widget.locale}&id=${widget.id}"),
+      ]);
+
+      _hadithAr = Hadith.fromJson(responses[0].data);
+      _hadithOtherLanguage = responses[1].data;
+
+      setState(() => _isLoading = false);
+    } catch (error) {
+      print('Error fetching hadith data: $error');
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-          color: isDarkModeNotifier.value ? Colors.black.withOpacity(.87) : Colors.white,
-          image: const DecorationImage(
-              image: AssetImage("assets/images/mosquepnggold.png"),
-              opacity: .3,
-              alignment: Alignment.bottomCenter)),
+      decoration: _getBackgroundDecoration(),
       child: Container(
-        decoration: const BoxDecoration(
-            color: Colors.transparent,
-            image: DecorationImage(
-                image: AssetImage("assets/images/background.png"), fit: BoxFit.fill, opacity: .2)),
+        decoration: _getOverlayDecoration(),
         child: Scaffold(
           backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(),
+          body: _isLoading ? _buildLoadingIndicator() : _buildHadithContent(),
+        ),
+      ),
+    );
+  }
 
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            iconTheme: IconThemeData(
-                color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87),
-            elevation: 0,
-            centerTitle: true,
-            title: Text(widget.title,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: isDarkModeNotifier.value
-                        ? Colors.white.withOpacity(.87)
-                        : const Color(0xffA28858))),
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل الديكور والخلفية لملف ui/decoration/hadith_background.dart
+  BoxDecoration _getBackgroundDecoration() {
+    return BoxDecoration(
+      color: isDarkModeNotifier.value ? Colors.black.withOpacity(.87) : Colors.white,
+      image: const DecorationImage(
+        image: AssetImage("assets/images/mosquepnggold.png"),
+        opacity: .3,
+        alignment: Alignment.bottomCenter,
+      ),
+    );
+  }
+
+  BoxDecoration _getOverlayDecoration() {
+    return const BoxDecoration(
+      color: Colors.transparent,
+      image: DecorationImage(
+        image: AssetImage("assets/images/background.png"),
+        fit: BoxFit.fill,
+        opacity: .2,
+      ),
+    );
+  }
+
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل الـ AppBar لملف ui/components/hadith_app_bar.dart
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      iconTheme: _getAppBarIconTheme(),
+      elevation: 0,
+      centerTitle: true,
+      title: Text(
+        widget.title,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : const Color(0xffA28858),
+        ),
+      ),
+    );
+  }
+
+  IconThemeData _getAppBarIconTheme() {
+    return IconThemeData(
+      color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87,
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Center(
+      child: CircularProgressIndicator(
+        color: isDarkModeNotifier.value ? Colors.white : orangeColor,
+      ),
+    );
+  }
+
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل محتوى الحديث لملف ui/views/hadith_content_view.dart
+  Widget _buildHadithContent() {
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      children: [
+        _buildArabicHadithSection(),
+        _buildExplanationSection(),
+        _buildWordsMeaningsSection(),
+        _buildHintsSection(),
+        _buildReferenceSection(),
+        const SizedBox(
+          height: 8,
+        ),
+        _buildSharingButtons(),
+        if (widget.locale != "ar") _buildTranslationSection(),
+      ],
+    );
+  }
+
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل أقسام الحديث لملف ui/sections/hadith_sections.dart
+  Widget _buildArabicHadithSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+          child: Text(
+            _hadithAr.hadeeth,
+            textDirection: m.TextDirection.rtl,
+            locale: const Locale("ar"),
+            textAlign: TextAlign.right,
+            style: _getHadithTextStyle(),
           ),
-          // backgroundColor: darkPrimaryColor,
-          body: Center(
-            child: isLoading
-                ?  CircularProgressIndicator(
-                  color: isDarkModeNotifier.value
-                        ? Colors.white
-                        : orangeColor,
-                )
-                : ListView(
-                    physics: const BouncingScrollPhysics(),
-                    // mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-                        child: Text(
-                          hadithAr.hadeeth,
-                          textDirection: m.TextDirection.rtl,
-                          locale: const Locale("ar"),
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            color: isDarkModeNotifier.value ? Colors.white : Colors.black87,
-                            fontFamily: 'Taha',
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                        child: Text(
-                          '[${hadithAr.attribution}] - [${hadithAr.grade}]',
-                          textDirection: m.TextDirection.rtl,
-                          locale: const Locale("ar"),
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            //fontFamily: 'roboto',
-                            color: isDarkModeNotifier.value
-                                ? Colors.white.withOpacity(.45)
-                                : Colors.black45, //fontFamily: 'Taha',
-                            fontSize: 16.sp, fontFamily: 'Taha',
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isExpanded = !isExpanded;
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                          child: FadeIn(
-                            child: Text(
-                              isExpanded == false
-                                  ? 'شرح الحديث...'
-                                  : "الشرح: \n${hadithAr.explanation}",
-                              textDirection: m.TextDirection.rtl,
-                              locale: const Locale("ar"),
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                //fontFamily: 'roboto',
-                                color: isExpanded == false
-                                    ? isDarkModeNotifier.value
-                                        ? orangeColor
-                                        : const Color(0xffA28858)
-                                    : isDarkModeNotifier.value
-                                        ? Colors.white.withOpacity(.87)
-                                        : Colors.black87, //fontFamily: 'Taha',
-                                fontSize: 16.sp, fontFamily: 'Taha',
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isExpanded2 = !isExpanded2;
-                          });
-                        },
-                        child: isExpanded2 == false
-                            ? FadeIn(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                                  child: Text(
-                                    'معاني الكلمات...',
-                                    textDirection: m.TextDirection.rtl,
-                                    locale: const Locale("ar"),
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      //fontFamily: 'roboto',
-                                      color: isExpanded2 == false
-                                          ? isDarkModeNotifier.value
-                                              ? orangeColor
-                                              : const Color(0xffA28858)
-                                          : isDarkModeNotifier.value
-                                              ? Colors.white.withOpacity(.87)
-                                              : Colors.black87, //fontFamily: 'Taha',
-                                      fontSize: 16.sp, fontFamily: 'Taha',
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : FadeIn(
-                                child: Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                                      child: Directionality(
-                                        textDirection: m.TextDirection.rtl,
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              'معاني الكلمات:',
-                                              textDirection: m.TextDirection.rtl,
-                                              locale: const Locale("ar"),
-                                              textAlign: TextAlign.right,
-                                              style: TextStyle(
-                                                //fontFamily: 'roboto',
-                                                color: isExpanded2 == false
-                                                    ? isDarkModeNotifier.value
-                                                        ? orangeColor
-                                                        : const Color(0xffA28858)
-                                                    : isDarkModeNotifier.value
-                                                        ? Colors.white.withOpacity(.87)
-                                                        : Colors.black87, //fontFamily: 'Taha',
-                                                fontSize: 16.sp,
-                                                fontFamily: 'Taha',
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                        padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: const NeverScrollableScrollPhysics(),
-                                          itemCount: hadithAr.wordsMeanings.length,
-                                          itemBuilder: (c, i) => Text(
-                                            "- ${hadithAr.wordsMeanings[i].word}:${hadithAr.wordsMeanings[i].meaning}",
-                                            textDirection: m.TextDirection.rtl,
-                                            locale: const Locale("ar"),
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              //fontFamily: 'roboto',
-                                              color: isExpanded2 == false
-                                                  ? isDarkModeNotifier.value
-                                                      ? orangeColor
-                                                      : const Color(0xffA28858)
-                                                  : isDarkModeNotifier.value
-                                                      ? Colors.white.withOpacity(.87)
-                                                      : Colors.black87, //fontFamily: 'Taha',
-                                              fontSize: 16.sp,
-                                              fontFamily: 'Taha',
-                                            ),
-                                          ),
-                                        )),
-                                  ],
-                                ),
-                              ),
-                      ),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isExpanded4 = !isExpanded4;
-                          });
-                        },
-                        child: isExpanded4 == false
-                            ? FadeIn(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                                  child: Text(
-                                    'الفوائد من الحديث...',
-                                    textDirection: m.TextDirection.rtl,
-                                    locale: const Locale("ar"),
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      //fontFamily: 'roboto',
-                                      color: isExpanded4 == false
-                                          ? isDarkModeNotifier.value
-                                              ? orangeColor
-                                              : const Color(0xffA28858)
-                                          : isDarkModeNotifier.value
-                                              ? Colors.white.withOpacity(.87)
-                                              : Colors.black87, //fontFamily: 'Taha',
-                                      fontSize: 16.sp, fontFamily: 'Taha',
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : FadeIn(
-                                child: Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                                      child: Directionality(
-                                        textDirection: m.TextDirection.rtl,
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              'الفوائد:',
-                                              textDirection: m.TextDirection.rtl,
-                                              locale: const Locale("ar"),
-                                              textAlign: TextAlign.right,
-                                              style: TextStyle(
-                                                //fontFamily: 'roboto',
-                                                color: isExpanded4 == false
-                                                    ? isDarkModeNotifier.value
-                                                        ? orangeColor
-                                                        : const Color(0xffA28858)
-                                                    : isDarkModeNotifier.value
-                                                        ? Colors.white.withOpacity(.87)
-                                                        : Colors.black87, //fontFamily: 'Taha',
-                                                fontSize: 16.sp,
-                                                fontFamily: 'Taha',
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                        padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                                        child: ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: const NeverScrollableScrollPhysics(),
-                                          itemCount: hadithAr.wordsMeanings.length,
-                                          itemBuilder: (c, i) => Text(
-                                            "${i + 1}- ${hadithAr.hints[i]}",
-                                            textDirection: m.TextDirection.rtl,
-                                            locale: const Locale("ar"),
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              //fontFamily: 'roboto',
-                                              color: isExpanded4 == false
-                                                  ? isDarkModeNotifier.value
-                                                      ? orangeColor
-                                                      : const Color(0xffA28858)
-                                                  : isDarkModeNotifier.value
-                                                      ? Colors.white.withOpacity(.87)
-                                                      : Colors.black87, //fontFamily: 'Taha',
-                                              fontSize: 16.sp,
-                                              fontFamily: 'Taha',
-                                            ),
-                                          ),
-                                        )),
-                                  ],
-                                ),
-                              ),
-                      ),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isExpanded3 = !isExpanded3;
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                          child: Text(
-                            isExpanded3 == false ? 'الإسناد...' : "إسناده: \n${hadithAr.reference}",
-                            textDirection: m.TextDirection.rtl,
-                            locale: const Locale("ar"),
-                            textAlign: TextAlign.right,
-                            style: TextStyle(
-                              //fontFamily: 'roboto',
-                              color: isExpanded3 == false
-                                  ? isDarkModeNotifier.value
-                                      ? orangeColor
-                                      : const Color(0xffA28858)
-                                  : isDarkModeNotifier.value
-                                      ? Colors.white.withOpacity(.87)
-                                      : Colors.black87, //fontFamily: 'Taha',
-                              fontSize: 16.sp, fontFamily: 'Taha',
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-                          child: Directionality(
-                            textDirection: m.TextDirection.rtl,
-                            child: Row(
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      builder: (builder) => SharingOptions(isImage: false, data: {
-                                        "hadithAr": hadithAr,
-                                        "hadithOtherLanguage": hadithOtherLanguage
-                                      }),
-                                      backgroundColor: Colors.transparent,
-                                      elevation: 0,
-                                    );
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: const Color(0xffF5EFE8).withOpacity(.9),
-                                        borderRadius: BorderRadius.circular(8)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.copy,
-                                          color: Colors.black87,
-                                          size: 20.sp,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10.w,
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      builder: (builder) => SharingOptions(isImage: true, data: {
-                                        "hadithAr": hadithAr,
-                                        "hadithOtherLanguage": hadithOtherLanguage
-                                      }),
-                                      backgroundColor: Colors.transparent,
-                                      elevation: 0,
-                                    );
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: const Color(0xffF5EFE8).withOpacity(.9),
-                                        borderRadius: BorderRadius.circular(8)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.share,
-                                          color: Colors.black87,
-                                          size: 20.sp,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10.w,
-                                ),
-                              ],
-                            ),
-                          )),
-                      if (context.locale.languageCode != "ar")
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-                          child: Text(
-                            hadithOtherLanguage["hadeeth"],
-                            // textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: isDarkModeNotifier.value
-                                  ? Colors.white.withOpacity(.87)
-                                  : Colors.black87,
-                              fontSize: 16.sp,
-                              fontFamily: 'roboto',
-                            ),
-                          ),
-                        ),
-                      if (context.locale.languageCode != "ar")
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 4.0, left: 12),
-                          child: Text(
-                            '${hadithOtherLanguage["attribution"]} - [${hadithOtherLanguage["grade"]}]',
-                            // textDirection: m.TextDirection.rtl,locale: const Locale("ar"),textAlign: TextAlign.right,
-                            style: TextStyle(
-                              //fontFamily: 'roboto',
-                              color: isDarkModeNotifier.value
-                                  ? Colors.white.withOpacity(.45)
-                                  : Colors.black45, //fontFamily: 'Taha',
-                              fontSize: 16.sp, fontFamily: 'roboto',
-                            ),
-                          ),
-                        ),
-                    ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4.0, right: 12),
+          child: Text(
+            '[${_hadithAr.attribution}] - [${_hadithAr.grade}]',
+            textDirection: m.TextDirection.rtl,
+            locale: const Locale("ar"),
+            textAlign: TextAlign.right,
+            style: _getSecondaryTextStyle(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExplanationSection() {
+    return _buildExpandableSection(
+      isExpanded: _isExpandedExplanation,
+      onTap: () => setState(() => _isExpandedExplanation = !_isExpandedExplanation),
+      collapsedText: 'شرح الحديث...',
+      expandedText: "الشرح: \n${_hadithAr.explanation}",
+    );
+  }
+
+  Widget _buildWordsMeaningsSection() {
+    return _buildExpandableListSection(
+      isExpanded: _isExpandedWords,
+      onTap: () => setState(() => _isExpandedWords = !_isExpandedWords),
+      collapsedText: 'معاني الكلمات...',
+      title: 'معاني الكلمات:',
+      items: _hadithAr.wordsMeanings,
+      builder: (item) => "- ${item.word}: ${item.meaning}",
+    );
+  }
+
+  Widget _buildHintsSection() {
+    return _buildExpandableListSection(
+      isExpanded: _isExpandedHints,
+      onTap: () => setState(() => _isExpandedHints = !_isExpandedHints),
+      collapsedText: 'الفوائد من الحديث...',
+      title: 'الفوائد:',
+      items: _hadithAr.hints.asMap().entries.toList(),
+      builder: (entry) => "${entry.key + 1}- ${entry.value}",
+    );
+  }
+
+  Widget _buildReferenceSection() {
+    return _buildExpandableSection(
+      isExpanded: _isExpandedReference,
+      onTap: () => setState(() => _isExpandedReference = !_isExpandedReference),
+      collapsedText: 'الإسناد...',
+      expandedText: "إسناده: \n${_hadithAr.reference}",
+    );
+  }
+
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل الأقسام القابلة للتوسيع لملف ui/components/expandable_section.dart
+  Widget _buildExpandableSection({
+    required bool isExpanded,
+    required VoidCallback onTap,
+    required String collapsedText,
+    required String expandedText,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 10.h),
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 4.0, right: 12),
+            child: FadeIn(
+              child: Text(
+                isExpanded ? expandedText : collapsedText,
+                textDirection: m.TextDirection.rtl,
+                locale: const Locale("ar"),
+                textAlign: TextAlign.right,
+                style: _getExpandableTextStyle(isExpanded),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpandableListSection<T>({
+    required bool isExpanded,
+    required VoidCallback onTap,
+    required String collapsedText,
+    required String title,
+    required List<T> items,
+    required String Function(T) builder,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 10.h),
+        InkWell(
+          onTap: onTap,
+          child: isExpanded
+              ? FadeIn(child: _buildExpandedListSection(title, items, builder))
+              : FadeIn(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 4.0, right: 12),
+                    child: Text(
+                      collapsedText,
+                      textDirection: m.TextDirection.rtl,
+                      locale: const Locale("ar"),
+                      textAlign: TextAlign.right,
+                      style: _getExpandableTextStyle(false),
+                    ),
                   ),
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpandedListSection<T>(String title, List<T> items, String Function(T) builder) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4.0, right: 12),
+          child: Directionality(
+            textDirection: m.TextDirection.rtl,
+            child: Row(
+              children: [
+                Text(
+                  title,
+                  textDirection: m.TextDirection.rtl,
+                  locale: const Locale("ar"),
+                  textAlign: TextAlign.right,
+                  style: _getExpandableTextStyle(true),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4.0, right: 12),
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: items.length,
+            itemBuilder: (context, index) => Text(
+              builder(items[index]),
+              textDirection: m.TextDirection.rtl,
+              locale: const Locale("ar"),
+              textAlign: TextAlign.right,
+              style: _getExpandableTextStyle(true),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل أزرار المشاركة لملف ui/components/hadith_sharing_buttons.dart
+  Widget _buildSharingButtons() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0, right: 12),
+      child: Directionality(
+        textDirection: m.TextDirection.rtl,
+        child: Row(
+          children: [
+            _buildCopyButton(),
+            SizedBox(width: 10.w),
+            _buildSharingButton(),
+            SizedBox(width: 10.w),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSharingButton() {
+    return InkWell(
+      onTap: () => _showSharingOptions(true),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: const Color(0xffF5EFE8).withOpacity(.9),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Icon(
+              Icons.share,
+              color: Colors.black87,
+              size: 24.sp,
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCopyButton() {
+    return InkWell(
+      onTap: () async {
+        // نص الحديث بالعربية
+        final arabicText = _hadithAr.hadeeth;
+
+        // نص الترجمة (إن وجد)
+        final otherLangText = widget.locale != "ar" ? "\n\n${_hadithOtherLanguage["hadeeth"]}" : "";
+
+        // النص النهائي اللي هيتنسخ
+        final textToCopy = "$arabicText$otherLangText";
+
+        // عملية النسخ
+        await Clipboard.setData(ClipboardData(text: textToCopy));
+
+        // SnackBar للتأكيد
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('✅ تم نسخ الحديث بنجاح'),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(12),
+              duration: const Duration(seconds: 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        }
+      },
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: const Color(0xffF5EFE8).withOpacity(.9),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Icon(
+              Icons.copy,
+              color: Colors.black87,
+              size: 24.sp,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSharingOptions(bool isImage) {
+    showModalBottomSheet(
+      context: context,
+      builder: (builder) => SharingOptions(
+        isImage: isImage,
+        data: {
+          "hadithAr": _hadithAr,
+          "hadithOtherLanguage": _hadithOtherLanguage,
+        },
+      ),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+    );
+  }
+
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل قسم الترجمة لملف ui/sections/translation_section.dart
+  Widget _buildTranslationSection() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+          child: Text(
+            _hadithOtherLanguage["hadeeth"],
+            style: _getTranslationTextStyle(),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4.0, left: 12),
+          child: Text(
+            '${_hadithOtherLanguage["attribution"]} - [${_hadithOtherLanguage["grade"]}]',
+            style: _getTranslationSecondaryStyle(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل الأنماط لملف ui/styles/hadith_text_styles.dart
+  TextStyle _getHadithTextStyle() {
+    return TextStyle(
+      color: isDarkModeNotifier.value ? Colors.white : Colors.black87,
+      fontFamily: 'Taha',
+      fontSize: 16.sp,
+    );
+  }
+
+  TextStyle _getSecondaryTextStyle() {
+    return TextStyle(
+      color: isDarkModeNotifier.value ? Colors.white.withOpacity(.45) : Colors.black45,
+      fontFamily: 'Taha',
+      fontSize: 16.sp,
+    );
+  }
+
+  TextStyle _getExpandableTextStyle(bool isExpanded) {
+    return TextStyle(
+      color: isExpanded
+          ? (isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87)
+          : (isDarkModeNotifier.value ? orangeColor : const Color(0xffA28858)),
+      fontFamily: 'Taha',
+      fontSize: 16.sp,
+    );
+  }
+
+  TextStyle _getTranslationTextStyle() {
+    return TextStyle(
+      color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87,
+      fontSize: 16.sp,
+      fontFamily: 'roboto',
+    );
+  }
+
+  TextStyle _getTranslationSecondaryStyle() {
+    return TextStyle(
+      color: isDarkModeNotifier.value ? Colors.white.withOpacity(.45) : Colors.black45,
+      fontSize: 16.sp,
+      fontFamily: 'roboto',
     );
   }
 }

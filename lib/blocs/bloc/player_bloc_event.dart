@@ -23,7 +23,23 @@ class StartPlaying extends PlayerBlocEvent {
     required this.jsonData,
   });
 }
+class PlayFullSurah extends PlayerBlocEvent {
+  final String reciterId;
+  final int surahNumber;
+  final String surahName;
+  final Moshaf moshaf;
+  final Reciter reciter;
+  final List jsonData;
 
+   PlayFullSurah({
+    required this.reciterId,
+    required this.surahNumber,
+    required this.surahName,
+    required this.moshaf,
+    required this.reciter,
+    required this.jsonData,
+  });
+}
 class DownloadSurah extends PlayerBlocEvent {
   final Reciter reciter;
   final Moshaf moshaf;
