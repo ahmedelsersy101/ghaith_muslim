@@ -560,7 +560,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
       // ⏯️ ملف جزئي موجود (تم إيقافه مؤقتاً أو فقدت حالته): عرض زر الاستئناف (Play)
       // هذا هو الحل لمشكلة الملفات التي فقدت حالتها بعد التنقل.
       return Icon(
-        Icons.play_arrow,
+        Icons.download_done,
         size: 24.sp,
         color: orangeColor,
       );

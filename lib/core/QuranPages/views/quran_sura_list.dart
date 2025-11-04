@@ -501,7 +501,7 @@ class _SurahListPageState extends State<SurahListPage> {
         leading: _buildSurahNumberCircle(suraNumberInQuran),
         title: _buildSurahTitle(suraData, hasBookmark, suraNumberInQuran),
         subtitle: _buildSurahSubtitle(suraData),
-        trailing: _buildSurahTrailing(suraNumber),
+        // trailing: _buildSurahTrailing(suraNumber),
         onTap: () => _navigateToSurah(suraNumberInQuran),
       ),
     );
@@ -519,7 +519,8 @@ class _SurahListPageState extends State<SurahListPage> {
       child: Center(
         child: Text(
           suraNumber.toString(),
-          style: TextStyle(color: isDarkModeNotifier.value ? Colors.white : Colors.black, fontSize: 14.sp),
+          style: TextStyle(
+              color: isDarkModeNotifier.value ? Colors.white : Colors.black, fontSize: 14.sp),
         ),
       ),
     );
@@ -531,12 +532,12 @@ class _SurahListPageState extends State<SurahListPage> {
       child: Row(
         children: [
           Text(
-            suraData["englishName"],
+            "سورة ${suraData["name"]}",
             style: TextStyle(
               color: getValue("darkMode") ? Colors.white70 : Colors.black,
-              fontSize: 14.sp,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              fontFamily: "uthmanic",
+              fontFamily: "arsura",
             ),
           ),
           if (hasBookmark) _buildBookmarkIcon(suraNumber),
@@ -557,27 +558,23 @@ class _SurahListPageState extends State<SurahListPage> {
   Widget _buildSurahSubtitle(Map<String, dynamic> suraData) {
     final ayahCount = quran.getVerseCount(suraData["number"]);
     return Text(
-      "${suraData["englishNameTranslation"]} ($ayahCount)",
-      style: TextStyle(
-        fontFamily: "uthmanic",
-        fontSize: 14.sp,
-        color: Colors.grey.withOpacity(.8),
-      ),
+      "${suraData["englishName"]} ($ayahCount)",
+      style: TextStyle(fontFamily: "uthmanic", fontSize: 14.sp, color: Colors.grey.withOpacity(.8)),
     );
   }
 
-  Widget _buildSurahTrailing(int suraNumber) {
-    return RichText(
-      text: TextSpan(
-        text: "$suraNumber",
-        style: TextStyle(
-          color: getValue("darkMode") ? Colors.white70 : Colors.black,
-          fontSize: 28.sp,
-          fontFamily: "arsura",
-        ),
-      ),
-    );
-  }
+  // Widget _buildSurahTrailing(int suraNumber) {
+  //   return RichText(
+  //     text: TextSpan(
+  //       text: "$suraNumber",
+  //       style: TextStyle(
+  //         color: getValue("darkMode") ? Colors.white70 : Colors.black,
+  //         fontSize: 28.sp,
+  //         fontFamily: "arsura",
+  //       ),
+  //     ),
+  //   );
+  // }
 
   void _navigateToSurah(int suraNumber) async {
     await Navigator.push(
