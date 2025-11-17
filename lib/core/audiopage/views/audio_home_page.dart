@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, unused_field
 import 'dart:convert';
 import 'dart:io';
+import 'package:ghaith/core/audiopage/models/reciter.dart';
 import 'package:ghaith/main.dart';
 import 'package:azlistview/azlistview.dart';
 import 'package:dio/dio.dart';
@@ -20,7 +21,6 @@ import 'package:simple_annimated_staggered/simple_annimated_staggered.dart';
 // =============================================
 // 📁 IMPORTS - يمكن نقلها لملف imports منفصل
 // =============================================
-import 'package:ghaith/Core/audiopage/models/reciter.dart';
 import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';

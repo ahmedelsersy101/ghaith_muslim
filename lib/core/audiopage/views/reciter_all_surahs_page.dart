@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:ghaith/core/audiopage/models/reciter.dart';
 import 'package:ghaith/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
@@ -15,7 +16,6 @@ import 'package:quran/quran.dart' as quran;
 // =============================================
 // 📁 IMPORTS
 // =============================================
-import 'package:ghaith/Core/audiopage/models/reciter.dart';
 import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';
@@ -239,9 +239,14 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
     return "${dir.path}/${widget.reciter.name}-${widget.mushaf.id}-$surahNameArabic.mp3";
   }
 
+// [استبدل هذه الدالة]
   int _getSurahIndex(dynamic surah) {
-    // البحث دائماً في القائمة الكاملة "surahs"
-    // لضمان أن الـ index صحيح بالنسبة للمشغل
+    // 🆕 [تعديل] نحدد القائمة التي سنبحث فيها
+    if (selectedMode == "favorite") {
+      // البحث في قائمة المفضلة
+      return favoriteSurahs.indexOf(surah);
+    }
+    // البحث في القائمة الكاملة "surahs" (السلوك الافتراضي)
     return surahs.indexOf(surah);
   }
 
@@ -253,6 +258,29 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
     return selectedMode == "all" ? surahs : favoriteSurahs;
   }
 
+  Moshaf _createFavoriteMushaf() {
+    // 1. نحصل على قائمة أرقام السور من قائمة المفضلة
+    // (نحن نفترض أن 'favoriteSurahs' مرتبة بنفس ترتيب 'surahs')
+    final favoriteSurahIds = favoriteSurahs.map((surah) {
+      return surah["surahNumber"].toString();
+    }).toList();
+
+// 2. نحولها إلى نص مفصول بفاصلة
+    final String favoriteSurahListString = favoriteSurahIds.join(',');
+
+// 3. ننشئ نسخة "مؤقتة" من المصحف
+// نستخدم بيانات المصحف الأصلي، لكن نستبدل قائمة السور
+    return Moshaf(
+      id: widget.mushaf.id,
+      name: widget.mushaf.name,
+      server: widget.mushaf.server,
+      surahTotal: favoriteSurahIds.length.toString(),
+      surahList: favoriteSurahListString,
+// 🆕 [هذا هو الإصلاح]
+// نقوم بتمرير نفس نوع المصحف من المصحف الأصلي
+      moshafType: widget.mushaf.moshafType,
+    );
+  }
   // =============================================
   // 🧩 UI BUILD METHODS
   // =============================================
@@ -723,13 +751,22 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
   //   _showSnackBar("✅ انتهت محاولة تحميل جميع السور", Colors.green);
   // }
 
+  // [استبدل هذه الدالة]
   void _startPlayingSurah(dynamic surah, int index) {
+    // 🆕 [تعديل]
+    // 1. نحدد المصحف الذي سيتم تشغيله
+    final Moshaf playlistMushaf = (selectedMode == "all")
+        ? widget.mushaf // المصحف الأصلي الكامل
+        : _createFavoriteMushaf(); // المصحف المؤقت للمفضلة
+
+    // 2. (الـ index أصبح صحيحاً الآن بفضل تعديل _getSurahIndex)
+
     playerPageBloc.add(StartPlaying(
       buildContext: context,
-      moshaf: widget.mushaf,
+      moshaf: playlistMushaf, // 🆕 نستخدم المصحف الصحيح (الكامل أو المفضلة)
       reciter: widget.reciter,
       suraNumber: int.parse(surah["surahNumber"]),
-      initialIndex: index,
+      initialIndex: index, // 🆕 الـ 'index' الآن صحيح 100%
       jsonData: widget.jsonData,
     ));
   }

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ghaith/Core/audiopage/models/reciter.dart';
+import 'package:ghaith/core/audiopage/models/reciter.dart';
 import 'package:ghaith/core/home.dart';
 import 'package:ghaith/main.dart';
 import 'package:path_provider/path_provider.dart';

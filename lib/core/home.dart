@@ -34,6 +34,7 @@ import 'package:ghaith/core/hadith/views/widgets/screenshot_preview.dart';
 import 'package:ghaith/core/hadith/models/hadith.dart';
 import 'package:ghaith/core/notifications/data/40hadith.dart';
 import 'package:ghaith/core/sibha/sibha_page.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:quran/quran.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -108,6 +109,7 @@ class _HomeState extends State<Home>
     initHiveValues();
     loadJsonAsset();
     updateValue("timesOfAppOpen", getValue("timesOfAppOpen") + 1);
+    _checkForUpdate();
   }
 
   @override
@@ -119,6 +121,50 @@ class _HomeState extends State<Home>
   }
 
   late Timer _timer;
+
+  // دالة للتحقق من وجود تحديثات
+  Future<void> _checkForUpdate() async {
+    try {
+      // التحقق من وجود تحديث
+      AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
+
+      // التأكد من أن التحديث متوفر وأن التحديث المرن مسموح به
+      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable &&
+          updateInfo.flexibleUpdateAllowed) {
+        // ابدأ عملية التحديث المرن
+        await InAppUpdate.startFlexibleUpdate();
+
+        // الاستماع لحالة التثبيت
+        InAppUpdate.installUpdateListener.listen((InstallStatus status) {
+          if (status == InstallStatus.downloaded) {
+            // إذا اكتمل التنزيل، أظهر رسالة للمستخدم
+            _showUpdateDownloadedSnackbar();
+          }
+        });
+      }
+    } catch (e) {
+      // معالجة الأخطاء (مثل عدم وجود انترنت)
+      print("خطأ في التحقق من التحديث: $e");
+    }
+  }
+
+  // دالة لإظهار رسالة (Snackbar) عند اكتمال التنزيل
+  void _showUpdateDownloadedSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('تم تنزيل تحديث جديد. هل تريد تثبيته الآن؟'),
+        // اجعل الرسالة ظاهرة لوقت طويل
+        duration: const Duration(days: 1),
+        action: SnackBarAction(
+          label: 'تثبيت',
+          onPressed: () {
+            // إكمال عملية التثبيت (سيتم إعادة تشغيل التطبيق)
+            InAppUpdate.completeFlexibleUpdate();
+          },
+        ),
+      ),
+    );
+  }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل وظائف JSON لملف services/json_loader.dart
   Future<void> loadJsonAsset() async {
