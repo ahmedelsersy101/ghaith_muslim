@@ -82,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل التنقل لملف services/navigation_service.dart
   void _navigateToHome() async {
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 3));
 
     if (mounted) {
       Navigator.pushAndRemoveUntil(
@@ -163,7 +163,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل بيانات الحديث لملف services/hadith_service.dart
   Future<void> _downloadAndStoreHadithData() async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 2));
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (prefs.getString("hadithlist-100000-${context.locale.languageCode}") == null) {
@@ -218,19 +218,19 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
 // أضف هذه الدالة في نفس الملف أو في service منفصل
-Future<void> setOptimalDisplayMode() async {
-  final List<DisplayMode> supported = await FlutterDisplayMode.supported;
-  final DisplayMode active = await FlutterDisplayMode.active;
+  Future<void> setOptimalDisplayMode() async {
+    final List<DisplayMode> supported = await FlutterDisplayMode.supported;
+    final DisplayMode active = await FlutterDisplayMode.active;
 
-  final List<DisplayMode> sameResolution = supported
-      .where((DisplayMode m) => m.width == active.width && m.height == active.height)
-      .toList()
-    ..sort((DisplayMode a, DisplayMode b) => b.refreshRate.compareTo(a.refreshRate));
+    final List<DisplayMode> sameResolution = supported
+        .where((DisplayMode m) => m.width == active.width && m.height == active.height)
+        .toList()
+      ..sort((DisplayMode a, DisplayMode b) => b.refreshRate.compareTo(a.refreshRate));
 
-  final DisplayMode mostOptimalMode = sameResolution.isNotEmpty ? sameResolution.first : active;
-  
-  await FlutterDisplayMode.setPreferredMode(mostOptimalMode);
-}
+    final DisplayMode mostOptimalMode = sameResolution.isNotEmpty ? sameResolution.first : active;
+
+    await FlutterDisplayMode.setPreferredMode(mostOptimalMode);
+  }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل إدارة التخزين لملف services/storage_service.dart
   Future<void> _initStoragePermission() async {

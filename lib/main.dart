@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -121,6 +122,8 @@ Future<void> _initializeWorkManager() async {
 
 // [CAN_BE_EXTRACTED] -> services/display_service.dart
 Future<void> _setOptimalDisplayMode() async {
+    if (!Platform.isAndroid) return; // البلجن Android فقط
+
   final List<DisplayMode> supported = await FlutterDisplayMode.supported;
   final DisplayMode active = await FlutterDisplayMode.active;
 

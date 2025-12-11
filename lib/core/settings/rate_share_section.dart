@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/main.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:superellipse_shape/superellipse_shape.dart';
 // ignore: depend_on_referenced_packages
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
@@ -15,188 +16,208 @@ class RateShareSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDarkModeNotifier.value
-            ? quranPagesColorDark.withOpacity(0.5)
-            : const Color(0xffFEFEFE),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(16.r),
+        color: isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.2) : Colors.white,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            ('rateShare').tr(),
-            textAlign: TextAlign.start,
-            style: TextStyle(
-                color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-                fontFamily: "cairo",
-                fontSize: 24.sp),
+      child: Material(
+        color:
+            isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.5) : quranPagesColorLight,
+        shape: SuperellipseShape(
+          borderRadius: BorderRadius.circular(24.0.r),
+        ),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: isDarkModeNotifier.value
+                ? quranPagesColorDark.withOpacity(0.5)
+                : quranPagesColorLight,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
           ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: isDarkModeNotifier.value
-                  ? quranPagesColorDark.withOpacity(0.5)
-                  : const Color(0xffFEFEFE),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).colorScheme.secondary.withOpacity(0.3)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.orange, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      ('rateApp').tr(),
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color:
-                              isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-                          fontFamily: "cairo",
-                          fontSize: 16.sp),
-                    ),
-                  ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ('rateShare').tr(),
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
+                    fontFamily: "cairo",
+                    fontSize: 24.sp),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: isDarkModeNotifier.value
+                      ? quranPagesColorDark.withOpacity(0.5)
+                      : const Color(0xffFEFEFE),
+                  borderRadius: BorderRadius.circular(12),
+                  border:
+                      Border.all(color: Theme.of(context).colorScheme.secondary.withOpacity(0.3)),
                 ),
-                const SizedBox(height: 8),
-                Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ...List.generate(
-                      5,
-                      (index) => const Icon(Icons.star, color: Colors.orange, size: 20),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.orange, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          ('rateApp').tr(),
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              color: isDarkModeNotifier.value
+                                  ? backgroundColor
+                                  : darkModeSecondaryColor,
+                              fontFamily: "cairo",
+                              fontSize: 16.sp),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '5.0',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color:
-                              isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-                          fontFamily: "cairo",
-                          fontSize: 16.sp),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        ...List.generate(
+                          5,
+                          (index) => const Icon(Icons.star, color: Colors.orange, size: 20),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '5.0',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              color: isDarkModeNotifier.value
+                                  ? backgroundColor
+                                  : darkModeSecondaryColor,
+                              fontFamily: "cairo",
+                              fontSize: 16.sp),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () => _rateApp(),
-                    icon: const Icon(Icons.rate_review, size: 18),
-                    label: Text(
-                      ('rateOnStore').tr(),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isDarkModeNotifier.value ? backgroundColor : orangeColor,
-                      foregroundColor: isDarkModeNotifier.value ? orangeColor : backgroundColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _rateApp(),
+                        icon: const Icon(Icons.rate_review, size: 18),
+                        label: Text(
+                          ('rateOnStore').tr(),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isDarkModeNotifier.value ? backgroundColor : orangeColor,
+                          foregroundColor: isDarkModeNotifier.value ? orangeColor : backgroundColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: isDarkModeNotifier.value
-                  ? quranPagesColorDark.withOpacity(0.5)
-                  : const Color(0xffFEFEFE),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: isDarkModeNotifier.value
+                      ? quranPagesColorDark.withOpacity(0.5)
+                      : const Color(0xffFEFEFE),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.share,
-                        color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-                        size: 20),
-                    const SizedBox(width: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.share,
+                            color:
+                                isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
+                            size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          ('shareAppTitle').tr(),
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              color: isDarkModeNotifier.value
+                                  ? backgroundColor
+                                  : darkModeSecondaryColor,
+                              fontFamily: "cairo",
+                              fontSize: 16.sp),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     Text(
-                      ('shareAppTitle').tr(),
+                      ('shareAppSubtitle').tr(),
                       textAlign: TextAlign.start,
                       style: TextStyle(
                           color:
                               isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
                           fontFamily: "cairo",
-                          fontSize: 16.sp),
+                          fontSize: 12.sp),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _shareApp(),
+                        icon: const Icon(
+                          Icons.share,
+                          size: 18,
+                        ),
+                        label: Text(
+                          ('shareApp').tr(),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isDarkModeNotifier.value ? backgroundColor : orangeColor,
+                          foregroundColor: isDarkModeNotifier.value ? orangeColor : backgroundColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  ('shareAppSubtitle').tr(),
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                      color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-                      fontFamily: "cairo",
-                      fontSize: 12.sp),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration(
+                  color: isDarkModeNotifier.value
+                      ? quranPagesColorDark.withOpacity(0.5)
+                      : const Color(0xffFEFEFE),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () => _shareApp(),
-                    icon: const Icon(
-                      Icons.share,
-                      size: 18,
-                    ),
-                    label: Text(
-                      ('shareApp').tr(),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isDarkModeNotifier.value ? backgroundColor : orangeColor,
-                      foregroundColor: isDarkModeNotifier.value ? orangeColor : backgroundColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline,
+                        color: isDarkModeNotifier.value ? backgroundColor : orangeColor, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        ('sharingBenefits').tr(),
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
+                            fontFamily: "cairo",
+                            fontSize: 12.sp),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              color: isDarkModeNotifier.value
-                  ? quranPagesColorDark.withOpacity(0.5)
-                  : const Color(0xffFEFEFE),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline,
-                    color: isDarkModeNotifier.value ? backgroundColor : orangeColor, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    ('sharingBenefits').tr(),
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
-                        fontFamily: "cairo",
-                        fontSize: 12.sp),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

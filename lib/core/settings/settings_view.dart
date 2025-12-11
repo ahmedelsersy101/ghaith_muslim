@@ -12,6 +12,7 @@ import 'package:ghaith/core/settings/rate_share_section.dart';
 import 'package:ghaith/main.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:superellipse_shape/superellipse_shape.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -130,7 +131,7 @@ class _SettingsViewState extends State<SettingsView> {
                   ),
                   const SizedBox(height: 8),
                   const RateShareSection(),
-                   const SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -146,25 +147,39 @@ class _SettingsViewState extends State<SettingsView> {
     Widget trailing,
   ) {
     return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDarkModeNotifier.value
-            ? quranPagesColorDark.withOpacity(0.5)
-            : const Color(0xffFEFEFE),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16.r),
+        color: isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.2) : Colors.white,
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        title: Text(
-          title,
-          textAlign: TextAlign.start,
-          style: TextStyle(
-            color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-            fontFamily: "cairo",
-            fontSize: 22.sp,
+      child: Material(
+        color:
+            isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.5) : quranPagesColorLight,
+        shape: SuperellipseShape(
+          borderRadius: BorderRadius.circular(24.0.r),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDarkModeNotifier.value
+                ? quranPagesColorDark.withOpacity(0.5)
+                : quranPagesColorLight,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            title: Text(
+              title,
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
+                fontFamily: "cairo",
+                fontSize: 22.sp,
+              ),
+            ),
+            leading: leading,
+            trailing: trailing,
           ),
         ),
-        leading: leading,
-        trailing: trailing,
       ),
     );
   }
