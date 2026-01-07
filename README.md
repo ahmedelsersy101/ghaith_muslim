@@ -107,22 +107,6 @@
 
 ---
 
-## 📥 Download | التحميل
-
-You can download the app from Google Play or try the demo APK:
-
-<div align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.ghaith.muslim.app">
-    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="80" alt="Get it on Google Play" />
-  </a>
-  <br>
-  <a href="https://drive.google.com/drive/folders/1WsFCFsHObbF4--v2sfog8ig8yzigSSoh?usp=sharing">
-    <img src="https://img.shields.io/badge/Download-Demo%20APK-E91E63?style=for-the-badge&logo=android&logoColor=white" height="40" alt="Download Demo APK" />
-  </a>
-</div>
-
----
-
 ## 🤝 Contributing | المساهمة
 
 Contributions are welcome! If you have any ideas, feel free to open an issue or submit a pull request.
