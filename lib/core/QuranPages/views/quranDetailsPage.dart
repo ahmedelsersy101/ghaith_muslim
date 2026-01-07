@@ -6,7 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
-import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
+import 'package:ghaith/blocs/quran_page_player_bloc.dart';
 import 'package:ghaith/core/QuranPages/helpers/remove_html_tags.dart';
 import 'package:ghaith/core/QuranPages/widgets/bookmark_dialog.dart';
 import '../helpers/translation/get_translation_data.dart' as get_translation_data;

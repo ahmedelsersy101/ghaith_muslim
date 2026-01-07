@@ -2,6 +2,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:ghaith/GlobalHelpers/home_blocs.dart';
+import 'package:ghaith/GlobalHelpers/home_state.dart';
 import 'package:ghaith/core/calender/calender.dart';
 import 'package:ghaith/core/settings/settings_view.dart';
 import 'package:ghaith/core/widgets/superellipse_button.dart';
@@ -18,10 +20,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';
-import 'package:ghaith/blocs/bloc/bloc/player_bar_bloc.dart';
-import 'package:ghaith/blocs/bloc/hadith_bloc.dart';
-import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
-import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/GlobalHelpers/initializeData.dart';
 import 'package:ghaith/core/QuranPages/helpers/convertNumberToAr.dart';
@@ -44,55 +42,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:workmanager/workmanager.dart';
 
-// 🔹 [CAN_BE_EXTRACTED] يمكن نقل الـ Blocs لملف blocs/home_blocs.dart
-final qurapPagePlayerBloc = QuranPagePlayerBloc();
-final playerPageBloc = PlayerBlocBloc();
-final playerbarBloc = PlayerBarBloc();
-final hadithPageBloc = HadithBloc();
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeState extends State<Home>
-    with AfterLayoutMixin, TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل متغيرات الحالة لملف state/home_state.dart
-  var widgejsonData;
-  var quarterjsonData;
-  StreamSubscription? _subscription;
-  StreamSubscription? _subscription2;
-  bool alarm = false;
-  bool alarm1 = false;
-  int? id;
-  late int suranumber = Random().nextInt(114) + 1;
-  late int indexOfHadith = Random().nextInt(hadithes.length);
-  late int verseNumber = Random().nextInt(getVerseCount(suranumber)) + 1;
-
-  late StreamController<Duration> _timeLeftController;
-  late Stream<Duration> _timeLeftStream;
-
-  DateTime dateTime = DateTime.now();
-  var prayerTimes;
-  bool isLoading = true;
-  bool reload = false;
-  String nextPrayer = '';
-  String nextPrayerTime = '';
-  int index = 0;
-  var _today = HijriCalendar.now();
-  String currentCity = "";
-  String currentCountry = "";
-  List prayers = [
-    ["Fajr", "الفجر"],
-    ["Sunrise", "الشروق"],
-    ["Dhuhr", "الظهر"],
-    ["Asr", "العصر"],
-    ["Maghrib", "المغرب"],
-    ["Isha", "العشاء"]
-  ];
-
+class _HomeScreenState extends State<HomeScreen>
+    with AfterLayoutMixin, TickerProviderStateMixin, AutomaticKeepAliveClientMixin { 
   @override
   void initState() {
     _initializeApp();
@@ -109,13 +68,13 @@ class _HomeState extends State<Home>
     initHiveValues();
     loadJsonAsset();
     updateValue("timesOfAppOpen", getValue("timesOfAppOpen") + 1);
-    _checkForUpdate();
+    checkForUpdate();
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
-    _subscription2?.cancel();
+    subscription?.cancel();
+    subscription2?.cancel();
     _timer.cancel();
     super.dispose();
   }
@@ -123,7 +82,7 @@ class _HomeState extends State<Home>
   late Timer _timer;
 
   // دالة للتحقق من وجود تحديثات
-  Future<void> _checkForUpdate() async {
+  Future<void> checkForUpdate() async {
     try {
       // التحقق من وجود تحديث
       AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
@@ -420,7 +379,7 @@ class _HomeState extends State<Home>
       timeLeft = nextPrayerTim.difference(currentDateTime);
     }
 
-    _timeLeftController.add(timeLeft);
+    timeLeftController.add(timeLeft);
   }
 
   void getAlarms() async {}
@@ -431,7 +390,7 @@ class _HomeState extends State<Home>
   Future<void> updateDateData() async {
     await Future.delayed(const Duration(milliseconds: 300));
     HijriCalendar.setLocal(context.locale.languageCode == "ar" ? "ar" : "en");
-    _today = HijriCalendar.now();
+    today = HijriCalendar.now();
     setState(() {});
   }
 
@@ -519,7 +478,7 @@ class _HomeState extends State<Home>
   }
 
   Widget _buildDateSection() {
-    if (_today == null) return SizedBox(height: 20.h);
+    if (today == null) return SizedBox(height: 20.h);
 
     return SizedBox(
       child: Column(
@@ -527,7 +486,7 @@ class _HomeState extends State<Home>
         children: [
           SizedBox(height: 20.h),
           Text(
-            _today.toFormat("dd - MMMM - yyyy"),
+            today.toFormat("dd - MMMM - yyyy"),
             style: _dateTextStyle(),
           ),
           Text(

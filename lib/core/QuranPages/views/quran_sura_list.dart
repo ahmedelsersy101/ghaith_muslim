@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_single_quotes, unused_field
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
+import 'package:ghaith/blocs/quran_page_player_bloc.dart';
 import 'package:ghaith/main.dart';
 import 'dart:convert';
 import 'package:easy_container/easy_container.dart';

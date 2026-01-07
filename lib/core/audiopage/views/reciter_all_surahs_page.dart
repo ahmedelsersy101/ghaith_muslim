@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:ghaith/GlobalHelpers/home_blocs.dart';
 import 'package:ghaith/core/audiopage/models/reciter.dart';
 import 'package:ghaith/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -16,12 +17,10 @@ import 'package:quran/quran.dart' as quran;
 // =============================================
 // 📁 IMPORTS
 // =============================================
-import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
+import 'package:ghaith/blocs/player_bloc_bloc.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';
-import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
-import 'package:ghaith/core/home.dart';
-
+import 'package:ghaith/blocs/quran_page_player_bloc.dart';
 // =============================================
 // 🏗️ MAIN WIDGET - Reciters Surah List Page
 // =============================================

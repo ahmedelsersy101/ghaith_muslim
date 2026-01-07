@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, unused_field
 import 'dart:convert';
 import 'dart:io';
+import 'package:ghaith/GlobalHelpers/home_blocs.dart';
 import 'package:ghaith/core/audiopage/models/reciter.dart';
 import 'package:ghaith/main.dart';
 import 'package:azlistview/azlistview.dart';
@@ -21,12 +22,11 @@ import 'package:simple_annimated_staggered/simple_annimated_staggered.dart';
 // =============================================
 // 📁 IMPORTS - يمكن نقلها لملف imports منفصل
 // =============================================
-import 'package:ghaith/blocs/bloc/player_bloc_bloc.dart';
+import 'package:ghaith/blocs/player_bloc_bloc.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';
-import 'package:ghaith/blocs/bloc/quran_page_player_bloc.dart';
+import 'package:ghaith/blocs/quran_page_player_bloc.dart';
 import 'package:ghaith/core/audiopage/views/reciter_all_surahs_page.dart';
-import 'package:ghaith/core/home.dart';
 
 // =============================================
 // 🏗️ MAIN WIDGET - Reciters Page

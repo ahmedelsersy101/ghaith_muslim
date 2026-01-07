@@ -1,15 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ghaith/GlobalHelpers/home_blocs.dart';
 import 'package:ghaith/core/audiopage/models/reciter.dart';
-import 'package:ghaith/core/home.dart';
 import 'package:ghaith/main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:ghaith/blocs/bloc/bloc/player_bar_bloc.dart';
+import 'package:ghaith/blocs/player_bar_bloc.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:quran/quran.dart';
 
