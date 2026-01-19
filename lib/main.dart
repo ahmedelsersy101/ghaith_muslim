@@ -63,11 +63,6 @@ class _GhaithMuslimAppState extends State<GhaithMuslimApp> {
   void initState() {
     super.initState();
   }
-
-  // =============================================
-  // 🧩 UI BUILD METHODS
-  // =============================================
-
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
