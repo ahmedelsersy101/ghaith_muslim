@@ -43,9 +43,9 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
     });
     _categories = [];
 
-    // إضافة فئة "كل الأحاديث"
-    _categories.add(Category(
-        id: "100000", title: "allHadith".tr(), hadeethsCount: "2000+", parentId: "parentId"));
+    // // إضافة فئة "كل الأحاديث"
+    // _categories.add(Category(
+    //     id: "100000", title: "allHadith".tr(), hadeethsCount: "2000+", parentId: "parentId"));
 
     await _loadCategories();
     if (mounted) setState(() => _isLoading = false);
