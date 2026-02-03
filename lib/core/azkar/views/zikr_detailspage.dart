@@ -106,9 +106,9 @@ class _ZikrPageState extends State<ZikrPage> {
     return BoxDecoration(
       color: _getBackgroundColor(),
       image: const DecorationImage(
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
         image: AssetImage("assets/images/mosquepnggold.png"),
-        alignment: Alignment.center,
+        alignment: Alignment.bottomCenter,
         opacity: .15,
       ),
     );

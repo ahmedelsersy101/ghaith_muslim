@@ -311,7 +311,7 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
       });
     }
   }
-  
+
   @override
   void dispose() {
     // Cancel timers
@@ -380,30 +380,27 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
     final screenSize = MediaQuery.of(context).size;
 
     return BlocBuilder<QuranPagePlayerBloc, QuranPagePlayerState>(
-        builder: (context, state) {
-          return Scaffold(
-            key: scaffoldKey,
-            endDrawer: SizedBox(
-              height: screenSize.height,
-              width: screenSize.width * .5,
-            ),
-            backgroundColor: Colors.transparent,
-            body: Stack(
-              children: [
-                Builder(
-                  builder: (context2) {
-                    return _buildAlignmentView(screenSize, context);
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
-      
-    
-  
+      builder: (context, state) {
+        return Scaffold(
+          key: scaffoldKey,
+          endDrawer: SizedBox(
+            height: screenSize.height,
+            width: screenSize.width * .5,
+          ),
+          backgroundColor: Colors.transparent,
+          body: Stack(
+            children: [
+              Builder(
+                builder: (context2) {
+                  return _buildAlignmentView(screenSize, context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   // ==================== View Selection ====================
 
@@ -1166,272 +1163,266 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
             body: SafeArea(
               child: Padding(
                 padding: EdgeInsets.only(right: 8.0.w, left: 8.w),
-                child: SingleChildScrollView(
-                  // physics: const ClampingScrollPhysics(),
-                  controller: _scrollController,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        width: screenSize.width,
-                        child: Row(
-                          mainAxisAlignment: m.MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              mainAxisAlignment: m.MainAxisAlignment.start,
-                              children: [
-                                IconButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    icon: Icon(
-                                      Icons.arrow_back_ios,
-                                      size: 24.sp,
-                                      color: secondaryColors[getValue("quranPageolorsIndex")],
-                                    )),
-                                IconButton(
-                                    onPressed: () {
-                                      showSettingsSheet(context);
-                                    },
-                                    icon: Icon(
-                                      Icons.settings,
-                                      size: 24.sp,
-                                      color: secondaryColors[getValue("quranPageolorsIndex")],
-                                    )),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4).r,
-                              child: Text(
-                                  widget.jsonData[quran.getPageData(index)[0]["surah"] - 1]["name"],
-                                  style: TextStyle(
-                                      color: secondaryColors[getValue("quranPageolorsIndex")],
-                                      fontFamily: "Taha",
-                                      fontSize: 20.sp)),
-                            ),
-                          ],
-                        ),
+                child: Column(
+                  children: [
+                    // ===== Header (ثابت في الأعلى) =====
+                    SizedBox(
+                      width: screenSize.width,
+                      child: Row(
+                        mainAxisAlignment: m.MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: m.MainAxisAlignment.start,
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  icon: Icon(
+                                    Icons.arrow_back_ios,
+                                    size: 24.sp,
+                                    color: secondaryColors[getValue("quranPageolorsIndex")],
+                                  )),
+                              IconButton(
+                                  onPressed: () {
+                                    showSettingsSheet(context);
+                                  },
+                                  icon: Icon(
+                                    Icons.settings,
+                                    size: 24.sp,
+                                    color: secondaryColors[getValue("quranPageolorsIndex")],
+                                  )),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4).r,
+                            child: Text(
+                                widget.jsonData[quran.getPageData(index)[0]["surah"] - 1]["name"],
+                                style: TextStyle(
+                                    color: secondaryColors[getValue("quranPageolorsIndex")],
+                                    fontFamily: "Taha",
+                                    fontSize: 20.sp)),
+                          ),
+                        ],
                       ),
-                      if ((index == 1 || index == 2))
-                        SizedBox(
-                          height: (screenSize.height * .15),
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Directionality(
-                          textDirection: m.TextDirection.rtl,
-                          child: SizedBox(
-                              width: double.infinity,
-                              child: RichText(
-                                key: richTextKeys[index - 1],
-                                textDirection: m.TextDirection.rtl,
-                                textAlign: TextAlign.center,
-                                softWrap: true, //locale: const Locale("ar"),
-                                text: TextSpan(
-                                  locale: const Locale("ar"),
-                                  children: quran.getPageData(index).expand((e) {
-                                    // print(e);
-                                    List<InlineSpan> spans = [];
-                                    for (var i = e["start"]; i <= e["end"]; i++) {
-                                      // Header
-                                      if (i == 1) {
-                                        spans.add(WidgetSpan(
-                                          child: HeaderWidget(e: e, jsonData: widget.jsonData),
-                                        ));
+                    ),
+                    // ===== محتوى القرآن (يتكيف مع المساحة المتاحة) =====
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        alignment: Alignment.topCenter,
+                        child: SizedBox(
+                          width: screenSize.width - 24.w,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if ((index == 1 || index == 2))
+                                SizedBox(
+                                  height: (screenSize.height * .24),
+                                ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: Directionality(
+                                  textDirection: m.TextDirection.rtl,
+                                  child: SizedBox(
+                                      width: double.infinity,
+                                      child: RichText(
+                                        key: richTextKeys[index - 1],
+                                        textDirection: m.TextDirection.rtl,
+                                        textAlign: TextAlign.center,
+                                        softWrap: true, //locale: const Locale("ar"),
+                                        text: TextSpan(
+                                          locale: const Locale("ar"),
+                                          children: quran.getPageData(index).expand((e) {
+                                            // print(e);
+                                            List<InlineSpan> spans = [];
+                                            for (var i = e["start"]; i <= e["end"]; i++) {
+                                              // Header
+                                              if (i == 1) {
+                                                spans.add(WidgetSpan(
+                                                  child:
+                                                      HeaderWidget(e: e, jsonData: widget.jsonData),
+                                                ));
 
-                                        if (index != 187 && index != 1) {
-                                          spans.add(WidgetSpan(
-                                              child: Basmallah(
-                                            index: getValue("quranPageolorsIndex"),
-                                          )));
-                                        }
-                                        if (index == 187 || index == 1) {
-                                          spans.add(WidgetSpan(
-                                              child: Container(
-                                            height: 10.h,
-                                          )));
-                                        }
-                                      }
+                                                if (index != 187 && index != 1) {
+                                                  spans.add(WidgetSpan(
+                                                      child: Basmallah(
+                                                    index: getValue("quranPageolorsIndex"),
+                                                  )));
+                                                }
+                                                if (index == 187 || index == 1) {
+                                                  spans.add(WidgetSpan(
+                                                      child: Container(
+                                                    height: 10.h,
+                                                  )));
+                                                }
+                                              }
 
-                                      // Verses
-                                      spans.add(TextSpan(
-                                        locale: const Locale("ar"),
-                                        recognizer: LongPressGestureRecognizer()
-                                          ..onLongPress = () {
-                                            // print(
-                                            //     "$index, ${e["surah"]}, ${e["start"] + i - 1}");
-                                            showAyahOptionsSheet(index, e["surah"], i);
-                                            print("longpressed");
-                                          }
-                                          ..onLongPressDown = (details) {
-                                            setState(() {
-                                              selectedSpan = " ${e["surah"]}$i";
-                                            });
-                                          }
-                                          ..onLongPressUp = () {
-                                            setState(() {
-                                              selectedSpan = "";
-                                            });
-                                            print("finished long press");
-                                          }
-                                          ..onLongPressCancel = () => setState(() {
-                                                selectedSpan = "";
-                                              }),
-                                        text: quran.getVerse(e["surah"], i),
-                                        style: TextStyle(
-                                          wordSpacing: -1.4,
-                                          color: primaryColors[getValue("quranPageolorsIndex")],
-                                          fontSize: 24.sp,
-                                          fontFamily: getValue("selectedFontFamily"),
-                                          backgroundColor: bookmarks
+                                              // Verses
+                                              spans.add(TextSpan(
+                                                locale: const Locale("ar"),
+                                                recognizer: LongPressGestureRecognizer()
+                                                  ..onLongPress = () {
+                                                    // print(
+                                                    //     "$index, ${e["surah"]}, ${e["start"] + i - 1}");
+                                                    showAyahOptionsSheet(index, e["surah"], i);
+                                                    print("longpressed");
+                                                  }
+                                                  ..onLongPressDown = (details) {
+                                                    setState(() {
+                                                      selectedSpan = " ${e["surah"]}$i";
+                                                    });
+                                                  }
+                                                  ..onLongPressUp = () {
+                                                    setState(() {
+                                                      selectedSpan = "";
+                                                    });
+                                                    print("finished long press");
+                                                  }
+                                                  ..onLongPressCancel = () => setState(() {
+                                                        selectedSpan = "";
+                                                      }),
+                                                text: quran.getVerse(e["surah"], i),
+                                                style: TextStyle(
+                                                  wordSpacing: -1.4,
+                                                  color: primaryColors[
+                                                      getValue("quranPageolorsIndex")],
+                                                  fontSize: 24.sp,
+                                                  fontFamily: getValue("selectedFontFamily"),
+                                                  backgroundColor: bookmarks
+                                                          .where((element) =>
+                                                              element["suraNumber"] == e["surah"] &&
+                                                              element["verseNumber"] == i)
+                                                          .isNotEmpty
+                                                      ? Color(int.parse(
+                                                              "0x${bookmarks.where((element) => element["suraNumber"] == e["surah"] && element["verseNumber"] == i).first["color"]}"))
+                                                          .withOpacity(.19)
+                                                      : shouldHighlightText
+                                                          ? (highlightVerse == " ${e["surah"]}$i" ||
+                                                                  selectedSpan ==
+                                                                      " ${e["surah"]}$i")
+                                                              ? highlightColors[getValue(
+                                                                      "quranPageolorsIndex")]
+                                                                  .withOpacity(.25)
+                                                              : Colors.transparent
+                                                          : selectedSpan == " ${e["surah"]}$i"
+                                                              ? highlightColors[getValue(
+                                                                      "quranPageolorsIndex")]
+                                                                  .withOpacity(.25)
+                                                              : Colors.transparent,
+                                                ),
+                                                children: [
+                                                  TextSpan(
+                                                      text:
+                                                          " ${convertToArabicNumber((i).toString())} " //               quran.getVerseEndSymbol()
+                                                      ,
+                                                      style: TextStyle(
+                                                          //wordSpacing: -10,letterSpacing: -5,
+                                                          color: isVerseStarred(e["surah"], i)
+                                                              ? Colors.amber
+                                                              : secondaryColors[
+                                                                  getValue("quranPageolorsIndex")],
+                                                          fontFamily:
+                                                              "KFGQPC Uthmanic Script HAFS Regular")),
+
+                                                  //               ],
+                                                  //             ),
+                                                  //           ),
+                                                  //         ),
+                                                  //     ),
+                                                  //     ),
+                                                ],
+                                              ));
+                                              // if (bookmarks.contains(
+                                              //     "${e["surah"]}-$i")) {
+                                              //   spans.add(WidgetSpan(
+                                              //       alignment:
+                                              //           PlaceholderAlignment
+                                              //               .middle,
+                                              //       child: Icon(
+                                              //         Icons.bookmark,
+                                              //         color: colorsOfBookmarks2[
+                                              //             bookmarks
+                                              //                 .indexOf(
+                                              //                     "${e["surah"]}-$i")],
+                                              //       )));
+                                              // }
+                                              if (bookmarks
                                                   .where((element) =>
                                                       element["suraNumber"] == e["surah"] &&
                                                       element["verseNumber"] == i)
-                                                  .isNotEmpty
-                                              ? Color(int.parse(
-                                                      "0x${bookmarks.where((element) => element["suraNumber"] == e["surah"] && element["verseNumber"] == i).first["color"]}"))
-                                                  .withOpacity(.19)
-                                              : shouldHighlightText
-                                                  ? (highlightVerse == " ${e["surah"]}$i" ||
-                                                          selectedSpan == " ${e["surah"]}$i")
-                                                      ? highlightColors[
-                                                              getValue("quranPageolorsIndex")]
-                                                          .withOpacity(.25)
-                                                      : Colors.transparent
-                                                  : selectedSpan == " ${e["surah"]}$i"
-                                                      ? highlightColors[
-                                                              getValue("quranPageolorsIndex")]
-                                                          .withOpacity(.25)
-                                                      : Colors.transparent,
+                                                  .isNotEmpty) {
+                                                spans.add(WidgetSpan(
+                                                    alignment: PlaceholderAlignment.middle,
+                                                    child: Icon(
+                                                      Icons.bookmark,
+                                                      color: Color(int.parse(
+                                                          "0x${bookmarks.where((element) => element["suraNumber"] == e["surah"] && element["verseNumber"] == i).first["color"]}")),
+                                                    )));
+                                              }
+                                            }
+                                            return spans;
+                                          }).toList(),
                                         ),
-                                        children: [
-                                          TextSpan(
-                                              text:
-                                                  " ${convertToArabicNumber((i).toString())} " //               quran.getVerseEndSymbol()
-                                              ,
-                                              style: TextStyle(
-                                                  //wordSpacing: -10,letterSpacing: -5,
-                                                  color: isVerseStarred(e["surah"], i)
-                                                      ? Colors.amber
-                                                      : secondaryColors[
-                                                          getValue("quranPageolorsIndex")],
-                                                  fontFamily:
-                                                      "KFGQPC Uthmanic Script HAFS Regular")),
-
-                                          //               ],
-                                          //             ),
-                                          //           ),
-                                          //         ),
-                                          //     ),
-                                          //     ),
-                                        ],
-                                      ));
-                                      // if (bookmarks.contains(
-                                      //     "${e["surah"]}-$i")) {
-                                      //   spans.add(WidgetSpan(
-                                      //       alignment:
-                                      //           PlaceholderAlignment
-                                      //               .middle,
-                                      //       child: Icon(
-                                      //         Icons.bookmark,
-                                      //         color: colorsOfBookmarks2[
-                                      //             bookmarks
-                                      //                 .indexOf(
-                                      //                     "${e["surah"]}-$i")],
-                                      //       )));
-                                      // }
-                                      if (bookmarks
-                                          .where((element) =>
-                                              element["suraNumber"] == e["surah"] &&
-                                              element["verseNumber"] == i)
-                                          .isNotEmpty) {
-                                        spans.add(WidgetSpan(
-                                            alignment: PlaceholderAlignment.middle,
-                                            child: Icon(
-                                              Icons.bookmark,
-                                              color: Color(int.parse(
-                                                  "0x${bookmarks.where((element) => element["suraNumber"] == e["surah"] && element["verseNumber"] == i).first["color"]}")),
-                                            )));
-                                      }
-                                    }
-                                    return spans;
-                                  }).toList(),
+                                      )),
                                 ),
-                              )),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 24.h,
-                      ),
-                      SizedBox(
-                        width: (screenSize.width * .60).w,
-                        child: Center(
-                          child: Stack(
-                            children: [
-                              if (checkIfPageIncludesQuarterAndQuarterIndex(
-                                      widget.quarterJsonData, quran.getPageData(index), indexes)
-                                  .includesQuarter)
-                                if (checkIfPageIncludesQuarterAndQuarterIndex(
-                                        widget.quarterJsonData, quran.getPageData(index), indexes)
-                                    .includesQuarter)
-                                  EasyContainer(
-                                    borderRadius: 12.r,
-                                    color: secondaryColors[getValue("quranPageolorsIndex")]
-                                        .withOpacity(.5),
-                                    borderColor: backgroundColors[getValue("quranPageolorsIndex")],
-                                    showBorder: true,
-                                    height: 30,
-                                    width: 250,
-                                    padding: 0,
-                                    margin: 0,
-                                    child: Center(
-                                      child: Text(
-                                        checkIfPageIncludesQuarterAndQuarterIndex(
-                                                        widget.quarterJsonData,
-                                                        quran.getPageData(index),
-                                                        indexes)
-                                                    .includesQuarter ==
-                                                true
-                                            ? "${"page".tr()} ${(index).toString()}  |  ${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).quarterIndex + 1) == 1 ? "" : "${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).quarterIndex).toString()}/${4.toString()}"} ${"hizb".tr()} ${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).hizbIndex + 1).toString()} | ${"juz".tr()} ${getJuzNumber(getPageData(index)[0]["surah"], getPageData(index)[0]["start"])}"
-                                            : "${"page".tr()} $index)} | ${"juz".tr()} ${getJuzNumber(getPageData(index)[0]["surah"], getPageData(index)[0]["start"])}",
-                                        style: TextStyle(
-                                          fontFamily: 'aldahabi',
-                                          fontSize: 12.sp,
-                                          color: backgroundColors[getValue("quranPageolorsIndex")],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              if (checkIfPageIncludesQuarterAndQuarterIndex(
-                                          widget.quarterJsonData, quran.getPageData(index), indexes)
-                                      .includesQuarter ==
-                                  false)
-                                EasyContainer(
-                                  borderRadius: 12.r,
-                                  color: secondaryColors[getValue("quranPageolorsIndex")]
-                                      .withOpacity(.5),
-                                  borderColor: backgroundColors[getValue("quranPageolorsIndex")],
-                                  showBorder: true,
-                                  height: 30.h,
-                                  width: 250.w,
-                                  padding: 0,
-                                  margin: 0,
-                                  child: Center(
-                                    child: Text(
-                                      "${"page".tr()} $index  |  ${"juz".tr()} ${getJuzNumber(getPageData(index)[0]["surah"], getPageData(index)[0]["start"])}",
-                                      style: TextStyle(
-                                        fontFamily: 'aldahabi',
-                                        fontSize: 12.sp,
-                                        color: backgroundColors[getValue("quranPageolorsIndex")],
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              ),
                             ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    // ===== Footer (ثابت في أسفل الشاشة) =====
+                    SizedBox(height: 8.h),
+                    Center(
+                      child: checkIfPageIncludesQuarterAndQuarterIndex(
+                                  widget.quarterJsonData, quran.getPageData(index), indexes)
+                              .includesQuarter
+                          ? EasyContainer(
+                              borderRadius: 12.r,
+                              color:
+                                  secondaryColors[getValue("quranPageolorsIndex")].withOpacity(.5),
+                              borderColor: backgroundColors[getValue("quranPageolorsIndex")],
+                              showBorder: true,
+                              height: 30.h,
+                              width: 250.w,
+                              padding: 0,
+                              margin: 0,
+                              child: Center(
+                                child: Text(
+                                  "${"page".tr()} ${(index).toString()}  |  ${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).quarterIndex + 1) == 1 ? "" : "${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).quarterIndex).toString()}/${4.toString()}"} ${"hizb".tr()} ${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).hizbIndex + 1).toString()} | ${"juz".tr()} ${getJuzNumber(getPageData(index)[0]["surah"], getPageData(index)[0]["start"])}",
+                                  style: TextStyle(
+                                    fontFamily: 'aldahabi',
+                                    fontSize: 12.sp,
+                                    color: backgroundColors[getValue("quranPageolorsIndex")],
+                                  ),
+                                ),
+                              ),
+                            )
+                          : EasyContainer(
+                              borderRadius: 12.r,
+                              color:
+                                  secondaryColors[getValue("quranPageolorsIndex")].withOpacity(.5),
+                              borderColor: backgroundColors[getValue("quranPageolorsIndex")],
+                              showBorder: true,
+                              height: 30.h,
+                              width: 250.w,
+                              padding: 0,
+                              margin: 0,
+                              child: Center(
+                                child: Text(
+                                  "${"page".tr()} $index  |  ${"juz".tr()} ${getJuzNumber(getPageData(index)[0]["surah"], getPageData(index)[0]["start"])}",
+                                  style: TextStyle(
+                                    fontFamily: 'aldahabi',
+                                    fontSize: 12.sp,
+                                    color: backgroundColors[getValue("quranPageolorsIndex")],
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ),
+                    SizedBox(height: 12.h),
+                  ],
                 ),
               ),
             ),

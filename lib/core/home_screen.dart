@@ -42,7 +42,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:workmanager/workmanager.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -51,7 +50,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with AfterLayoutMixin, TickerProviderStateMixin, AutomaticKeepAliveClientMixin { 
+    with AfterLayoutMixin, TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     _initializeApp();
@@ -71,10 +70,13 @@ class _HomeScreenState extends State<HomeScreen>
     checkForUpdate();
   }
 
+  StreamSubscription<InstallStatus>? _installUpdateSubscription;
+
   @override
   void dispose() {
     subscription?.cancel();
     subscription2?.cancel();
+    _installUpdateSubscription?.cancel();
     _timer.cancel();
     super.dispose();
   }
@@ -84,43 +86,66 @@ class _HomeScreenState extends State<HomeScreen>
   // دالة للتحقق من وجود تحديثات
   Future<void> checkForUpdate() async {
     try {
-      // التحقق من وجود تحديث
       AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
 
-      // التأكد من أن التحديث متوفر وأن التحديث المرن مسموح به
-      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable &&
-          updateInfo.flexibleUpdateAllowed) {
-        // ابدأ عملية التحديث المرن
-        await InAppUpdate.startFlexibleUpdate();
+      if (updateInfo.updateAvailability != UpdateAvailability.updateAvailable) {
+        return;
+      }
 
-        // الاستماع لحالة التثبيت
-        InAppUpdate.installUpdateListener.listen((InstallStatus status) {
-          if (status == InstallStatus.downloaded) {
-            // إذا اكتمل التنزيل، أظهر رسالة للمستخدم
-            _showUpdateDownloadedSnackbar();
-          }
-        });
+      // التحديث الفوري: واجهة كاملة من Play وتثبيت تلقائي
+      if (updateInfo.immediateUpdateAllowed) {
+        await InAppUpdate.performImmediateUpdate();
+        return;
+      }
+
+      // التحديث المرن: تنزيل في الخلفية ثم نعرض للمستخدم زر التثبيت
+      if (!updateInfo.flexibleUpdateAllowed) {
+        return;
+      }
+
+      // الاشتراك في الـ listener قبل بدء التنزيل حتى لا نفوت حدث "downloaded"
+      _installUpdateSubscription?.cancel();
+      _installUpdateSubscription = InAppUpdate.installUpdateListener.listen((InstallStatus status) {
+        if (status == InstallStatus.downloaded && mounted) {
+          _showUpdateDownloadedSnackbar();
+        }
+      });
+
+      final result = await InAppUpdate.startFlexibleUpdate();
+
+      // إذا المستخدم ألغى أو فشل البدء، نلغي الاشتراك
+      if (result != AppUpdateResult.success && mounted) {
+        _installUpdateSubscription?.cancel();
       }
     } catch (e) {
-      // معالجة الأخطاء (مثل عدم وجود انترنت)
-      print("خطأ في التحقق من التحديث: $e");
+      if (mounted) {
+        _showUpdateErrorSnackbar();
+      }
     }
   }
 
-  // دالة لإظهار رسالة (Snackbar) عند اكتمال التنزيل
   void _showUpdateDownloadedSnackbar() {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('تم تنزيل تحديث جديد. هل تريد تثبيته الآن؟'),
-        // اجعل الرسالة ظاهرة لوقت طويل
         duration: const Duration(days: 1),
         action: SnackBarAction(
           label: 'تثبيت',
           onPressed: () {
-            // إكمال عملية التثبيت (سيتم إعادة تشغيل التطبيق)
             InAppUpdate.completeFlexibleUpdate();
           },
         ),
+      ),
+    );
+  }
+
+  void _showUpdateErrorSnackbar() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('تعذّر التحقق من التحديثات. جرّب لاحقاً أو حدّث من متجر التطبيقات.'),
+        duration: Duration(seconds: 4),
       ),
     );
   }

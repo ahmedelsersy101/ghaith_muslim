@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ghaith/GlobalHelpers/hive_helper.dart';
 import 'package:ghaith/core/hadith/views/booklistpage.dart';
 import 'package:ghaith/main.dart';
@@ -26,6 +27,7 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل متغيرات الحالة لملف state/hadith_books_state.dart
   List<Category> _categories = [];
   bool _isLoading = true;
+  bool _noConnection = false;
 
   @override
   void initState() {
@@ -35,6 +37,10 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل جلب الفئات لملف services/categories_service.dart
   Future<void> _getCategories() async {
+    setState(() {
+      _noConnection = false;
+      _isLoading = true;
+    });
     _categories = [];
 
     // إضافة فئة "كل الأحاديث"
@@ -42,13 +48,21 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
         id: "100000", title: "allHadith".tr(), hadeethsCount: "2000+", parentId: "parentId"));
 
     await _loadCategories();
-    setState(() => _isLoading = false);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _loadCategories() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final hasCachedCategories = prefs.getString("categories-${widget.locale}") != null;
 
-    if (prefs.getString("categories-${widget.locale}") == null) {
+    if (!hasCachedCategories) {
+      final results = await Connectivity().checkConnectivity();
+      final hasConnection = results.any((r) => r != ConnectivityResult.none);
+
+      if (!hasConnection) {
+        if (mounted) setState(() => _noConnection = true);
+        return;
+      }
       await _fetchCategoriesFromAPI();
     } else {
       await _loadCategoriesFromStorage(prefs);
@@ -84,7 +98,59 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
     return Scaffold(
       backgroundColor: _getBackgroundColor(),
       appBar: _buildAppBar(),
-      body: _isLoading ? _buildLoadingIndicator() : _buildCategoriesList(),
+      body: _noConnection
+          ? _buildNoConnectionView()
+          : _isLoading
+              ? _buildLoadingIndicator()
+              : _buildCategoriesList(),
+    );
+  }
+
+  Widget _buildNoConnectionView() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.wifi_off_rounded,
+              size: 64.sp,
+              color: _getTitleColor().withOpacity(0.6),
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              "noInternet".tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: "cairo",
+                fontSize: 18.sp,
+                color: _getCategoryTitleColor(),
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              "noInternetMessage".tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: "cairo",
+                fontSize: 14.sp,
+                color: _getCategoryCountColor(),
+              ),
+            ),
+            SizedBox(height: 24.h),
+            ElevatedButton.icon(
+              onPressed: _getCategories,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text("Retry".tr()),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _getAppBarColor(),
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

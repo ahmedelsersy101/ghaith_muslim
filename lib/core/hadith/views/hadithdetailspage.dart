@@ -1,5 +1,7 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:ghaith/main.dart';
@@ -20,7 +22,6 @@ class HadithDetailsPage extends StatefulWidget {
     required this.id,
     required this.title,
   });
-
   @override
   State<HadithDetailsPage> createState() => _HadithDetailsPageState();
 }
@@ -28,6 +29,8 @@ class HadithDetailsPage extends StatefulWidget {
 class _HadithDetailsPageState extends State<HadithDetailsPage> {
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل متغيرات الحالة لملف state/hadith_details_state.dart
   bool _isLoading = true;
+  bool _noConnection = false;
+  bool _loadError = false;
   late Hadith _hadithAr;
   dynamic _hadithOtherLanguage;
 
@@ -45,6 +48,24 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل جلب البيانات لملف services/hadith_details_service.dart
   Future<void> _getHadithData() async {
+    if (!mounted) return;
+    setState(() {
+      _noConnection = false;
+      _loadError = false;
+      _isLoading = true;
+    });
+
+    final results = await Connectivity().checkConnectivity();
+    final hasConnection = results.any((r) => r != ConnectivityResult.none);
+    if (!hasConnection) {
+      if (mounted)
+        setState(() {
+          _noConnection = true;
+          _isLoading = false;
+        });
+      return;
+    }
+
     try {
       final responses = await Future.wait([
         Dio().get("https://hadeethenc.com/api/v1/hadeeths/one/?language=ar&id=${widget.id}"),
@@ -55,10 +76,13 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
       _hadithAr = Hadith.fromJson(responses[0].data);
       _hadithOtherLanguage = responses[1].data;
 
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     } catch (error) {
-      print('Error fetching hadith data: $error');
-      setState(() => _isLoading = false);
+      if (mounted)
+        setState(() {
+          _loadError = true;
+          _isLoading = false;
+        });
     }
   }
 
@@ -71,7 +95,11 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: _buildAppBar(),
-          body: _isLoading ? _buildLoadingIndicator() : _buildHadithContent(),
+          body: _noConnection || _loadError
+              ? _buildErrorView()
+              : _isLoading
+                  ? _buildLoadingIndicator()
+                  : _buildHadithContent(),
         ),
       ),
     );
@@ -128,6 +156,55 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
     return Center(
       child: CircularProgressIndicator(
         color: isDarkModeNotifier.value ? Colors.white : orangeColor,
+      ),
+    );
+  }
+
+  Widget _buildErrorView() {
+    final isNoConnection = _noConnection;
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isNoConnection ? Icons.wifi_off_rounded : Icons.cloud_off_rounded,
+              size: 64.sp,
+              color: (isDarkModeNotifier.value ? Colors.white : Colors.black87).withOpacity(0.6),
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              isNoConnection ? "noInternet".tr() : "loadError".tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: "cairo",
+                fontSize: 18.sp,
+                color: isDarkModeNotifier.value ? Colors.white70 : Colors.black87,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              isNoConnection ? "noInternetMessage".tr() : "loadErrorMessage".tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: "cairo",
+                fontSize: 14.sp,
+                color: isDarkModeNotifier.value ? Colors.white54 : Colors.black54,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            ElevatedButton.icon(
+              onPressed: _getHadithData,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text("Retry".tr()),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: orangeColor,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

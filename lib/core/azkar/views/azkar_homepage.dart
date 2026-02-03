@@ -94,9 +94,9 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
   BoxDecoration _buildBackgroundDecoration() {
     return const BoxDecoration(
       image: DecorationImage(
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
         image: AssetImage("assets/images/try6.png"),
-        alignment: Alignment.center,
+        alignment: Alignment.bottomCenter,
         opacity: .6,
       ),
     );

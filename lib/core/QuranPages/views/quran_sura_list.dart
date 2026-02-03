@@ -50,6 +50,7 @@ class _SurahListPageState extends State<SurahListPage> {
   List<dynamic> bookmarks = [];
   Set<String> starredVerses = {};
   int juzNumberLastRead = 0;
+  bool _isSearchOpen = false;
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل الـ tabs لملف constants/app_constants.dart
   final List<Tab> tabs = <Tab>[
@@ -122,7 +123,7 @@ class _SurahListPageState extends State<SurahListPage> {
               color: isDarkModeNotifier.value ? quranPagesColorDark : backgroundColor),
           child: Scaffold(
             resizeToAvoidBottomInset: false,
-            backgroundColor: isDarkModeNotifier.value ? quranPagesColorDark : backgroundColor,
+            backgroundColor: isDarkModeNotifier.value ? quranPagesColorDark : borderColor,
             endDrawer: SafeArea(child: _buildBookmarksDrawer(context)),
             key: scaffoldKey,
             appBar: _buildAppBar(context),
@@ -136,22 +137,67 @@ class _SurahListPageState extends State<SurahListPage> {
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل الـ AppBar لملف ui/components/surah_list_app_bar.dart
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      actions: [_buildBookmarkButton(context)],
-      leading: _buildBackButton(),
+      leading: _isSearchOpen ? _buildCloseSearchButton() : _buildBackButton(),
+      actions: _isSearchOpen
+          ? [_buildBookmarkButton(context)]
+          : [_buildSearchAppBarButton(), _buildBookmarkButton(context)],
       bottom: _buildTabBar(),
       elevation: 0,
-      centerTitle: true,
+      centerTitle: !_isSearchOpen,
       backgroundColor: isDarkModeNotifier.value ? darkModeSecondaryColor : orangeColor,
-      title: Text(
-        "alQuran".tr(),
-        style: TextStyle(color: Colors.white, fontSize: 20.sp),
+      title: _isSearchOpen
+          ? _buildAppBarSearchField()
+          : Text(
+              "alQuran".tr(),
+              style: TextStyle(color: Colors.white, fontSize: 20.sp),
+            ),
+    );
+  }
+
+  Widget _buildCloseSearchButton() {
+    return IconButton(
+      icon: Icon(Icons.close, size: 24.sp, color: Colors.white),
+      onPressed: () => setState(() => _isSearchOpen = false),
+    );
+  }
+
+  Widget _buildSearchAppBarButton() {
+    return IconButton(
+      icon: Icon(Icons.search, color: Colors.white, size: 24.sp),
+      onPressed: () => setState(() => _isSearchOpen = true),
+    );
+  }
+
+  Widget _buildAppBarSearchField() {
+    return Container(
+      margin: EdgeInsets.only(top: 4.h, bottom: 4.h),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.25),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: TextField(
+        textDirection: m.TextDirection.rtl,
+        controller: textEditingController,
+        onChanged: _onSearchTextChanged,
+        style: _searchTextStyle().copyWith(color: Colors.white, fontSize: 16.sp),
+        cursorColor: Colors.white,
+        autofocus: true,
+        decoration: InputDecoration(
+          hintText: 'searchQuran'.tr(),
+          hintStyle: TextStyle(color: Colors.white70, fontSize: 14.sp),
+          suffixIcon: _buildSearchSuffixIcon(iconColor: Colors.white70),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        ),
       ),
     );
   }
 
   Widget _buildBookmarkButton(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4.0.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: 4.0.w,
+      ),
       child: Builder(builder: (context) {
         return IconButton(
           onPressed: () => Scaffold.of(context).openEndDrawer(),
@@ -163,7 +209,9 @@ class _SurahListPageState extends State<SurahListPage> {
 
   Widget _buildBackButton() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: 8.0.w,
+      ),
       child: IconButton(
         icon: Icon(Icons.arrow_back_ios, size: 20.sp, color: Colors.white),
         onPressed: () => Navigator.pop(context),
@@ -214,7 +262,6 @@ class _SurahListPageState extends State<SurahListPage> {
         child: Column(
           children: [
             if (getValue("lastRead") != "non") _buildLastReadSection(),
-            _buildSearchSection(),
             _buildSurahList(),
           ],
         ),
@@ -276,59 +323,37 @@ class _SurahListPageState extends State<SurahListPage> {
     setState(() {});
   }
 
-  Widget _buildSearchSection() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0.w),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: backgroundColor.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: TextField(
-                  textDirection: m.TextDirection.rtl,
-                  controller: textEditingController,
-                  onChanged: _onSearchTextChanged,
-                  style: _searchTextStyle(),
-                  cursorColor: Colors.black,
-                  decoration: _buildSearchInputDecoration(),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // InputDecoration _buildSearchInputDecoration() {
+  //   return InputDecoration(
+  //     hintText: 'searchQuran'.tr(),
+  //     suffixIcon: _buildSearchSuffixIcon(),
+  //     hintStyle: _searchHintStyle(),
+  //     border: OutlineInputBorder(
+  //       borderRadius: BorderRadius.circular(12.r),
+  //       borderSide: BorderSide(color: Colors.black, width: 1.w),
+  //     ),
+  //     focusedBorder: OutlineInputBorder(
+  //       borderRadius: BorderRadius.circular(12.r),
+  //       borderSide: BorderSide(color: primaryColor, width: 1.w),
+  //     ),
+  //   );
+  // }
 
-  InputDecoration _buildSearchInputDecoration() {
-    return InputDecoration(
-      hintText: 'searchQuran'.tr(),
-      suffixIcon: _buildSearchSuffixIcon(),
-      hintStyle: _searchHintStyle(),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: Colors.black, width: 1.w),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: primaryColor, width: 1.w),
-      ),
-    );
-  }
-
-  Widget _buildSearchSuffixIcon() {
+  Widget _buildSearchSuffixIcon({Color? iconColor}) {
+    final color = iconColor ?? _getSearchIconColor();
     return GestureDetector(
-      onTap: _clearSearch,
+      onTap: () {
+        if (searchQuery.isNotEmpty) {
+          _clearSearch();
+        } else {
+          setState(() => _isSearchOpen = false);
+        }
+      },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: searchQuery.isNotEmpty
-            ? Icon(Icons.close, color: _getSearchIconColor())
-            : Icon(FontAwesome.search, color: _getSearchIconColor()),
+            ? Icon(Icons.close, color: color)
+            : Icon(FontAwesome.search, color: color),
       ),
     );
   }
@@ -346,12 +371,12 @@ class _SurahListPageState extends State<SurahListPage> {
     );
   }
 
-  TextStyle _searchHintStyle() {
-    return TextStyle(
-      fontFamily: "aldahabi",
-      color: isDarkModeNotifier.value ? Colors.white70 : const Color.fromARGB(73, 0, 0, 0),
-    );
-  }
+  // TextStyle _searchHintStyle() {
+  //   return TextStyle(
+  //     fontFamily: "aldahabi",
+  //     color: isDarkModeNotifier.value ? Colors.white70 : const Color.fromARGB(73, 0, 0, 0),
+  //   );
+  // }
 
   void _onSearchTextChanged(String value) {
     setState(() => searchQuery = value);
@@ -520,7 +545,7 @@ class _SurahListPageState extends State<SurahListPage> {
         child: Text(
           suraNumber.toString(),
           style: TextStyle(
-              color: isDarkModeNotifier.value ? Colors.white : Colors.black, fontSize: 14.sp),
+              color: isDarkModeNotifier.value ? Colors.white : Colors.black, fontSize: 12.sp),
         ),
       ),
     );
