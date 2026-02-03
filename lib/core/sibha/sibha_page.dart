@@ -17,7 +17,7 @@ class SibhaPage extends StatefulWidget {
   State<SibhaPage> createState() => _SibhaPageState();
 }
 
-class _SibhaPageState extends State<SibhaPage> {
+class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
   List<Tasbeeh> tasbeehList = [
     Tasbeeh(
       id: 0,
@@ -106,15 +106,51 @@ class _SibhaPageState extends State<SibhaPage> {
     ),
   ];
 
+  late AnimationController _counterAnimationController;
+  late AnimationController _rippleAnimationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _rippleAnimation;
+
   @override
   void initState() {
     customTasbeehFetcher();
+
+    _counterAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _rippleAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(
+        parent: _counterAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _rippleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _rippleAnimationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _counterAnimationController.dispose();
+    _rippleAnimationController.dispose();
+    super.dispose();
   }
 
   customTasbeehFetcher() {
     var customTasbeehs = getValue("customTasbeehs");
-    print(customTasbeehs);
     if (customTasbeehs != null) {
       json.decode(customTasbeehs).forEach((t) {
         tasbeehList.add(Tasbeeh(
@@ -160,234 +196,546 @@ class _SibhaPageState extends State<SibhaPage> {
     Navigator.pop(context);
     await Future.delayed(const Duration(milliseconds: 150));
     tasbeehScrollController.animateToPage(tasbeehList.length - 1,
-        duration: const Duration(milliseconds: 300), curve: Curves.bounceInOut);
+        duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
   }
 
-  // removeTasbeeh(arabic) {
-  //   var customTasbeehs = getValue("customTasbeehs");
-  //   if (customTasbeehs != null) {
-  //     var tasbeehs = json.decode(customTasbeehs);
-  //     tasbeehs.add({
-  //       "id": Random().nextInt(665656),
-  //       "arabic": arabic,
-  //     });
-  //     tasbeehList.add(
-  //       Tasbeeh(id: tasbeehs[tasbeehs.length]["id"], arabic: tasbeehs[tasbeehs.length]["arabic"], translation: "", pronunciation: "")
-  //     );
-  //     updateValue("customTasbeehs", json.encode(tasbeehs));
-  //   }
-
-  // }
   PageController tasbeehScrollController =
       PageController(initialPage: getValue("tasbeehLastIndex") ?? 0);
+
+  void _onCounterTap() {
+    updateValue("${getValue("tasbeehLastIndex")}number",
+        (getValue("${getValue("tasbeehLastIndex")}number") ?? 0) + 1);
+
+    _counterAnimationController.forward().then((_) {
+      _counterAnimationController.reverse();
+    });
+
+    _rippleAnimationController.forward().then((_) {
+      _rippleAnimationController.reset();
+    });
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final isDark = isDarkModeNotifier.value;
+    final currentIndex = getValue("tasbeehLastIndex") ?? 0;
+    final currentCount = getValue("${currentIndex}number") ?? 0;
+
+    // App color palette
+    final primaryGradient = isDark
+        ? [const Color(0xFF6a1e2c), const Color(0xFF8C2F3A)]
+        : [const Color(0xFF5D9566), const Color(0xFF87669A)];
+
+    final cardColor = isDark ? quranPagesColorDark : quranPagesColorLight;
+
+    final textPrimary = isDark ? Colors.white : textColor;
+    final textSecondary = isDark ? Colors.white.withOpacity(0.7) : headingColor;
+
     return Container(
-      decoration: const BoxDecoration(
-          color: darkPrimaryColor,
-          image: DecorationImage(
-              image: AssetImage(
-                "assets/images/tasbeehbackground.png",
-              ),
-              opacity: .03,
-              fit: BoxFit.cover)),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: isDark
+              ? [darkPrimaryColor, darkModeSecondaryColor]
+              : [backgroundColor, const Color(0xFFE8EAF6)],
+        ),
+      ),
       child: Scaffold(
-        backgroundColor:  isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor:  isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.9) : orangeColor,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  showDialog(
-                     
-                      context: context,
-                      builder: (c) => AddTasbeehDialog(
-                            function: addCustomTasbeeh,
-                          ));
-                },
-                icon: const Icon(Icons.add))
-          ],
-          title: Text(
-            "sibha".tr(),
-            style: const TextStyle(fontFamily: 'cairo',color:  Colors.white,
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(70.h),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: primaryGradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: AppBar(
+              elevation: 0,
+              backgroundColor: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+              toolbarHeight: 70.h,
+              foregroundColor: Colors.white,
+              actions: [
+                Container(
+                  margin: EdgeInsets.only(right: 8.w, left: 8.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (c) => AddTasbeehDialog(
+                          function: addCustomTasbeeh,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add_rounded, size: 28),
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+              title: Text(
+                "sibha".tr(),
+                style: TextStyle(
+                  fontFamily: 'cairo',
+                  color: Colors.white,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              centerTitle: true,
             ),
           ),
-          centerTitle: true,
-          foregroundColor:  Colors.white,
         ),
-        body: Column(
-          children: [
-            SizedBox(
-              height: screenSize.height * .04,
-            ),
-            Expanded(
-              // height: screenSize.height * .2,
-              // width: screenSize.width,
-              child: PageView.builder(
-                onPageChanged: ((value) {
-                  updateValue("tasbeehLastIndex", value);
-                  setState(() {});
-                }),
-                itemBuilder: (itemBuilder, i) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: backgroundColor.withOpacity(.75),
-                        borderRadius: BorderRadius.circular(18.r),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(tasbeehList[i].arabic,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: "cairo",
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.bold)),
-                          if (tasbeehList[i].pronunciation != "") const Divider(),
-                          if (tasbeehList[i].pronunciation != "")
-                            Text(tasbeehList[i].pronunciation,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black.withOpacity(.6),
-                                    fontFamily: "roboto",
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.bold)),
-                          if (tasbeehList[i].translation != "") const Divider(),
-                          if (tasbeehList[i].translation != "")
-                            Text(tasbeehList[i].translation,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black.withOpacity(.5),
-                                    fontFamily: "roboto",
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.bold))
-                        ],
+        body: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(height: 20.h),
+
+              // Page Indicator
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                decoration: BoxDecoration(
+                  color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+                  borderRadius: BorderRadius.circular(20.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 15,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                margin: EdgeInsets.symmetric(horizontal: 20.w),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.menu_book_rounded,
+                      color: Colors.white,
+                      size: 20.sp,
+                    ),
+                    SizedBox(width: 12.w),
+                    Text(
+                      "${currentIndex + 1} / ${tasbeehList.length}",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: "roboto",
                       ),
                     ),
-                  );
-                },
-                itemCount: tasbeehList.length,
-                scrollDirection: Axis.horizontal,
-                controller: tasbeehScrollController,
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              height: 20.h,
-            ),
-            SizedBox(
-              width: screenSize.width,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () {
-                      print("object");
-                      if (getValue("tasbeehLastIndex") != 0) {
-                        tasbeehScrollController.animateToPage(getValue("tasbeehLastIndex") - 1,
-                            duration: const Duration(milliseconds: 200), curve: Curves.decelerate);
-                      }
-                      setState(() {});
-                    },
-                    child: SizedBox(
-                      width: screenSize.width * .3,
-                      height: screenSize.height * .062,
-                      child: Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 40.w),
-                          child: Icon(
-                            Icons.arrow_back_ios,
-                            color: isDarkModeNotifier.value
-                                ? quranPagesColorLight
-                                : darkModeSecondaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () {
-                      updateValue("${getValue("tasbeehLastIndex")}number", (0));
-                      setState(() {});
-                    },
-                    child: SizedBox(
-                      width: screenSize.width * .3,
-                      height: screenSize.height * .062,
-                      child: Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 0.w),
-                          child: Icon(
-                            Icons.replay_outlined,
-                            color: isDarkModeNotifier.value
-                                ? quranPagesColorLight
-                                : darkModeSecondaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    onTap: () {
-                      if (getValue("tasbeehLastIndex") != tasbeehList.length - 1) {
-                        tasbeehScrollController.animateToPage(getValue("tasbeehLastIndex") + 1,
-                            duration: const Duration(milliseconds: 200), curve: Curves.decelerate);
-                        setState(() {});
-                      }
-                    },
-                    child: SizedBox(
-                      height: screenSize.height * .062,
-                      width: screenSize.width * .3,
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 40.w),
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          color: isDarkModeNotifier.value
-                              ? quranPagesColorLight
-                              : darkModeSecondaryColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                  overlayColor: WidgetStatePropertyAll(Colors.white.withOpacity(.2)),
-                  splashColor: Colors.white.withOpacity(.1),
-                  focusColor: Colors.white.withOpacity(.1),
-                  hoverColor: Colors.white.withOpacity(.1),
-                  highlightColor: Colors.white.withOpacity(.1),
-                  borderRadius: BorderRadius.circular(200),
-                  onTap: () {
-                    updateValue("${getValue("tasbeehLastIndex")}number",
-                        (getValue("${getValue("tasbeehLastIndex")}number") ?? 0) + 1);
+
+              SizedBox(height: 20.h),
+
+              // Tasbeeh Card
+              Expanded(
+                flex: 3,
+                child: PageView.builder(
+                  onPageChanged: ((value) {
+                    updateValue("tasbeehLastIndex", value);
                     setState(() {});
+                  }),
+                  itemBuilder: (context, i) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+                          borderRadius: BorderRadius.circular(30.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryGradient[0].withOpacity(0.15),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
+                              spreadRadius: -5,
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            // Decorative pattern
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(30.r),
+                                child: CustomPaint(
+                                  painter: IslamicPatternPainter(
+                                    color: primaryGradient[0].withOpacity(0.05),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            // Content
+                            Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(24.w),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Arabic Text
+                                    Text(
+                                      tasbeehList[i].arabic,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "cairo",
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1.8,
+                                        shadows: [
+                                          Shadow(
+                                            color: primaryGradient[0].withOpacity(0.1),
+                                            offset: const Offset(0, 2),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    if (tasbeehList[i].pronunciation != "") ...[
+                                      SizedBox(height: 20.h),
+                                      Container(
+                                        height: 1,
+                                        width: 100.w,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.transparent,
+                                              primaryGradient[0].withOpacity(0.3),
+                                              Colors.transparent,
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 20.h),
+                                      Text(
+                                        tasbeehList[i].pronunciation,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: "roboto",
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w500,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ],
+
+                                    if (tasbeehList[i].translation != "") ...[
+                                      SizedBox(height: 16.h),
+                                      Text(
+                                        tasbeehList[i].translation,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: "roboto",
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w400,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
                   },
-                  child: Center(
-                    child: Text("${getValue("${getValue("tasbeehLastIndex")}number") ?? 0}",
-                        style: TextStyle(
-                            color: isDarkModeNotifier.value
-                                ? quranPagesColorLight
-                                : darkModeSecondaryColor,
-                            fontSize: 50.sp,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "roboto")),
-                  )),
-            )
-          ],
+                  itemCount: tasbeehList.length,
+                  scrollDirection: Axis.horizontal,
+                  controller: tasbeehScrollController,
+                ),
+              ),
+
+              SizedBox(height: 30.h),
+
+              // Navigation Controls
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Previous Button
+                    _buildNavButton(
+                      icon: Icons.arrow_back_ios_rounded,
+                      onTap: () {
+                        if (currentIndex > 0) {
+                          tasbeehScrollController.animateToPage(
+                            currentIndex - 1,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      },
+                      enabled: currentIndex > 0,
+                      primaryColor: primaryGradient[0],
+                    ),
+
+                    // Reset Button
+                    _buildResetButton(
+                      onTap: () {
+                        updateValue("${currentIndex}number", 0);
+                        setState(() {});
+                      },
+                      primaryColor: primaryGradient[0],
+                    ),
+
+                    // Next Button
+                    _buildNavButton(
+                      icon: Icons.arrow_forward_ios_rounded,
+                      onTap: () {
+                        if (currentIndex < tasbeehList.length - 1) {
+                          tasbeehScrollController.animateToPage(
+                            currentIndex + 1,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      },
+                      enabled: currentIndex < tasbeehList.length - 1,
+                      primaryColor: primaryGradient[0],
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 30.h),
+
+              // Counter Section
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 20.h),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Ripple Effect
+                      AnimatedBuilder(
+                        animation: _rippleAnimation,
+                        builder: (context, child) {
+                          return Container(
+                            width: 200.w * (1 + _rippleAnimation.value * 0.5),
+                            height: 200.w * (1 + _rippleAnimation.value * 0.5),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+                                width: 2,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      // Counter Button
+                      ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: GestureDetector(
+                          onTap: _onCounterTap,
+                          child: Container(
+                            width: 200.w,
+                            height: 200.w,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: primaryGradient[0].withOpacity(0.4),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 10),
+                                  spreadRadius: -5,
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "$currentCount",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 56.sp,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "roboto",
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          offset: const Offset(0, 2),
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                      vertical: 4.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                    child: Text(
+                                      "اضغط للعد",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: "cairo",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 30.h),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget _buildNavButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required bool enabled,
+    required Color primaryColor,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: enabled ? onTap : null,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          width: 56.w,
+          height: 56.w,
+          decoration: BoxDecoration(
+            color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+              width: 1.5,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: enabled ? Colors.white : Colors.grey,
+            size: 24.sp,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResetButton({
+    required VoidCallback onTap,
+    required Color primaryColor,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          width: 56.w,
+          height: 56.w,
+          decoration: BoxDecoration(
+            color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+              width: 1.5,
+            ),
+          ),
+          child: Icon(
+            Icons.refresh_rounded,
+            color: Colors.white,
+            size: 28.sp,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Custom Painter for Islamic Pattern
+class IslamicPatternPainter extends CustomPainter {
+  final Color color;
+
+  IslamicPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    const spacing = 40.0;
+
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        // Draw small decorative circles
+        canvas.drawCircle(
+          Offset(x, y),
+          8,
+          paint,
+        );
+
+        // Draw connecting lines
+        if (x + spacing < size.width) {
+          canvas.drawLine(
+            Offset(x + 8, y),
+            Offset(x + spacing - 8, y),
+            paint..strokeWidth = 0.8,
+          );
+        }
+        if (y + spacing < size.height) {
+          canvas.drawLine(
+            Offset(x, y + 8),
+            Offset(x, y + spacing - 8),
+            paint..strokeWidth = 0.8,
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

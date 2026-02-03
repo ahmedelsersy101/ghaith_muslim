@@ -112,8 +112,12 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
       elevation: 0,
       title: Text(
         "azkar".tr(),
-        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20.sp,
+        ),
       ),
+      centerTitle: true,
       expandedHeight: 100.h,
       collapsedHeight: kToolbarHeight,
       flexibleSpace: _buildFlexibleSpace(),

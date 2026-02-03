@@ -338,8 +338,9 @@ class _RecitersPageState extends State<RecitersPage> {
       elevation: 0,
       title: Text(
         selectedMode == "favorite" ? "favorites".tr() : "allReciters".tr(),
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: Colors.white, fontSize: 20.sp),
       ),
+      centerTitle: true,
       automaticallyImplyLeading: false,
       leading: _buildBackButton(),
       actions: [

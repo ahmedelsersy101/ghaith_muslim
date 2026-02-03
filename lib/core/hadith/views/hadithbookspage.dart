@@ -98,11 +98,13 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
     return Scaffold(
       backgroundColor: _getBackgroundColor(),
       appBar: _buildAppBar(),
-      body: _noConnection
-          ? _buildNoConnectionView()
-          : _isLoading
-              ? _buildLoadingIndicator()
-              : _buildCategoriesList(),
+      body: _isLoading
+          ? _buildLoadingIndicator()
+          : _noConnection
+              ? _buildNoConnectionView()
+              : _isLoading
+                  ? _buildLoadingIndicator()
+                  : _buildCategoriesList(),
     );
   }
 
