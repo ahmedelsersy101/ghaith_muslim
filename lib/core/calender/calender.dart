@@ -248,10 +248,10 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                         Expanded(
                           child: _buildCalendarTypeButton(
                             label: "calender".tr(),
-                            isSelected: index == 0,
+                            isSelected: index == 1,
                             onTap: () {
                               setState(() {
-                                index = 0;
+                                index = 1;
                               });
                             },
                             primaryColor: primaryColor,
@@ -261,10 +261,10 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                         Expanded(
                           child: _buildCalendarTypeButton(
                             label: "normalCalender".tr(),
-                            isSelected: index == 1,
+                            isSelected: index == 0,
                             onTap: () {
                               setState(() {
-                                index = 1;
+                                index = 0;
                               });
                             },
                             primaryColor: primaryColor,
@@ -296,7 +296,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                     borderRadius: BorderRadius.circular(24.r),
                     child: JGlobalDatePicker(
                       widgetType: WidgetType.JContainer,
-                      pickerType: index == 0 ? PickerType.JHijri : PickerType.JNormal,
+                      pickerType: index == 1 ? PickerType.JHijri : PickerType.JNormal,
                       buttons: const SizedBox(),
                       primaryColor: orangeColor,
                       calendarTextColor: isDark ? Colors.white.withOpacity(0.9) : textColor,

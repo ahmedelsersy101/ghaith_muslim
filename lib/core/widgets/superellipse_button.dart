@@ -21,7 +21,9 @@ class SuperellipseButton extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
-          color: isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.2) : Colors.white,
+          color: isDarkModeNotifier.value
+              ? quranPagesColorDark.withOpacity(0.2)
+              : Colors.white.withOpacity(0.1),
         ),
         child: Material(
           color: isDarkModeNotifier.value
@@ -49,8 +51,8 @@ class SuperellipseButton extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: isDarkModeNotifier.value ? Colors.white70 : Colors.black,
-                      fontSize: 16.sp,
-                      fontFamily: "cairo"),
+                      fontSize: 18.sp,
+                      fontFamily: "Taha"),
                 ),
                 SizedBox(
                   height: 16.h,

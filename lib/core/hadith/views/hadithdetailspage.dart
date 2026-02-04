@@ -42,31 +42,36 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
 
   @override
   void initState() {
-    _getHadithData();
     super.initState();
+    _getHadithData();
   }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل جلب البيانات لملف services/hadith_details_service.dart
   Future<void> _getHadithData() async {
     if (!mounted) return;
+
     setState(() {
       _noConnection = false;
       _loadError = false;
       _isLoading = true;
     });
 
+    // 💡 التحقق من الاتصال بالإنترنت
     final results = await Connectivity().checkConnectivity();
     final hasConnection = results.any((r) => r != ConnectivityResult.none);
+
     if (!hasConnection) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _noConnection = true;
           _isLoading = false;
         });
+      }
       return;
     }
 
     try {
+      // 💡 جلب البيانات من الـ API
       final responses = await Future.wait([
         Dio().get("https://hadeethenc.com/api/v1/hadeeths/one/?language=ar&id=${widget.id}"),
         Dio().get(
@@ -76,13 +81,17 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
       _hadithAr = Hadith.fromJson(responses[0].data);
       _hadithOtherLanguage = responses[1].data;
 
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     } catch (error) {
-      if (mounted)
+      print('Error loading hadith: $error');
+      if (mounted) {
         setState(() {
           _loadError = true;
           _isLoading = false;
         });
+      }
     }
   }
 
@@ -95,14 +104,23 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: _buildAppBar(),
-          body: _noConnection || _loadError
-              ? _buildErrorView()
-              : _isLoading
-                  ? _buildLoadingIndicator()
-                  : _buildHadithContent(),
+          body: _buildBody(),
         ),
       ),
     );
+  }
+
+  // 💡 دالة لبناء الـ body بناءً على الحالة
+  Widget _buildBody() {
+    if (_isLoading) {
+      return _buildLoadingIndicator();
+    }
+
+    if (_noConnection || _loadError) {
+      return _buildErrorView();
+    }
+
+    return _buildHadithContent();
   }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل الديكور والخلفية لملف ui/decoration/hadith_background.dart
@@ -152,10 +170,45 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
     );
   }
 
+  // 💡 مؤشر التحميل المحسّن
   Widget _buildLoadingIndicator() {
     return Center(
-      child: CircularProgressIndicator(
-        color: isDarkModeNotifier.value ? Colors.white : orangeColor,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // دائرة التحميل
+          CircularProgressIndicator(
+            color: isDarkModeNotifier.value ? orangeColor : orangeColor,
+            strokeWidth: 3,
+          ),
+          SizedBox(height: 24.h),
+          // نص التحميل
+          FadeIn(
+            duration: const Duration(milliseconds: 800),
+            child: Text(
+              "loadingHadith".tr(),
+              style: TextStyle(
+                fontFamily: "cairo",
+                fontSize: 16.sp,
+                color: isDarkModeNotifier.value ? Colors.white70 : Colors.black54,
+              ),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          // رسالة انتظار
+          FadeIn(
+            delay: const Duration(milliseconds: 400),
+            duration: const Duration(milliseconds: 800),
+            child: Text(
+              "pleaseWait".tr(),
+              style: TextStyle(
+                fontFamily: "cairo",
+                fontSize: 14.sp,
+                color: isDarkModeNotifier.value ? Colors.white54 : Colors.black38,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -168,39 +221,70 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              isNoConnection ? Icons.wifi_off_rounded : Icons.cloud_off_rounded,
-              size: 64.sp,
-              color: (isDarkModeNotifier.value ? Colors.white : Colors.black87).withOpacity(0.6),
+            // أيقونة الخطأ مع أنيميشن
+            FadeInDown(
+              duration: const Duration(milliseconds: 600),
+              child: Icon(
+                isNoConnection ? Icons.wifi_off_rounded : Icons.cloud_off_rounded,
+                size: 64.sp,
+                color: (isDarkModeNotifier.value ? Colors.white : Colors.black87).withOpacity(0.6),
+              ),
             ),
             SizedBox(height: 24.h),
-            Text(
-              isNoConnection ? "noInternet".tr() : "loadError".tr(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: "cairo",
-                fontSize: 18.sp,
-                color: isDarkModeNotifier.value ? Colors.white70 : Colors.black87,
+            // عنوان الخطأ
+            FadeInUp(
+              delay: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 600),
+              child: Text(
+                isNoConnection ? "noInternet".tr() : "loadError".tr(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: "cairo",
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: isDarkModeNotifier.value ? Colors.white70 : Colors.black87,
+                ),
               ),
             ),
             SizedBox(height: 8.h),
-            Text(
-              isNoConnection ? "noInternetMessage".tr() : "loadErrorMessage".tr(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: "cairo",
-                fontSize: 14.sp,
-                color: isDarkModeNotifier.value ? Colors.white54 : Colors.black54,
+            // رسالة الخطأ
+            FadeInUp(
+              delay: const Duration(milliseconds: 400),
+              duration: const Duration(milliseconds: 600),
+              child: Text(
+                isNoConnection ? "noInternetMessage".tr() : "loadErrorMessage".tr(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: "cairo",
+                  fontSize: 14.sp,
+                  color: isDarkModeNotifier.value ? Colors.white54 : Colors.black54,
+                ),
               ),
             ),
             SizedBox(height: 24.h),
-            ElevatedButton.icon(
-              onPressed: _getHadithData,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text("Retry".tr()),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: orangeColor,
-                foregroundColor: Colors.white,
+            // زر إعادة المحاولة
+            FadeInUp(
+              delay: const Duration(milliseconds: 600),
+              duration: const Duration(milliseconds: 600),
+              child: ElevatedButton.icon(
+                onPressed: _getHadithData,
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(
+                  "Retry".tr(),
+                  style: const TextStyle(
+                    fontFamily: "cairo",
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: orangeColor,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  elevation: 2,
+                ),
               ),
             ),
           ],
@@ -211,49 +295,55 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل محتوى الحديث لملف ui/views/hadith_content_view.dart
   Widget _buildHadithContent() {
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      children: [
-        _buildArabicHadithSection(),
-        _buildExplanationSection(),
-        _buildWordsMeaningsSection(),
-        _buildHintsSection(),
-        _buildReferenceSection(),
-        const SizedBox(
-          height: 8,
-        ),
-        _buildSharingButtons(),
-        if (widget.locale != "ar") _buildTranslationSection(),
-      ],
+    return FadeIn(
+      duration: const Duration(milliseconds: 500),
+      child: ListView(
+        physics: const BouncingScrollPhysics(),
+        children: [
+          SizedBox(height: 8.h),
+          _buildArabicHadithSection(),
+          _buildExplanationSection(),
+          _buildWordsMeaningsSection(),
+          _buildHintsSection(),
+          _buildReferenceSection(),
+          SizedBox(height: 8.h),
+          _buildSharingButtons(),
+          if (widget.locale != "ar") _buildTranslationSection(),
+          SizedBox(height: 24.h),
+        ],
+      ),
     );
   }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل أقسام الحديث لملف ui/sections/hadith_sections.dart
   Widget _buildArabicHadithSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-          child: Text(
-            _hadithAr.hadeeth,
-            textDirection: m.TextDirection.rtl,
-            locale: const Locale("ar"),
-            textAlign: TextAlign.right,
-            style: _getHadithTextStyle(),
+    return FadeInUp(
+      duration: const Duration(milliseconds: 400),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+            child: Text(
+              _hadithAr.hadeeth,
+              textDirection: m.TextDirection.rtl,
+              locale: const Locale("ar"),
+              textAlign: TextAlign.right,
+              style: _getHadithTextStyle(),
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-          child: Text(
-            '[${_hadithAr.attribution}] - [${_hadithAr.grade}]',
-            textDirection: m.TextDirection.rtl,
-            locale: const Locale("ar"),
-            textAlign: TextAlign.right,
-            style: _getSecondaryTextStyle(),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4.0, right: 12),
+            child: Text(
+              '[${_hadithAr.attribution}] - [${_hadithAr.grade}]',
+              textDirection: m.TextDirection.rtl,
+              locale: const Locale("ar"),
+              textAlign: TextAlign.right,
+              style: _getSecondaryTextStyle(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -444,19 +534,12 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
   Widget _buildCopyButton() {
     return InkWell(
       onTap: () async {
-        // نص الحديث بالعربية
         final arabicText = _hadithAr.hadeeth;
-
-        // نص الترجمة (إن وجد)
         final otherLangText = widget.locale != "ar" ? "\n\n${_hadithOtherLanguage["hadeeth"]}" : "";
-
-        // النص النهائي اللي هيتنسخ
         final textToCopy = "$arabicText$otherLangText";
 
-        // عملية النسخ
         await Clipboard.setData(ClipboardData(text: textToCopy));
 
-        // SnackBar للتأكيد
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -509,23 +592,27 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل قسم الترجمة لملف ui/sections/translation_section.dart
   Widget _buildTranslationSection() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-          child: Text(
-            _hadithOtherLanguage["hadeeth"],
-            style: _getTranslationTextStyle(),
+    return FadeInUp(
+      delay: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 400),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+            child: Text(
+              _hadithOtherLanguage["hadeeth"],
+              style: _getTranslationTextStyle(),
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 4.0, left: 12),
-          child: Text(
-            '${_hadithOtherLanguage["attribution"]} - [${_hadithOtherLanguage["grade"]}]',
-            style: _getTranslationSecondaryStyle(),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4.0, left: 12),
+            child: Text(
+              '${_hadithOtherLanguage["attribution"]} - [${_hadithOtherLanguage["grade"]}]',
+              style: _getTranslationSecondaryStyle(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -535,6 +622,7 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
       color: isDarkModeNotifier.value ? Colors.white : Colors.black87,
       fontFamily: 'Taha',
       fontSize: 16.sp,
+      height: 1.8,
     );
   }
 

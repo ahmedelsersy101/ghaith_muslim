@@ -34,6 +34,7 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
   // =============================================
   final TextEditingController _textEditingController = TextEditingController();
   List<dynamic> _filteredAzkar = azkar;
+  bool _isSearching = false; // متغير جديد للتحكم في حالة البحث
 
   // =============================================
   // 🔍 SEARCH METHODS - يمكن نقلها لملف service منفصل
@@ -63,6 +64,19 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
   void _clearSearch() {
     _textEditingController.clear();
     _searchAzkar("");
+    setState(() {
+      _isSearching = false; // إخفاء مربع البحث
+    });
+  }
+
+  // دالة جديدة لتفعيل/إلغاء البحث
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) {
+        _clearSearch();
+      }
+    });
   }
 
   // =============================================
@@ -107,38 +121,31 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
     return SliverAppBar(
       floating: true,
       pinned: true,
+      
       iconTheme: const IconThemeData(color: Colors.white),
       backgroundColor: _getAppBarColor(),
       elevation: 0,
-      title: Text(
-        "azkar".tr(),
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20.sp,
-        ),
-      ),
+      title: _isSearching
+          ? _buildSearchField()
+          : Text(
+              "azkar".tr(),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20.sp,
+              ),
+            ),
       centerTitle: true,
-      expandedHeight: 100.h,
-      collapsedHeight: kToolbarHeight,
-      flexibleSpace: _buildFlexibleSpace(),
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> widgets/search_bar.dart
-  Widget _buildFlexibleSpace() {
-    return Container(
-      alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          const Icon(Icons.search, color: Colors.white),
-          const SizedBox(width: 10),
-          Expanded(
-            child: _buildSearchField(),
+      actions: [
+        // زر البحث
+        IconButton(
+          icon: Icon(
+            _isSearching ? Icons.close : Icons.search,
+            color: Colors.white,
           ),
-          _buildClearSearchButton(),
-        ],
-      ),
+          onPressed: _toggleSearch,
+        ),
+      ],
+      expandedHeight: _isSearching ? 0 : null, // إخفاء المساحة الموسعة عند البحث
     );
   }
 
@@ -148,23 +155,12 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
       style: const TextStyle(color: Colors.white),
       controller: _textEditingController,
       onChanged: _searchAzkar,
+      autofocus: true, // لتفعيل الكيبورد تلقائياً
       decoration: InputDecoration(
         hintText: 'SearchDua'.tr(),
-        hintStyle: const TextStyle(color: Colors.white),
+        hintStyle: const TextStyle(color: Colors.white70),
         border: InputBorder.none,
       ),
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> widgets/clear_search_button.dart
-  Widget _buildClearSearchButton() {
-    if (_filteredAzkar.length == azkar.length) {
-      return const SizedBox.shrink();
-    }
-
-    return IconButton(
-      onPressed: _clearSearch,
-      icon: const Icon(Icons.close, color: Colors.white),
     );
   }
 

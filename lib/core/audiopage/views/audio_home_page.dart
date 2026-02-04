@@ -63,8 +63,8 @@ class _RecitersPageState extends State<RecitersPage> {
   final TextEditingController textEditingController = TextEditingController();
 
   String searchQuery = "";
-  // 💡 التعديل: القيمة الافتراضية هي "all" لعرض جميع القراء
   String selectedMode = "all";
+  bool _isSearching = false; // 💡 متغير جديد للتحكم في حالة البحث
 
   // =============================================
   // 🎯 LIFECYCLE METHODS
@@ -74,7 +74,6 @@ class _RecitersPageState extends State<RecitersPage> {
   void initState() {
     super.initState();
     _initializeData();
-    // 💡 التعديل: _loadInitialData تم تحديثها لمعالجة التوقيت
     _loadInitialData();
   }
 
@@ -97,12 +96,8 @@ class _RecitersPageState extends State<RecitersPage> {
     dio = Dio();
   }
 
-  // 💡 التعديل: لضمان تحميل قائمة القراء قبل المفضلة
   void _loadInitialData() async {
-    // 1. 🥇 حمل القراء الأساسيين من API/SharedPreferences.
     await _fetchReciters();
-
-    // 2. 🥈 بعد اكتمال قائمة 'reciters'، يمكننا الآن تحميل قائمة المفضلة بأمان.
     _getFavoriteList();
   }
 
@@ -110,25 +105,21 @@ class _RecitersPageState extends State<RecitersPage> {
   // 💾 DATA MANAGEMENT
   // =============================================
 
-  // 💡 التعديل: استخدام orElse آمن لتجنب Bad state: No element
   void _getFavoriteList() {
     final jsonData = getValue("favoriteRecitersList");
 
     if (jsonData != null) {
       try {
-        // نعلم الآن أننا نحفظ IDs فقط
         final List<dynamic> favoriteReciterIds = json.decode(jsonData) as List<dynamic>;
 
-        // مطابقة الـ IDs مع قائمة القراء المحملة (reciters)
         favoriteRecitersList = favoriteReciterIds
             .map((reciterId) {
               return reciters.firstWhere(
                 (element) => element.id.toString() == reciterId.toString(),
-                // إذا لم يتم العثور على القارئ، نُعيد كائناً فارغاً آمن الهوية (-1)
                 orElse: () => Reciter(id: -1, name: '', letter: '', moshaf: []),
               );
             })
-            .where((reciter) => reciter.id != -1) // حذف العناصر الوهمية
+            .where((reciter) => reciter.id != -1)
             .toList();
       } catch (e) {
         print('Error decoding favorite list or processing item: $e');
@@ -138,7 +129,6 @@ class _RecitersPageState extends State<RecitersPage> {
       favoriteRecitersList = [];
     }
 
-    // 💡 ضمان إيقاف مؤشر التحميل بعد محاولة تحميل القائمة المفضلة
     setState(() {
       isLoading = false;
     });
@@ -178,7 +168,6 @@ class _RecitersPageState extends State<RecitersPage> {
     }
   }
 
-  // 💡 التعديل: تحديث isLoading في النهاية فقط أو عند الخطأ
   Future<void> _fetchReciters() async {
     setState(() {
       isLoading = true;
@@ -204,7 +193,6 @@ class _RecitersPageState extends State<RecitersPage> {
     }
   }
 
-  // 💡 التعديل: إضافة معالجة أخطاء فك تشفير JSON وحذف البيانات التالفة
   Future<void> _loadStoredData(SharedPreferences prefs, String locale) async {
     final jsonData = prefs.getString("reciters-$locale");
     final jsonData2 = prefs.getString("moshaf-$locale");
@@ -227,7 +215,6 @@ class _RecitersPageState extends State<RecitersPage> {
     }
   }
 
-  // 💡 التعديل: إزالة تحديث isLoading من هذه الدالة
   void _processRecitersData(
       List<dynamic> recitersData, List<dynamic> rewayatData, List<dynamic> suwarData) {
     reciters = recitersData.map((reciter) => Reciter.fromJson(reciter)).toList();
@@ -252,23 +239,12 @@ class _RecitersPageState extends State<RecitersPage> {
     _scrollToTop();
   }
 
-  // void _filterByRewaya(String id) {
-  //   filteredReciters = reciters.where((element) {
-  //     return element.moshaf.any((element) => element.id.toString() == id);
-  //   }).toList();
-
-  //   setState(() {});
-  // }
-
   void _scrollToTop() {
-    // 💡 الحل: نستخدم Future.microtask لتأجيل التنفيذ
-    // حتى بعد اكتمال تحديث الـ Widget tree.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 💡 التحقق من أن الكونترولر مرتبط بالعنصر قبل محاولة التمرير.
       if (itemScrollController.isAttached) {
         itemScrollController.scrollTo(
           index: 0,
-          duration: const Duration(milliseconds: 500), // يمكنك تقليل المدة
+          duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOutBack,
         );
       }
@@ -279,7 +255,6 @@ class _RecitersPageState extends State<RecitersPage> {
   // 🎯 FAVORITES MANAGEMENT
   // =============================================
 
-  // 💡 التعديل: حفظ الـ IDs فقط
   void _toggleFavorite(Reciter reciter) {
     setState(() {
       if (favoriteRecitersList.contains(reciter)) {
@@ -288,30 +263,39 @@ class _RecitersPageState extends State<RecitersPage> {
         favoriteRecitersList.add(reciter);
       }
 
-      // 💡 حفظ قائمة من IDs القراء المفضلين فقط
       List<dynamic> favoriteIds = favoriteRecitersList.map((r) => r.id).toList();
-
-      // نستخدم الدالة updateValue لحفظ قائمة الـ IDs المشفرة
       updateValue("favoriteRecitersList", json.encode(favoriteIds));
     });
   }
 
-  // 💡 دالة جديدة لتفعيل أو إلغاء تفعيل وضع المفضلة
   void _toggleFavoriteMode() {
     setState(() {
       if (selectedMode == "favorite") {
         selectedMode = "all";
-        filteredReciters = reciters; // العودة إلى جميع القراء
+        filteredReciters = reciters;
       } else {
         selectedMode = "favorite";
-        // عند التحول للمفضلة، لا نحتاج لتصفية filteredReciters
-        // لأن _getCurrentRecitersList ستستخدم favoriteRecitersList
       }
       textEditingController.clear();
       searchQuery = "";
+      _isSearching = false; // 💡 إخفاء البحث عند التبديل للمفضلة
       FocusManager.instance.primaryFocus?.unfocus();
     });
     _scrollToTop();
+  }
+
+  // 💡 دالة جديدة للتبديل بين وضع البحث
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) {
+        textEditingController.clear();
+        searchQuery = "";
+        filteredReciters = reciters;
+        selectedMode = "all";
+        FocusManager.instance.primaryFocus?.unfocus();
+      }
+    });
   }
 
   // =============================================
@@ -331,38 +315,44 @@ class _RecitersPageState extends State<RecitersPage> {
   // 🎨 UI COMPONENTS
   // =============================================
 
-  // 💡 التعديل: إضافة زر المفضلة إلى الـ actions
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: _getAppBarColor(),
       elevation: 0,
-      title: Text(
-        selectedMode == "favorite" ? "favorites".tr() : "allReciters".tr(),
-        style: TextStyle(color: Colors.white, fontSize: 20.sp),
-      ),
+      // 💡 عرض مربع البحث في الـ title عند تفعيل البحث
+      title: _isSearching
+          ? _buildSearchField()
+          : Text(
+              selectedMode == "favorite" ? "favorites".tr() : "allReciters".tr(),
+              style: TextStyle(color: Colors.white, fontSize: 20.sp),
+            ),
       centerTitle: true,
-      automaticallyImplyLeading: false,
-      leading: _buildBackButton(),
+      automaticallyImplyLeading: !_isSearching, // 💡 إخفاء زر الرجوع عند البحث
+      leading: _isSearching ? null : _buildBackButton(),
       actions: [
-        // 💡 الزر الجديد: أيقونة المفضلة
-        _buildFavoriteButtonIcon(),
+        // 💡 زر البحث
+        IconButton(
+          onPressed: _toggleSearch,
+          icon: Icon(
+            _isSearching ? Icons.close : Icons.search,
+            color: Colors.white,
+          ),
+        ),
+        // 💡 زر المفضلة (يظهر فقط عندما لا يكون في وضع البحث)
+        if (!_isSearching) _buildFavoriteButtonIcon(),
         SizedBox(width: 10.w),
-        // _buildFilterButton(),
       ],
       systemOverlayStyle: SystemUiOverlayStyle.light,
-      bottom: _buildAppBarBottom(),
     );
   }
 
-  // 💡 الزر الجديد: أيقونة المفضلة في شريط التطبيق
   Widget _buildFavoriteButtonIcon() {
     final bool isFavoriteMode = selectedMode == "favorite";
     return IconButton(
       onPressed: _toggleFavoriteMode,
       icon: Icon(
         isFavoriteMode ? FontAwesome.heart : FontAwesome.heart_empty,
-        color:
-            isFavoriteMode ? Colors.white : Colors.white.withOpacity(0.8), // لون مختلف عند التفعيل
+        color: isFavoriteMode ? Colors.white : Colors.white.withOpacity(0.8),
       ),
     );
   }
@@ -374,81 +364,24 @@ class _RecitersPageState extends State<RecitersPage> {
     );
   }
 
-  PreferredSize _buildAppBarBottom() {
-    return PreferredSize(
-      preferredSize:
-          Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height * .1),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            _buildSearchField(),
-            // 💡 إزالة زر الفلتر من هنا ونقله إلى actions، ولكن نتركه في حالة عدم استخدامه مؤقتا
-            // _buildFilterButton(),
-          ],
-        ),
-      ),
-    );
-  }
-
+  // 💡 تعديل مربع البحث ليكون أكثر بساطة
   Widget _buildSearchField() {
-    return Expanded(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.0.w),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xffF6F6F6),
-            borderRadius: BorderRadius.circular(5.r),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12.0.w),
-                  child: TextField(
-                    controller: textEditingController,
-                    onChanged: _onSearchTextChanged,
-                    decoration: InputDecoration(
-                      hintText: "searchreciters".tr(),
-                      hintStyle: TextStyle(
-                        fontFamily: "cairo",
-                        fontSize: 14.sp,
-                        color: const Color.fromARGB(73, 0, 0, 0),
-                      ),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-              _buildSearchActionButton(),
-            ],
-          ),
+    return TextField(
+      controller: textEditingController,
+      autofocus: true, // 💡 لفتح الكيبورد تلقائياً
+      style: const TextStyle(color: Colors.white),
+      onChanged: _onSearchTextChanged,
+      decoration: InputDecoration(
+        hintText: "searchreciters".tr(),
+        hintStyle: TextStyle(
+          color: Colors.white70,
+          fontSize: 16.sp,
         ),
+        border: InputBorder.none,
       ),
     );
   }
 
-  Widget _buildSearchActionButton() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GestureDetector(
-        onTap: _onSearchActionTap,
-        child: Icon(
-          searchQuery == "" ? FontAwesome.search : Icons.close,
-          color: const Color.fromARGB(73, 0, 0, 0),
-        ),
-      ),
-    );
-  }
-
-  // Widget _buildFilterButton() {
-  //   return IconButton(
-  //     onPressed: _showFilterBottomSheet,
-  //     icon: const Icon(FontAwesome.filter, color: Colors.white),
-  //   );
-  // }
-
-  // 💡 التعديل: إضافة منطق عرض رسالة في حال عدم وجود بيانات
   Widget _buildBody() {
     if (isLoading) {
       return const Center(
@@ -595,8 +528,6 @@ class _RecitersPageState extends State<RecitersPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildMoshafInfo(moshaf),
-
-                    // _buildMoshafActions(moshaf, reciter),
                   ],
                 ),
               ),
@@ -690,120 +621,6 @@ class _RecitersPageState extends State<RecitersPage> {
   }
 
   // =============================================
-  // 🎯 BOTTOM SHEET
-  // =============================================
-
-  // void _showFilterBottomSheet() {
-  //   showModalBottomSheet(
-  //     enableDrag: true,
-  //     backgroundColor: Colors.white,
-  //     isDismissible: true,
-  //     showDragHandle: true,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.only(
-  //         topLeft: Radius.circular(14),
-  //         topRight: Radius.circular(14),
-  //       ),
-  //     ),
-  //     context: context,
-  //     builder: (context) => StatefulBuilder(
-  //       builder: (context, setModalState) {
-  //         return ListView(
-  //           children: [
-  //             _buildAllFilterOption(setModalState),
-  //             Divider(height: 15.h, color: Colors.grey),
-  //             // ❌ التعديل: إزالة خيار المفضلة من الـ Filter Sheet
-  //             // _buildFavoritesFilterOption(setModalState),
-  //             // Divider(height: 15.h, color: Colors.grey),
-  //             ..._buildRewayaFilterOptions(setModalState),
-  //           ],
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildAllFilterOption(StateSetter setModalState) {
-  //   return _buildFilterOption(
-  //     icon: Icons.all_inclusive_rounded,
-  //     title: "all".tr(),
-  //     isSelected: selectedMode == "all",
-  //     onTap: () => _onFilterOptionSelected("all", setModalState),
-  //   );
-  // }
-
-  // ❌ التعديل: حذف دالة بناء خيار المفضلة
-  // Widget _buildFavoritesFilterOption(StateSetter setModalState) {
-  //   return _buildFilterOption(
-  //     icon: Icons.favorite,
-  //     title: "favorites".tr(),
-  //     isSelected: selectedMode == "favorite",
-  //     onTap: () => _onFilterOptionSelected("favorite", setModalState),
-  //   );
-  // }
-
-  // List<Widget> _buildRewayaFilterOptions(StateSetter setModalState) {
-  //   return rewayat
-  //       .map((rewaya) => Column(
-  //             children: [
-  //               _buildRewayaFilterOption(rewaya, setModalState),
-  //               Divider(height: 12.h),
-  //             ],
-  //           ))
-  //       .toList();
-  // }
-
-  // Widget _buildRewayaFilterOption(Moshaf rewaya, StateSetter setModalState) {
-  //   // 💡 التعديل: نستخدم moshafType.toString() كـ Mode للفلترة بالرواية
-  //   final String rewayaMode = rewaya.moshafType.toString();
-
-  //   return _buildFilterOption(
-  //     icon: Icons.library_books,
-  //     title: rewaya.name,
-  //     isSelected: selectedMode == rewayaMode,
-  //     onTap: () => _onRewayaFilterSelected(rewaya, setModalState),
-  //     customIcon: Image(
-  //       height: 25.h,
-  //       color: selectedMode == rewayaMode ? null : Colors.grey,
-  //       image: const AssetImage("assets/images/reading.png"),
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildFilterOption({
-  //   required IconData icon,
-  //   required String title,
-  //   required bool isSelected,
-  //   required VoidCallback onTap,
-  //   Widget? customIcon,
-  // }) {
-  //   return EasyContainer(
-  //     elevation: 0,
-  //     padding: 0,
-  //     margin: 0,
-  //     onTap: onTap,
-  //     child: SizedBox(
-  //       height: 45.h,
-  //       child: Row(
-  //         children: [
-  //           SizedBox(width: 30.w),
-  //           customIcon ?? Icon(icon, color: isSelected ? _getFilterIconColor() : Colors.grey),
-  //           SizedBox(width: 10.w),
-  //           Text(title),
-  //           const Spacer(),
-  //           Icon(
-  //             isSelected ? FontAwesome.dot_circled : FontAwesome.circle_empty,
-  //             color: isSelected ? _getFilterIconColor() : Colors.grey,
-  //             size: 20.sp,
-  //           ),
-  //           SizedBox(width: 40.w),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // =============================================
   // 🔧 EVENT HANDLERS
   // =============================================
 
@@ -811,7 +628,6 @@ class _RecitersPageState extends State<RecitersPage> {
     setState(() {
       searchQuery = value;
     });
-    // 💡 التعديل: عند البحث، نعود دائماً لوضع "الكل" ونبحث في جميع القراء
     if (selectedMode != "all") {
       setState(() {
         selectedMode = "all";
@@ -819,43 +635,6 @@ class _RecitersPageState extends State<RecitersPage> {
     }
     _filterReciters(value);
   }
-
-  void _onSearchActionTap() {
-    if (searchQuery == "") {
-      _fetchReciters();
-    } else {
-      textEditingController.clear();
-      FocusManager.instance.primaryFocus?.unfocus();
-    }
-
-    setState(() {
-      searchQuery = "";
-      // 💡 العودة لوضع "الكل" بعد مسح البحث
-      selectedMode = "all";
-    });
-  }
-
-  // void _onFilterOptionSelected(String mode, StateSetter setModalState) {
-  //   if (selectedMode != mode) {
-  //     _fetchReciters();
-  //     setState(() {
-  //       selectedMode = mode;
-  //       // 💡 بما أن وضع "المفضلة" قد أُزيل، فإن هذا سيؤدي إلى وضع "الكل"
-  //       filteredReciters = reciters;
-  //     });
-  //     Navigator.pop(context);
-  //     _scrollToTop();
-  //   }
-  // }
-
-  // void _onRewayaFilterSelected(Moshaf rewaya, StateSetter setModalState) {
-  //   _filterByRewaya(rewaya.id.toString());
-  //   setState(() {
-  //     selectedMode = rewaya.moshafType.toString();
-  //   });
-  //   Navigator.pop(context);
-  //   _scrollToTop();
-  // }
 
   void _navigateToSurahList(Reciter reciter, Moshaf moshaf) {
     Navigator.push(
@@ -938,7 +717,6 @@ class _RecitersPageState extends State<RecitersPage> {
 
     playerPageBloc.add(DownloadAllSurahs(moshaf: moshaf, reciter: reciter));
 
-    // محاكاة للتحميل - يمكن إزالته عند ربطه بالتحميل الحقيقي
     await Future.delayed(const Duration(seconds: 3));
 
     setState(() => _downloadingStatus[moshaf.id] = false);
@@ -967,12 +745,12 @@ class _RecitersPageState extends State<RecitersPage> {
       final files = await moshafPath.list().toList();
       final surahCount = moshaf.surahList.split(',').length;
 
-      // نعتبر المصحف محملاً إذا كان 80% من السور موجودة
       return files.length >= surahCount * 0.8;
     } catch (e) {
       return false;
     }
   }
+
   // =============================================
   // 🎨 STYLE HELPER METHODS
   // =============================================
@@ -1005,10 +783,6 @@ class _RecitersPageState extends State<RecitersPage> {
     return isDarkModeNotifier.value ? backgroundColor : orangeColor;
   }
 
-  // Color _getFilterIconColor() {
-  //   return isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight;
-  // }
-
   // =============================================
   // 🔧 DATA HELPER METHODS
   // =============================================
@@ -1022,7 +796,6 @@ class _RecitersPageState extends State<RecitersPage> {
     return [];
   }
 
-  // 💡 التعديل: تعرض قائمة المفضلة إذا كان selectedMode == "favorite"
   List<Reciter> _getCurrentRecitersList() {
     return selectedMode == "favorite" ? favoriteRecitersList : filteredReciters;
   }

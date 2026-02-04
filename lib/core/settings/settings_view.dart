@@ -12,7 +12,6 @@ import 'package:ghaith/core/settings/rate_share_section.dart';
 import 'package:ghaith/main.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:superellipse_shape/superellipse_shape.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -28,9 +27,9 @@ class _SettingsViewState extends State<SettingsView> {
       valueListenable: isDarkModeNotifier,
       builder: (context, isDark, _) {
         return Scaffold(
-          backgroundColor: isDark ? darkModeSecondaryColor.withOpacity(0.7) : quranPagesColorLight,
+          backgroundColor: isDark ? darkModeSecondaryColor : quranPagesColorLight,
           appBar: AppBar(
-            backgroundColor: isDark ? quranPagesColorDark.withOpacity(0.5) : quranPagesColorLight,
+            backgroundColor: Colors.transparent,
             elevation: 0,
             title: Text(
               'settings'.tr(),
@@ -38,6 +37,7 @@ class _SettingsViewState extends State<SettingsView> {
                 color: isDark ? backgroundColor : darkModeSecondaryColor,
                 fontFamily: "cairo",
                 fontSize: 24.sp,
+                fontWeight: FontWeight.bold,
               ),
             ),
             centerTitle: true,
@@ -49,88 +49,228 @@ class _SettingsViewState extends State<SettingsView> {
               child: Column(
                 children: [
                   const SizedBox(height: 12),
-                  listTileSettingsView(
-                    'languageApp'.tr(),
-                    Icon(Icons.language, color: isDark ? backgroundColor : orangeColor, size: 32),
-                    DropdownButton<Locale>(
-                      value: context.locale,
-                      onChanged: (Locale? newValue) {
-                        context.setLocale(newValue!);
-                        getAndStoreRecitersData();
-                        downloadAndStoreHadithData();
-                        updateDateData();
-                      },
-                      items: [
-                        const Locale("ar"),
-                        const Locale('en'),
-                        const Locale('de'),
-                        const Locale("am"),
-                        const Locale("ms"),
-                        const Locale("pt"),
-                        const Locale("tr"),
-                        const Locale("ru"),
-                      ].map((locale) {
-                        return DropdownMenuItem<Locale>(
-                          value: locale,
+
+                  // Language Setting Card
+                  _buildSettingsCard(
+                    isDark: isDark,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color:
+                                isDark ? Colors.white.withOpacity(0.15) : const Color(0xFFF5E6E6),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            Icons.language_rounded,
+                            color: isDark ? Colors.white70 : const Color(0xFF8B4545),
+                            size: 32,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'languageApp'.tr(),
+                                style: TextStyle(
+                                  color: isDark ? Colors.white : darkModeSecondaryColor,
+                                  fontFamily: "cairo",
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? Colors.black.withOpacity(0.2)
+                                      : const Color(0xFFF5F5F5),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<Locale>(
+                                    value: context.locale,
+                                    isExpanded: true,
+                                    isDense: true,
+                                    dropdownColor: isDark ? const Color(0xFF2D2D2D) : Colors.white,
+                                    icon: Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      color: isDark ? Colors.white70 : Colors.grey.shade600,
+                                    ),
+                                    onChanged: (Locale? newValue) {
+                                      context.setLocale(newValue!);
+                                      getAndStoreRecitersData();
+                                      downloadAndStoreHadithData();
+                                      updateDateData();
+                                    },
+                                    items: [
+                                      const Locale("ar"),
+                                      const Locale('en'),
+                                      const Locale('de'),
+                                      const Locale("am"),
+                                      const Locale("ms"),
+                                      const Locale("pt"),
+                                      const Locale("tr"),
+                                      const Locale("ru"),
+                                    ].map((locale) {
+                                      return DropdownMenuItem<Locale>(
+                                        value: locale,
+                                        child: Text(
+                                          getNativeLanguageName(locale.languageCode),
+                                          style: TextStyle(
+                                            color: isDark ? Colors.white : darkModeSecondaryColor,
+                                            fontFamily: "cairo",
+                                            fontSize: 15.sp,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Theme Setting Card
+                  _buildSettingsCard(
+                    isDark: isDark,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color:
+                                isDark ? Colors.white.withOpacity(0.15) : const Color(0xFFF5E6E6),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            isDark ? Icons.nightlight_round : Icons.wb_sunny_rounded,
+                            color: isDark ? Colors.white70 : const Color(0xFF8B4545),
+                            size: 32,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
                           child: Text(
-                            getNativeLanguageName(locale.languageCode),
+                            'theme'.tr(),
                             style: TextStyle(
-                              color: isDark ? backgroundColor : orangeColor,
+                              color: isDark ? Colors.white : darkModeSecondaryColor,
+                              fontFamily: "cairo",
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  listTileSettingsView(
-                    'theme'.tr(),
-                    Icon(Icons.dark_mode_outlined,
-                        color: isDark ? backgroundColor : orangeColor, size: 32),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(40),
-                        color: isDark
-                            ? const Color(0xffFEFEFE)
-                            : darkModeSecondaryColor.withOpacity(0.9),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          final newValue = !isDarkModeNotifier.value;
-                          updateValue("darkMode", newValue);
-                          isDarkModeNotifier.value = newValue;
-                        },
-                        icon: Icon(
-                          Icons.dark_mode_outlined,
-                          color: isDark ? goldColor : Colors.white70,
                         ),
-                      ),
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF8B4545) : const Color(0xFF8B4545),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF8B4545).withOpacity(0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () {
+                                final newValue = !isDarkModeNotifier.value;
+                                updateValue("darkMode", newValue);
+                                isDarkModeNotifier.value = newValue;
+                              },
+                              child: Center(
+                                child: Icon(
+                                  isDark ? Icons.nightlight_round : Icons.wb_sunny_rounded,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: () async {
-                      // await FlutterOverlayWindow.requestPermission();
-                      Navigator.push(context,
-                          CupertinoPageRoute(builder: (builder) => const NotificationsPage()));
+
+                  const SizedBox(height: 16),
+
+                  // Notifications Setting Card
+                  _buildSettingsCard(
+                    isDark: isDark,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (builder) => const NotificationsPage(),
+                        ),
+                      );
                     },
-                    child: listTileSettingsView(
-                      "notifications".tr(),
-                      Icon(Icons.notifications_active_outlined,
-                          color: isDark ? backgroundColor : orangeColor, size: 32),
-                      Container(
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(40),
-                              color: const Color(0xffFEFEFE)),
+                            color:
+                                isDark ? Colors.white.withOpacity(0.15) : const Color(0xFFF5E6E6),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            Icons.notifications_active_rounded,
+                            color: isDark ? Colors.white70 : const Color(0xFF8B4545),
+                            size: 32,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            "notifications".tr(),
+                            style: TextStyle(
+                              color: isDark ? Colors.white : darkModeSecondaryColor,
+                              fontFamily: "cairo",
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color.fromARGB(176, 252, 252, 252)
+                                : const Color.fromARGB(202, 244, 244, 244),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: Image.asset(
                             "assets/images/notifications.png",
-                            width: 50,
-                            height: 50,
-                          )),
+                            width: 32,
+                            height: 32,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
+
+                  const SizedBox(height: 16),
+
+                  // Rate & Share Section
                   const RateShareSection(),
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -141,43 +281,33 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
-  Container listTileSettingsView(
-    String title,
-    Widget leading,
-    Widget trailing,
-  ) {
+  Widget _buildSettingsCard({
+    required bool isDark,
+    required Widget child,
+    VoidCallback? onTap,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.r),
-        color: isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.2) : Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        color: isDark ? const Color(0xFF6B4B4B).withOpacity(0.6) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withOpacity(0.4) : Colors.grey.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+            spreadRadius: 2,
+          ),
+        ],
       ),
       child: Material(
-        color:
-            isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.5) : quranPagesColorLight,
-        shape: SuperellipseShape(
-          borderRadius: BorderRadius.circular(24.0.r),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isDarkModeNotifier.value
-                ? quranPagesColorDark.withOpacity(0.5)
-                : quranPagesColorLight,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            title: Text(
-              title,
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-                fontFamily: "cairo",
-                fontSize: 22.sp,
-              ),
-            ),
-            leading: leading,
-            trailing: trailing,
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20.r),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20.r),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            child: child,
           ),
         ),
       ),
@@ -205,12 +335,9 @@ class _SettingsViewState extends State<SettingsView> {
       case 'ru':
         return 'Русский';
       default:
-        return languageCode; // Return the language code if not found
+        return languageCode;
     }
   }
-
-  // ignore: unused_field
-  var _today = HijriCalendar.now();
 
   getAndStoreRecitersData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -261,7 +388,6 @@ class _SettingsViewState extends State<SettingsView> {
   updateDateData() async {
     await Future.delayed(const Duration(milliseconds: 300));
     HijriCalendar.setLocal(context.locale.languageCode == "ar" ? "ar" : "en");
-    _today = HijriCalendar.now();
     setState(() {});
   }
 
@@ -285,7 +411,6 @@ class _SettingsViewState extends State<SettingsView> {
             prefs.setString(
                 "hadithlist-${category["id"]}-${context.locale.languageCode}", jsonData);
 
-            ///add to category of all hadithlist
             if (prefs.getString("hadithlist-100000-${context.locale.languageCode}") == null) {
               prefs.setString("hadithlist-100000-${context.locale.languageCode}", jsonData);
             } else {
@@ -300,12 +425,5 @@ class _SettingsViewState extends State<SettingsView> {
         });
       }
     }
-
-    //  if (response.data != null) {
-    //       final jsonData = json.encode(response.data['reciters']);
-    //       prefs.setString(
-    //           "reciters-${context.locale.languageCode == "en" ? "eng" : context.locale.languageCode}",
-    //           jsonData);
-    //     }
   }
 }

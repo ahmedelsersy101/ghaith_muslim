@@ -116,33 +116,65 @@ class _ZikrPageState extends State<ZikrPage> {
 
   // [CAN_BE_EXTRACTED] -> widgets/zikr_content.dart
   Widget _buildContent() {
-    return Stack(
+    return Column(
       children: [
-        _buildZikrTextSection(),
-        _buildCounterSection(),
+        // عداد الأذكار في الأعلى
+        SizedBox(height: 16.h),
+        _buildZikrCounter(),
+        SizedBox(height: 16.h),
+
+        // محتوى الذكر
+        Expanded(
+          child: _buildZikrCard(),
+        ),
+
+        // أزرار التنقل
+        SizedBox(height: 32.h),
         _buildNavigationButtons(),
+        SizedBox(height: 32.h),
+
+        // زر العد في الأسفل
+        _buildCounterButton(),
+        SizedBox(height: 80.h),
       ],
     );
   }
 
-  // [CAN_BE_EXTRACTED] -> widgets/zikr_text_section.dart
-  Widget _buildZikrTextSection() {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: Column(
+  Widget _buildZikrCounter() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 20.h),
-          _buildZikrTextContainer(),
-          SizedBox(height: 10.h),
+          Icon(Icons.copy_outlined, color: Colors.white, size: 18.sp),
+          SizedBox(width: 8.w),
+          Text(
+            "${_getCurrentZikrIndex() + 1} / ${widget.zikr.array.length}",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // [CAN_BE_EXTRACTED] -> widgets/zikr_text_container.dart
-  Widget _buildZikrTextContainer() {
-    return SizedBox(
-      height: (MediaQuery.of(context).size.height * .78) - 30.h,
+  // بطاقة الذكر الرئيسية
+  Widget _buildZikrCard() {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      padding: EdgeInsets.all(24.w),
+      decoration: BoxDecoration(
+        color: isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+        borderRadius: BorderRadius.circular(30.r),
+      ),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 600),
         transitionBuilder: (Widget child, Animation<double> animation) {
@@ -153,26 +185,31 @@ class _ZikrPageState extends State<ZikrPage> {
     );
   }
 
-  // [CAN_BE_EXTRACTED] -> widgets/zikr_text.dart
+  // نص الذكر
   Widget _buildZikrText() {
     return SingleChildScrollView(
       key: Key(_getCurrentZikrIndex().toString()),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: GestureDetector(
-                onLongPress: _onZikrTextLongPress,
-                child: Text(
-                  _getCurrentZikr().text, // استخدام النوع الديناميكي
+          GestureDetector(
+            onLongPress: _onZikrTextLongPress,
+            child: Column(
+              children: [
+                // النص العربي
+                Text(
+                  _getCurrentZikr().text,
                   textDirection: TextDirection.rtl,
                   textAlign: TextAlign.center,
-                  style: _getZikrTextStyle(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.bold,
+                    height: 1.8,
+                  ),
                 ),
-              ),
+                SizedBox(height: 20.h),
+              ],
             ),
           ),
         ],
@@ -180,93 +217,30 @@ class _ZikrPageState extends State<ZikrPage> {
     );
   }
 
-  // [CAN_BE_EXTRACTED] -> widgets/counter_section.dart
-  Widget _buildCounterSection() {
-    return Positioned(
-      bottom: 50.h,
-      width: MediaQuery.of(context).size.width,
-      child: Center(
-        child: Column(
-          children: [
-            _buildCounterButton(),
-            SizedBox(height: 22.h),
-            _buildProgressIndicator(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> widgets/counter_button.dart
-  Widget _buildCounterButton() {
-    return GestureDetector(
-      onTap: _onCounterTap,
-      child: Center(
-        child: Container(
-          height: 150.h,
-          width: 150.h,
-          decoration: _buildCounterDecoration(),
-          child: Center(
-            child: Text(
-              "$_currentCount",
-              style: _getCounterTextStyle(),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> widgets/progress_indicator.dart
-  Widget _buildProgressIndicator() {
-    return SizedBox(
-      width: 120.w,
-      child: LinearProgressIndicator(
-        value: _getProgressValue(),
-        backgroundColor: Colors.grey.withOpacity(.3),
-        color: Colors.green,
-        minHeight: 5.h,
-      ),
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> widgets/navigation_buttons.dart
+  // أزرار التنقل (السابق - إعادة - التالي)
   Widget _buildNavigationButtons() {
-    return Positioned(
-      width: MediaQuery.of(context).size.width,
-      top: MediaQuery.of(context).size.height * .71,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildPreviousButton(),
-            _buildNextButton(),
-          ],
-        ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 32.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildNavigationButton(
+            onTap: _onPreviousTap,
+            icon: Icons.arrow_back_ios_new,
+            isEnabled: _hasPreviousZikr(),
+          ),
+          _buildResetButton(),
+          _buildNavigationButton(
+            onTap: _onNextTap,
+            icon: Icons.arrow_forward_ios,
+            isEnabled: _hasNextZikr(),
+          ),
+        ],
       ),
     );
   }
 
-  // [CAN_BE_EXTRACTED] -> widgets/navigation_button.dart
-  Widget _buildPreviousButton() {
-    return _buildNavigationButton(
-      onTap: _onPreviousTap,
-      icon: Icons.arrow_back_ios_new_outlined,
-      isEnabled: _hasPreviousZikr(),
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> widgets/navigation_button.dart
-  Widget _buildNextButton() {
-    return _buildNavigationButton(
-      onTap: _onNextTap,
-      icon: Icons.arrow_forward_ios_outlined,
-      isEnabled: _hasNextZikr(),
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> widgets/navigation_button.dart
+  // زر التنقل (سابق/تالي)
   Widget _buildNavigationButton({
     required VoidCallback onTap,
     required IconData icon,
@@ -275,16 +249,79 @@ class _ZikrPageState extends State<ZikrPage> {
     return GestureDetector(
       onTap: isEnabled ? onTap : null,
       child: Container(
-        height: 50.h,
-        width: 50.w,
-        decoration: _buildNavigationButtonDecoration(),
+        height: 55.h,
+        width: 55.w,
+        decoration: BoxDecoration(
+          color: isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+          borderRadius: BorderRadius.circular(15.r),
+        ),
         child: Center(
           child: Icon(
             icon,
-            color: _getNavigationIconColor(),
+            color: Colors.white,
             size: 20.sp,
           ),
         ),
+      ),
+    );
+  }
+
+  // زر إعادة التعيين
+  Widget _buildResetButton() {
+    return GestureDetector(
+      onTap: _onResetTap,
+      child: Container(
+        height: 55.h,
+        width: 55.w,
+        decoration: BoxDecoration(
+          color: isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+          borderRadius: BorderRadius.circular(15.r),
+        ),
+        child: Center(
+          child: Icon(
+            Icons.replay_outlined,
+            color: Colors.white,
+            size: 24.sp,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // زر العد الكبير
+  Widget _buildCounterButton() {
+    return GestureDetector(
+      onTap: _onCounterTap,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // الدائرة الخارجية
+          Container(
+            height: 140.h,
+            width: 140.h,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color:
+                  isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+            ),
+          ),
+
+          // العدد
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "$_currentCount",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 50.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 8.h),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -296,24 +333,14 @@ class _ZikrPageState extends State<ZikrPage> {
         widget.zikr.category,
         style: _getAppBarTitleStyle(),
       ),
-      backgroundColor: Colors.transparent,
-      actions: [
-        _buildResetButton(),
-      ],
+      backgroundColor:
+          isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => Navigator.pop(context),
+      ),
       centerTitle: true,
       elevation: 0,
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> widgets/reset_button.dart
-  Widget _buildResetButton() {
-    return IconButton(
-      onPressed: _onResetTap,
-      icon: Icon(
-        Icons.replay_outlined,
-        color: _getResetIconColor(),
-        size: 24.sp,
-      ),
     );
   }
 
@@ -361,15 +388,13 @@ class _ZikrPageState extends State<ZikrPage> {
 
     if (_currentCount >= requiredCount) {
       if (_hasNextZikr()) {
-        // 🔹 إذا كان هناك ذكر بعد الحالي → انتقل إليه
         _updateZikrIndex(_getCurrentZikrIndex() + 1);
       } else {
-        // 🔹 لا يوجد أذكار أخرى → أظهر رسالة وارجع لأول ذكر
         _showCompletionToast("🎉 تم الانتهاء من الأذكار");
-        _updateZikrIndex(0); // ⬅️ إرجاع الفهرس لأول ذكر تلقائي
+        _updateZikrIndex(0);
       }
 
-      _resetCounter(); // إعادة العداد بعد كل انتقال
+      _resetCounter();
     }
   }
 
@@ -383,87 +408,20 @@ class _ZikrPageState extends State<ZikrPage> {
     Fluttertoast.showToast(msg: message);
   }
 
-  double _getProgressValue() {
-    final requiredCount = _getCurrentZikr().count; // استخدام النوع الديناميكي
-    return _currentCount / requiredCount;
-  }
-
   // =============================================
-  // 🎨 STYLE HELPER METHODS - يمكن نقلها لملف themes
+  // 🎨 STYLE HELPER METHODS
   // =============================================
 
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
   Color _getBackgroundColor() {
     return isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight;
   }
 
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  TextStyle _getZikrTextStyle() {
-    return TextStyle(
-      color: _getTextColor(),
-      locale: const Locale("ar"),
-      fontWeight: FontWeight.w700,
-      fontSize: 18.sp,
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  TextStyle _getCounterTextStyle() {
-    return TextStyle(
-      color: _getCounterTextColor(),
-      fontSize: 50.sp,
-      fontWeight: FontWeight.bold,
-      fontFamily: "roboto",
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
   TextStyle _getAppBarTitleStyle() {
     return TextStyle(
       fontFamily: "cairo",
-      color: _getTextColor(),
-      fontSize: 16.sp,
+      color: Colors.white,
+      fontSize: 18.sp,
+      fontWeight: FontWeight.bold,
     );
-  }
-
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  BoxDecoration _buildCounterDecoration() {
-    return BoxDecoration(
-      borderRadius: BorderRadius.circular(100),
-      color: _getCounterBackgroundColor(),
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  BoxDecoration _buildNavigationButtonDecoration() {
-    return BoxDecoration(
-      color: _getCounterBackgroundColor(),
-      borderRadius: BorderRadius.circular(32),
-    );
-  }
-
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  Color _getTextColor() {
-    return isDarkModeNotifier.value ? Colors.white : Colors.black;
-  }
-
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  Color _getCounterTextColor() {
-    return isDarkModeNotifier.value ? Colors.black : Colors.white;
-  }
-
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  Color _getCounterBackgroundColor() {
-    return isDarkModeNotifier.value ? Colors.white.withOpacity(.1) : Colors.black.withOpacity(.2);
-  }
-
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  Color _getNavigationIconColor() {
-    return isDarkModeNotifier.value ? Colors.black : Colors.white;
-  }
-
-  // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  Color _getResetIconColor() {
-    return isDarkModeNotifier.value ? Colors.white : Colors.black;
   }
 }

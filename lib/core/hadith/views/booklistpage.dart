@@ -33,9 +33,11 @@ class HadithList extends StatefulWidget {
 class _HadithListState extends State<HadithList> {
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل متغيرات الحالة لملف state/hadith_list_state.dart
   bool _isLoading = true;
+  bool _isSearching = false; // 💡 متغير جديد للتحكم في حالة البحث
   List<HadithMin> _hadithes = [];
   List<HadithMin> _filteredHadithes = [];
   List<HadithMin> _tempHadithes = [];
+  final TextEditingController _searchController = TextEditingController(); // 💡 كنترولر للبحث
 
   @override
   void initState() {
@@ -43,16 +45,22 @@ class _HadithListState extends State<HadithList> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose(); // 💡 تنظيف الكنترولر
+    super.dispose();
+  }
+
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل جلب البيانات لملف services/hadith_data_service.dart
   Future<void> _getHadithList() async {
     _hadithes = [];
-    
+
     if (widget.id == "100000") {
       await _loadAllHadiths();
     } else {
       await _loadCategoryHadiths();
     }
-    
+
     _tempHadithes = _hadithes;
     setState(() => _isLoading = false);
   }
@@ -60,7 +68,7 @@ class _HadithListState extends State<HadithList> {
   Future<void> _loadAllHadiths() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final jsonData = prefs.getString("hadithlist-100000-${widget.locale}");
-    
+
     if (jsonData != null) {
       final data = json.decode(jsonData) as List<dynamic>;
       _addUniqueHadiths(data);
@@ -72,7 +80,7 @@ class _HadithListState extends State<HadithList> {
   Future<void> _loadCategoryHadiths() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final jsonData = prefs.getString("hadithlist-${widget.id}-${widget.locale}");
-    
+
     if (jsonData != null) {
       final data = json.decode(jsonData) as List<dynamic>;
       _addHadiths(data);
@@ -98,9 +106,8 @@ class _HadithListState extends State<HadithList> {
   Future<void> _fetchHadithsFromAPI() async {
     try {
       Response response = await Dio().get(
-        "https://hadeethenc.com/api/v1/hadeeths/list/?language=${widget.locale}&category_id=${widget.id}&per_page=699999"
-      );
-      
+          "https://hadeethenc.com/api/v1/hadeeths/list/?language=${widget.locale}&category_id=${widget.id}&per_page=699999");
+
       if (response.data["data"] != null) {
         for (var hadith in response.data["data"]) {
           _hadithes.add(HadithMin.fromJson(hadith));
@@ -122,6 +129,18 @@ class _HadithListState extends State<HadithList> {
       _hadithes = _filteredHadithes;
     }
     setState(() {});
+  }
+
+  // 💡 دالة جديدة للتبديل بين وضع البحث
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) {
+        _searchController.clear();
+        _searchHadiths("");
+        FocusManager.instance.primaryFocus?.unfocus();
+      }
+    });
   }
 
   @override
@@ -156,12 +175,18 @@ class _HadithListState extends State<HadithList> {
       backgroundColor: _getAppBarColor(),
       elevation: 0,
       centerTitle: true,
-      title: _buildAppBarTitle(),
-      expandedHeight: 100.h,
-      collapsedHeight: kToolbarHeight,
-      flexibleSpace: FlexibleSpaceBar(
-        background: _buildSearchBar(),
-      ),
+      // 💡 عرض مربع البحث في الـ title عند تفعيل البحث
+      title: _isSearching ? _buildSearchField() : _buildAppBarTitle(),
+      actions: [
+        // 💡 زر البحث
+        IconButton(
+          onPressed: _toggleSearch,
+          icon: Icon(
+            _isSearching ? Icons.close : Icons.search,
+            color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 
@@ -172,8 +197,8 @@ class _HadithListState extends State<HadithList> {
   }
 
   Color _getAppBarColor() {
-    return isDarkModeNotifier.value 
-        ? darkModeSecondaryColor 
+    return isDarkModeNotifier.value
+        ? darkModeSecondaryColor
         : const Color(0xffF5EFE8).withOpacity(.3);
   }
 
@@ -187,38 +212,20 @@ class _HadithListState extends State<HadithList> {
     );
   }
 
-  Widget _buildSearchBar() {
-    return Container(
-      alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: _getAppBarColor(),
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.search,
-            color: isDarkModeNotifier.value ? Colors.white60 : Colors.black54,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              style: _getSearchTextStyle(),
-              onChanged: _searchHadiths,
-              decoration: _getSearchInputDecoration(),
-            ),
-          ),
-        ],
-      ),
+  // 💡 مربع البحث المبسط في الـ title
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      autofocus: true, // 💡 لفتح الكيبورد تلقائياً
+      style: _getSearchTextStyle(),
+      onChanged: _searchHadiths,
+      decoration: _getSearchInputDecoration(),
     );
   }
 
   TextStyle _getSearchTextStyle() {
     return TextStyle(
-      color: isDarkModeNotifier.value 
-          ? const Color(0xffF5EFE8).withOpacity(.3) 
-          : darkModeSecondaryColor,
+      color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87,
     );
   }
 
@@ -227,7 +234,7 @@ class _HadithListState extends State<HadithList> {
       hintText: 'SearchHadith'.tr(),
       border: InputBorder.none,
       hintStyle: TextStyle(
-        color: isDarkModeNotifier.value ? Colors.white : Colors.black,
+        color: isDarkModeNotifier.value ? Colors.white60 : Colors.black54,
       ),
     );
   }
@@ -286,8 +293,8 @@ class _HadithListState extends State<HadithList> {
   }
 
   Color _getListItemColor() {
-    return isDarkModeNotifier.value 
-        ? darkModeSecondaryColor 
+    return isDarkModeNotifier.value
+        ? darkModeSecondaryColor
         : const Color(0xffF5EFE8).withOpacity(.4);
   }
 

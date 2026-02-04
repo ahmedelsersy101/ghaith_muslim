@@ -161,6 +161,12 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
     return isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.4) : quranPagesColorLight;
   }
 
+  Color _getCardColor() {
+    return isDarkModeNotifier.value
+        ? quranPagesColorDark
+        : const Color.fromARGB(255, 255, 255, 255).withOpacity(.2);
+  }
+
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: _getAppBarColor(),
@@ -178,7 +184,7 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
   }
 
   Color _getAppBarColor() {
-    return isDarkModeNotifier.value ? darkModeSecondaryColor : orangeColor;
+    return isDarkModeNotifier.value ? quranPagesColorDark : orangeColor;
   }
 
   IconThemeData _getIconTheme() {
@@ -208,16 +214,20 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
 
   Widget _buildCategoryItem(int index) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: InkWell(
-        onTap: () => _navigateToHadithList(index),
-        child: Row(
-          children: [
-            _buildCategoryIcon(),
-            SizedBox(width: 15.w),
-            _buildCategoryInfo(index),
-            _buildNavigationIcon(),
-          ],
+      padding: const EdgeInsets.all(12),
+      child: Container(
+        color: _getCardColor(),
+        child: InkWell(
+          onTap: () => _navigateToHadithList(index),
+          child: Row(
+            children: [
+              _buildCategoryIcon(),
+              SizedBox(width: 15.w),
+              _buildCategoryInfo(index),
+              _buildNavigationIcon(),
+              SizedBox(width: 15.w),
+            ],
+          ),
         ),
       ),
     );
@@ -241,9 +251,7 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
   }
 
   Color _getCategoryIconColor() {
-    return isDarkModeNotifier.value
-        ? darkModeSecondaryColor
-        : const Color(0xffF5EFE8).withOpacity(.9);
+    return isDarkModeNotifier.value ? _getCardColor() : const Color(0xffF5EFE8).withOpacity(.9);
   }
 
   Color _getCategoryIconIconColor() {

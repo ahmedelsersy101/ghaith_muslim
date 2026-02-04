@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ghaith/GlobalHelpers/constants.dart';
 import 'package:ghaith/main.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:superellipse_shape/superellipse_shape.dart';
 // ignore: depend_on_referenced_packages
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
@@ -14,211 +13,280 @@ class RateShareSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.r),
-        color: isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.2) : Colors.white,
-      ),
-      child: Material(
-        color:
-            isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.5) : quranPagesColorLight,
-        shape: SuperellipseShape(
-          borderRadius: BorderRadius.circular(24.0.r),
-        ),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16.0),
+    return ValueListenableBuilder<bool>(
+      valueListenable: isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Container(
           decoration: BoxDecoration(
-            color: isDarkModeNotifier.value
-                ? quranPagesColorDark.withOpacity(0.5)
-                : quranPagesColorLight,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                ('rateShare').tr(),
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                    color: isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-                    fontFamily: "cairo",
-                    fontSize: 24.sp),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: isDarkModeNotifier.value
-                      ? quranPagesColorDark.withOpacity(0.5)
-                      : const Color(0xffFEFEFE),
-                  borderRadius: BorderRadius.circular(12),
-                  border:
-                      Border.all(color: Theme.of(context).colorScheme.secondary.withOpacity(0.3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.orange, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          ('rateApp').tr(),
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                              color: isDarkModeNotifier.value
-                                  ? backgroundColor
-                                  : darkModeSecondaryColor,
-                              fontFamily: "cairo",
-                              fontSize: 16.sp),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        ...List.generate(
-                          5,
-                          (index) => const Icon(Icons.star, color: Colors.orange, size: 20),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '5.0',
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                              color: isDarkModeNotifier.value
-                                  ? backgroundColor
-                                  : darkModeSecondaryColor,
-                              fontFamily: "cairo",
-                              fontSize: 16.sp),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _rateApp(),
-                        icon: const Icon(Icons.rate_review, size: 18),
-                        label: Text(
-                          ('rateOnStore').tr(),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDarkModeNotifier.value ? backgroundColor : orangeColor,
-                          foregroundColor: isDarkModeNotifier.value ? orangeColor : backgroundColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: isDarkModeNotifier.value
-                      ? quranPagesColorDark.withOpacity(0.5)
-                      : const Color(0xffFEFEFE),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.share,
-                            color:
-                                isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-                            size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          ('shareAppTitle').tr(),
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                              color: isDarkModeNotifier.value
-                                  ? backgroundColor
-                                  : darkModeSecondaryColor,
-                              fontFamily: "cairo",
-                              fontSize: 16.sp),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      ('shareAppSubtitle').tr(),
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color:
-                              isDarkModeNotifier.value ? backgroundColor : darkModeSecondaryColor,
-                          fontFamily: "cairo",
-                          fontSize: 12.sp),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _shareApp(),
-                        icon: const Icon(
-                          Icons.share,
-                          size: 18,
-                        ),
-                        label: Text(
-                          ('shareApp').tr(),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDarkModeNotifier.value ? backgroundColor : orangeColor,
-                          foregroundColor: isDarkModeNotifier.value ? orangeColor : backgroundColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: isDarkModeNotifier.value
-                      ? quranPagesColorDark.withOpacity(0.5)
-                      : const Color(0xffFEFEFE),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: colorScheme.tertiary.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline,
-                        color: isDarkModeNotifier.value ? backgroundColor : orangeColor, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        ('sharingBenefits').tr(),
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: isDarkModeNotifier.value ? backgroundColor : orangeColor,
-                            fontFamily: "cairo",
-                            fontSize: 12.sp),
-                      ),
-                    ),
-                  ],
-                ),
+            borderRadius: BorderRadius.circular(20.r),
+            color: isDark
+                ? const Color(0xFF6B4B4B).withOpacity(0.6)
+                : Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: isDark 
+                    ? Colors.black.withOpacity(0.4) 
+                    : Colors.grey.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+                spreadRadius: 2,
               ),
             ],
           ),
-        ),
-      ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Text(
+                  ('rateShare').tr(),
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : darkModeSecondaryColor,
+                    fontFamily: "cairo",
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                
+                // Rate App Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(18.0),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.black.withOpacity(0.2)
+                        : const Color(0xFFFAFAFA),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.star_rounded,
+                              color: Colors.orange,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              ('rateApp').tr(),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : darkModeSecondaryColor,
+                                fontFamily: "cairo",
+                                fontSize: 17.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          ...List.generate(
+                            5,
+                            (index) => const Padding(
+                              padding: EdgeInsets.only(right: 4),
+                              child: Icon(
+                                Icons.star_rounded,
+                                color: Colors.orange,
+                                size: 22,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '5.0',
+                            style: TextStyle(
+                              color: isDark ? Colors.white : darkModeSecondaryColor,
+                              fontFamily: "cairo",
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: () => _rateApp(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF8B4545),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.rate_review_rounded, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                ('rateOnStore').tr(),
+                                style: TextStyle(
+                                  fontFamily: "cairo",
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Share App Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(18.0),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.black.withOpacity(0.2)
+                        : const Color(0xFFFAFAFA),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isDark 
+                                  ? Colors.white.withOpacity(0.15)
+                                  : const Color(0xFFE8E8E8),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.share_rounded,
+                              color: isDark ? Colors.white70 : const Color(0xFF8B4545),
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              ('shareAppTitle').tr(),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : darkModeSecondaryColor,
+                                fontFamily: "cairo",
+                                fontSize: 17.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        ('shareAppSubtitle').tr(),
+                        style: TextStyle(
+                          color: isDark 
+                              ? Colors.white.withOpacity(0.7) 
+                              : Colors.grey.shade600,
+                          fontFamily: "cairo",
+                          fontSize: 13.sp,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: () => _shareApp(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF8B4545),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.share_rounded, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                ('shareApp').tr(),
+                                style: TextStyle(
+                                  fontFamily: "cairo",
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Info Box
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.orange.withOpacity(0.1)
+                        : Colors.orange.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.orange.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        color: Colors.orange.shade700,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          ('sharingBenefits').tr(),
+                          style: TextStyle(
+                            color: isDark ? Colors.orange.shade200 : Colors.orange.shade900,
+                            fontFamily: "cairo",
+                            fontSize: 13.sp,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

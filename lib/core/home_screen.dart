@@ -37,7 +37,6 @@ import 'package:quran/quran.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:superellipse_shape/superellipse_shape.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:workmanager/workmanager.dart';
@@ -51,13 +50,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with AfterLayoutMixin, TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     _initializeApp();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
+    _fadeController.forward();
     super.initState();
   }
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل التهيئة لملف services/app_initializer.dart
   void _initializeApp() {
     checkInAppUpdate();
     checkSalahNotification();
@@ -78,12 +88,12 @@ class _HomeScreenState extends State<HomeScreen>
     subscription2?.cancel();
     _installUpdateSubscription?.cancel();
     _timer.cancel();
+    _fadeController.dispose();
     super.dispose();
   }
 
   late Timer _timer;
 
-  // دالة للتحقق من وجود تحديثات
   Future<void> checkForUpdate() async {
     try {
       AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
@@ -92,18 +102,15 @@ class _HomeScreenState extends State<HomeScreen>
         return;
       }
 
-      // التحديث الفوري: واجهة كاملة من Play وتثبيت تلقائي
       if (updateInfo.immediateUpdateAllowed) {
         await InAppUpdate.performImmediateUpdate();
         return;
       }
 
-      // التحديث المرن: تنزيل في الخلفية ثم نعرض للمستخدم زر التثبيت
       if (!updateInfo.flexibleUpdateAllowed) {
         return;
       }
 
-      // الاشتراك في الـ listener قبل بدء التنزيل حتى لا نفوت حدث "downloaded"
       _installUpdateSubscription?.cancel();
       _installUpdateSubscription = InAppUpdate.installUpdateListener.listen((InstallStatus status) {
         if (status == InstallStatus.downloaded && mounted) {
@@ -113,7 +120,6 @@ class _HomeScreenState extends State<HomeScreen>
 
       final result = await InAppUpdate.startFlexibleUpdate();
 
-      // إذا المستخدم ألغى أو فشل البدء، نلغي الاشتراك
       if (result != AppUpdateResult.success && mounted) {
         _installUpdateSubscription?.cancel();
       }
@@ -150,7 +156,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل وظائف JSON لملف services/json_loader.dart
   Future<void> loadJsonAsset() async {
     final String jsonString = await rootBundle.loadString('assets/json/surahs.json');
     final String jsonString2 = await rootBundle.loadString('assets/json/quarters.json');
@@ -161,7 +166,6 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل وظائف الإشعارات لملف services/notification_service.dart
   void checkSalahNotification() {
     if (getValue("shouldShowSallyNotification") == true) {
       Workmanager().registerOneOffTask("sallahEnable", "sallahEnable");
@@ -172,7 +176,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   void checkInAppUpdate() async {}
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل وظائف اللغة لملف utils/language_utils.dart
   String getNativeLanguageName(String languageCode) {
     final languageMap = {
       'ar': 'العربية',
@@ -188,7 +191,6 @@ class _HomeScreenState extends State<HomeScreen>
     return languageMap[languageCode] ?? languageCode;
   }
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل وظائف الحديث لملف services/hadith_service.dart
   Future<void> downloadAndStoreHadithData() async {
     await Future.delayed(const Duration(seconds: 1));
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -233,7 +235,6 @@ class _HomeScreenState extends State<HomeScreen>
     final jsonData = json.encode(hadithData);
     prefs.setString("hadithlist-$categoryId-${context.locale.languageCode}", jsonData);
 
-    // Add to all hadiths collection
     final allHadithsKey = "hadithlist-100000-${context.locale.languageCode}";
     if (prefs.getString(allHadithsKey) == null) {
       prefs.setString(allHadithsKey, jsonData);
@@ -244,7 +245,6 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل وظائف القرآن لملف services/quran_service.dart
   Future<void> getAndStoreRecitersData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     print("Fetching reciters data...");
@@ -288,7 +288,6 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل وظائف الصلاة لملف services/prayer_time_service.dart
   Future<void> getPrayerTimesData() async {
     DateTime dateTime = DateTime.now();
 
@@ -411,7 +410,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   void getLocationData() {}
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل وظائف التاريخ الهجري لملف utils/hijri_date_utils.dart
   Future<void> updateDateData() async {
     await Future.delayed(const Duration(milliseconds: 300));
     HijriCalendar.setLocal(context.locale.languageCode == "ar" ? "ar" : "en");
@@ -428,145 +426,632 @@ class _HomeScreenState extends State<HomeScreen>
                 settings: settings, builder: (builder) => _buildHomeScaffold(context)))));
   }
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل واجهة المستخدم لملف ui/home_screen.dart
   Widget _buildHomeScaffold(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor:
-          isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(0.7) : quranPagesColorLight,
-      appBar: _buildAppBar(),
-      body: _buildBody(screenSize),
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      backgroundColor:
-          isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.5) : quranPagesColorLight,
-      centerTitle: true,
-      title: Column(
-        children: [
-          Text(
-            'main'.tr(),
-            style: TextStyle(
-                color: isDarkModeNotifier.value ? backgroundColor : Colors.black,
-                fontFamily: "cairo",
-                fontSize: 32.sp),
-          ),
-        ],
+      backgroundColor: isDarkModeNotifier.value ? darkModeSecondaryColor : quranPagesColorLight,
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(0),
+        child: SizedBox.shrink(),
       ),
-      leading: IconButton(
-          onPressed: () {
-            Navigator.push(context, CupertinoPageRoute(builder: (builder) => const SettingsView()));
-          },
-          icon: Icon(
-            Icons.settings,
-            color: isDarkModeNotifier.value ? backgroundColor : Colors.black,
-          )),
-    );
-  }
-
-  Widget _buildBody(Size screenSize) {
-    return SizedBox(
-      width: screenSize.width,
-      child: PageTransitionSwitcher(
-        transitionBuilder: (
-          Widget child,
-          Animation<double> animation,
-          Animation<double> secondaryAnimation,
-        ) {
-          return FadeThroughTransition(
-            fillColor: Colors.transparent,
-            animation: animation,
-            secondaryAnimation: secondaryAnimation,
-            child: child,
-          );
-        },
-        child: [
-          SizedBox(
-            width: screenSize.width,
-            height: screenSize.height,
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                _buildDateSection(),
-                SizedBox(height: 10.h),
-                _buildHomeContent(context, screenSize),
-                SizedBox(height: 10.h),
-              ],
-            ),
-          ),
-        ][index],
-      ),
-    );
-  }
-
-  Widget _buildDateSection() {
-    if (today == null) return SizedBox(height: 20.h);
-
-    return SizedBox(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          SizedBox(height: 20.h),
-          Text(
-            today.toFormat("dd - MMMM - yyyy"),
-            style: _dateTextStyle(),
-          ),
-          Text(
-            DateFormat.yMMMEd(context.locale.languageCode).format(DateTime.now()),
-            style: _dateTextStyle(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  TextStyle _dateTextStyle() {
-    return TextStyle(
-        color: isDarkModeNotifier.value ? Colors.white70 : Colors.black, fontSize: 18.sp);
-  }
-
-  Widget _buildHomeContent(BuildContext context, Size screenSize) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 18.0.w),
-      child: SizedBox(
-        child: ListView(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Stack(
           children: [
-            _buildMainButtons(),
-            _buildWidgetsSection(screenSize),
+            _buildDecorativeBackground(screenSize),
+            _buildBody(screenSize),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMainButtons() {
-    return Column(
-      children: [
-        // SizedBox(
-        //   width: double.infinity,
-        //   child: SuperellipseButton(
-        //       text: "quran".tr(),
-        //       onPressed: () => _navigateToQuran(),
-        //       imagePath: isDarkModeNotifier.value
-        //           ? "assets/images/wqlogo.png"
-        //           : "assets/images/qlogo.png"),
-        // ),
-        // SizedBox(
-        //   width: double.infinity,
-        //   child: SuperellipseButton(
-        //       text: "Hadith".tr(),
-        //       onPressed: () => _navigateToHadith(),
-        //       imagePath: isDarkModeNotifier.value
-        //           ? "assets/images/wmuhammed.png"
-        //           : "assets/images/muhammed.png"),
-        // ),
-        _buildGridButtons(),
+  Widget _buildDecorativeBackground(Size screenSize) {
+    final isDark = isDarkModeNotifier.value;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: isDark
+              ? [
+                  darkPrimaryColor,
+                  darkModeSecondaryColor,
+                  darkModeSecondaryColor.withOpacity(0.95),
+                ]
+              : [
+                  quranPagesColorLight.withOpacity(isDark ? 0.4 : 0.08),
+                  quranPagesColorLight,
+                  quranPagesColorLight.withOpacity(isDark ? 0.4 : 0.08),
+                ],
+          stops: const [0.0, 0.6, 1.0],
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Main pattern
+          CustomPaint(
+            painter: IslamicBackgroundPainter(
+              color: (isDark ? Colors.white : Colors.black).withOpacity(0.02),
+            ),
+            size: Size(screenSize.width, screenSize.height),
+          ),
+
+          // Gradient overlays for depth
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    (isDark ? orangeColor : orangeColor).withOpacity(0.08),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            bottom: -150,
+            left: -150,
+            child: Container(
+              width: 400,
+              height: 400,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    (isDark ? accentColor : goldColor).withOpacity(0.06),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroHeader(Size screenSize) {
+    final isDark = isDarkModeNotifier.value;
+    final hijriDate = today != null ? today.toFormat("dd - MMMM - yyyy") : "";
+    final gregorianDate = DateFormat.yMMMEd(context.locale.languageCode).format(DateTime.now());
+    final showPrayer = nextPrayer.isNotEmpty && nextPrayerTime.isNotEmpty;
+    final prayerName = _getPrayerDisplayName(nextPrayer);
+    final prayerTime = _formatPrayerTime(nextPrayerTime);
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: buildCustomBoxDecoration(isDark),
+      child: Stack(
+        children: [
+          // Decorative pattern
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(32.r),
+              child: CustomPaint(
+                painter: IslamicPatternPainter(
+                  color: Colors.white.withOpacity(0.06),
+                ),
+              ),
+            ),
+          ),
+
+          // Glossy overlay effect
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(32.r),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.white.withOpacity(0.15),
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.1),
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Content
+          Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(8.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                                child: Icon(
+                                  Icons.home_rounded,
+                                  color: Colors.white,
+                                  size: 20.sp,
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              Flexible(
+                                child: Text(
+                                  'main'.tr(),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: "cairo",
+                                    fontSize: 26.sp,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black.withOpacity(0.3),
+                                        offset: const Offset(0, 3),
+                                        blurRadius: 6,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12.h),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.calendar_today_rounded,
+                                  color: Colors.white.withOpacity(0.9),
+                                  size: 14.sp,
+                                ),
+                                SizedBox(width: 6.w),
+                                if (hijriDate.isNotEmpty)
+                                  Flexible(
+                                    child: Text(
+                                      hijriDate,
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.95),
+                                        fontSize: 14.sp,
+                                        fontFamily: "cairo",
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 6.h),
+                          Padding(
+                            padding: EdgeInsets.only(right: 4.w),
+                            child: Text(
+                              gregorianDate,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(50.r),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(builder: (builder) => const SettingsView()),
+                            );
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(12.w),
+                            child: Icon(
+                              Icons.settings_rounded,
+                              color: Colors.white,
+                              size: 22.sp,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+
+                // Bismillah Card
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withOpacity(0.25),
+                        Colors.white.withOpacity(0.15),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.4),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(6.w),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Colors.white,
+                          size: 16.sp,
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Flexible(
+                        child: Text(
+                          context.locale.languageCode == "ar"
+                              ? "بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيم"
+                              : "Bismillah",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17.sp,
+                            fontFamily: "UthmanicHafs13",
+                            fontWeight: FontWeight.w600,
+                            height: 1.6,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.2),
+                                offset: const Offset(0, 2),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Prayer Time Card
+                if (showPrayer) ...[
+                  SizedBox(height: 12.h),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(14.w),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.25),
+                          Colors.white.withOpacity(0.15),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(20.r),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.4),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(10.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(14.r),
+                          ),
+                          child: Icon(
+                            Icons.notifications_active_rounded,
+                            color: Colors.white,
+                            size: 20.sp,
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.locale.languageCode == "ar"
+                                    ? "الصلاة القادمة"
+                                    : "Next Prayer",
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.85),
+                                  fontSize: 11.sp,
+                                  fontFamily: "cairo",
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 2.h),
+                              Row(
+                                children: [
+                                  Text(
+                                    prayerName,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "cairo",
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          offset: const Offset(0, 1),
+                                          blurRadius: 3,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.w,
+                                      vertical: 2.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.25),
+                                      borderRadius: BorderRadius.circular(8.r),
+                                    ),
+                                    child: Text(
+                                      prayerTime,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: "roboto",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  BoxDecoration buildCustomBoxDecoration(bool isDark) {
+    return BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: isDark
+            ? [
+                const Color(0xFF8C2F3A),
+                const Color(0xFF6a1e2c),
+                const Color(0xFF4a1520),
+              ]
+            : [
+                const Color(0xFF8C2F3A),
+                const Color(0xFF6a1e2c),
+                const Color(0xFF4a1520),
+              ],
+      ),
+      borderRadius: BorderRadius.circular(32.r),
+      boxShadow: [
+        BoxShadow(
+          color: (isDark ? const Color(0xFF8C2F3A) : orangeColor).withOpacity(0.3),
+          blurRadius: 30,
+          offset: const Offset(0, 15),
+          spreadRadius: -16,
+        ),
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 10,
+          offset: const Offset(0, 5),
+        ),
       ],
+    );
+  }
+
+  String _getPrayerDisplayName(String prayer) {
+    for (final item in prayers) {
+      if (item[0] == prayer) {
+        return context.locale.languageCode == "ar" ? item[1] : item[0];
+      }
+    }
+    return prayer;
+  }
+
+  String _formatPrayerTime(String time) {
+    if (time.isEmpty) return "";
+    return time.split(' ')[0];
+  }
+
+  BoxDecoration _cardDecoration() {
+    final isDark = isDarkModeNotifier.value;
+    return BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: isDark
+            ? [
+                quranPagesColorDark.withOpacity(0.6),
+                quranPagesColorDark.withOpacity(0.4),
+              ]
+            : [
+                Colors.white,
+                quranPagesColorLight.withOpacity(0.95),
+              ],
+      ),
+      borderRadius: BorderRadius.circular(28.r),
+      border: Border.all(
+        color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
+        width: 1.5,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(isDark ? 0.4 : 0.08),
+          blurRadius: 20,
+          offset: const Offset(0, 10),
+          spreadRadius: -5,
+        ),
+        BoxShadow(
+          color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody(Size screenSize) {
+    return SafeArea(
+      child: SizedBox(
+        width: screenSize.width,
+        child: PageTransitionSwitcher(
+          transitionBuilder: (
+            Widget child,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) {
+            return FadeThroughTransition(
+              fillColor: Colors.transparent,
+              animation: animation,
+              secondaryAnimation: secondaryAnimation,
+              child: child,
+            );
+          },
+          child: [
+            ListView(
+              padding: EdgeInsets.only(bottom: 24.h),
+              children: [
+                SizedBox(height: 50.h),
+                _buildHeroHeader(screenSize),
+                SizedBox(height: 8.h),
+                _buildHomeContent(context, screenSize),
+              ],
+            ),
+          ][index],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeContent(BuildContext context, Size screenSize) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.0.w),
+      child: Column(
+        children: [
+          _buildMainButtons(),
+          SizedBox(height: 20.h),
+          _buildWidgetsSection(screenSize),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainButtons() {
+    final isDark = isDarkModeNotifier.value;
+    return Container(
+      decoration: buildCustomBoxDecoration(isDark),
+      child: Stack(
+        children: [
+          // Decorative pattern
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(32.r),
+              child: CustomPaint(
+                painter: IslamicPatternPainter(
+                  color: Colors.white.withOpacity(0.06),
+                ),
+              ),
+            ),
+          ),
+
+          // Glossy overlay effect
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(32.r),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.white.withOpacity(0.15),
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.1),
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Grid content
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: _buildGridButtons(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -594,9 +1079,10 @@ class _HomeScreenState extends State<HomeScreen>
     return GridView.count(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        crossAxisSpacing: 2,
-        mainAxisSpacing: 4,
+        crossAxisSpacing: 4.w,
+        mainAxisSpacing: 4.h,
         crossAxisCount: 2,
+        childAspectRatio: 0.9,
         children: <Widget>[
           SuperellipseButton(
               text: "quran".tr(),
@@ -663,66 +1149,159 @@ class _HomeScreenState extends State<HomeScreen>
     return Column(
       children: [
         _buildQuranVerseWidget(context, screenSize),
+        SizedBox(height: 16.h),
         _buildHadithWidget(screenSize),
       ],
     );
   }
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل ويدجت الآية لملف widgets/quran_verse_widget.dart
   Widget _buildQuranVerseWidget(BuildContext context, Size screenSize) {
     return Directionality(
       textDirection: m.TextDirection.rtl,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.0.w, vertical: 6.h),
-        child: Material(
-          color: isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.2) : Colors.white,
-          shape: SuperellipseShape(borderRadius: BorderRadius.circular(40.0.r)),
-          child: suranumber != null ? _buildVerseContent(context, screenSize) : Container(),
-        ),
+      child: Container(
+        decoration: _cardDecoration(),
+        clipBehavior: Clip.antiAlias,
+        child: suranumber != null ? _buildVerseContent(context, screenSize) : const SizedBox(),
       ),
     );
   }
 
   Widget _buildVerseContent(BuildContext context, Size screenSize) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Container(
-        decoration: BoxDecoration(
-            color: isDarkModeNotifier.value
-                ? quranPagesColorDark
-                : quranPagesColorLight.withOpacity(.6),
-            borderRadius: BorderRadius.circular(20.r)),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 10.h),
-              _buildVerseActionsRow(context),
-              SizedBox(height: 20.h),
-              _buildVerseText(screenSize),
-              _buildVerseInfo(),
-              SizedBox(height: 10.h),
-            ],
-          ),
+    final isDark = isDarkModeNotifier.value;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDarkModeNotifier.value
+                ? [
+                    darkPrimaryColor.withOpacity(isDark ? 0.5 : 0.5),
+                    darkPrimaryColor.withOpacity(isDark ? 0.5 : 0.5),
+                  ]
+                : [
+                    quranPagesColorLight.withOpacity(isDark ? 0.05 : 0.5),
+                    quranPagesColorLight,
+                  ]),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(24.w),
+        child: Column(
+          children: [
+            _buildVerseActionsRow(context),
+            SizedBox(height: 20.h),
+
+            // Verse Container with highlight
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(20.w),
+              decoration: buildCustomBoxDecoration(isDark),
+              child: _buildVerseText(screenSize),
+            ),
+
+            SizedBox(height: 16.h),
+
+            // Verse info with separator
+            Row(
+              children: [
+                Container(
+                  height: 1,
+                  width: 40.w,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        (isDark ? orangeColor : goldColor).withOpacity(0.5),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                _buildVerseInfo(),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          (isDark ? orangeColor : goldColor).withOpacity(0.5),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildVerseActionsRow(BuildContext context) {
+    final title = context.locale.languageCode == "ar" ? "آية اليوم" : "Verse of the Day";
+    return _buildCardActionsRow(
+      title: title,
+      icon: Icons.menu_book_rounded,
+      onRefresh: _refreshVerse,
+      onShare: () => _showShareOptions(context),
+    );
+  }
+
+  Widget _buildCardActionsRow({
+    required String title,
+    required IconData icon,
+    required VoidCallback onRefresh,
+    required VoidCallback onShare,
+  }) {
+    final isDark = isDarkModeNotifier.value;
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          decoration: BoxDecoration(
+            color: isDark ? orangeColor.withOpacity(0.2) : orangeColor.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(14.r),
+            border: Border.all(
+              color: isDark ? orangeColor.withOpacity(0.4) : orangeColor.withOpacity(0.3),
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: isDark ? orangeColor : orangeColor,
+                size: 18.sp,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                title,
+                style: TextStyle(
+                  color: isDark ? Colors.white : textColor,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: "cairo",
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
         _buildActionButton(
           icon: Iconsax.refresh,
-          color: orangeColor,
-          onPressed: _refreshVerse,
+          color: isDark ? orangeColor : buttonColor,
+          onPressed: onRefresh,
         ),
+        SizedBox(width: 8.w),
         _buildActionButton(
           icon: Iconsax.share,
-          color: isDarkModeNotifier.value ? orangeColor : blueColor,
-          onPressed: () => _showShareOptions(context),
+          color: isDark ? accentColor : goldColor,
+          onPressed: onShare,
         ),
       ],
     );
@@ -734,8 +1313,47 @@ class _HomeScreenState extends State<HomeScreen>
     required VoidCallback onPressed,
   }) {
     return Container(
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-      child: IconButton(onPressed: onPressed, icon: Icon(icon, color: Colors.white, size: 18.sp)),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color,
+            color.withOpacity(0.8),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.5),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+            spreadRadius: -3,
+          ),
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onPressed,
+          splashColor: Colors.white.withOpacity(0.3),
+          highlightColor: Colors.white.withOpacity(0.2),
+          child: Padding(
+            padding: EdgeInsets.all(12.w),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 20.sp,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -755,15 +1373,18 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildShareOptionsBottomSheet() {
+    final isDark = isDarkModeNotifier.value;
     return Container(
-      decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius:
-              BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12))),
+      decoration: BoxDecoration(
+          color: isDark ? quranPagesColorDark : quranPagesColorLight,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24.r),
+            topRight: Radius.circular(24.r),
+          )),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 15.h),
+          SizedBox(height: 20.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -787,23 +1408,41 @@ class _HomeScreenState extends State<HomeScreen>
     required String text,
     required VoidCallback onPressed,
   }) {
+    final isDark = isDarkModeNotifier.value;
     return Container(
-      decoration:
-          BoxDecoration(color: quranPagesColorDark, borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(0.0),
-        child: TextButton(
-            onPressed: onPressed,
-            child: Text(
-              text,
-              style: TextStyle(color: Colors.white, fontSize: 14.sp),
-            )),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark ? [orangeColor, accentColor] : [accentColor, accentColor],
+        ),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: (isDark ? orangeColor : accentColor).withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextButton(
+        onPressed: onPressed,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w600,
+              fontFamily: "cairo",
+            ),
+          ),
+        ),
       ),
     );
   }
 
   void _shareAsImage() {
-    Navigator.pop(context); // إغلاق bottom sheet
+    Navigator.pop(context);
     Navigator.push(
         context,
         CupertinoPageRoute(
@@ -816,27 +1455,27 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _shareAsText() {
-    Navigator.pop(context); // إغلاق bottom sheet
+    Navigator.pop(context);
     var verse = getVerse(suranumber, verseNumber, verseEndSymbol: true);
     var suraName = getSurahNameArabic(suranumber);
     Share.share("$verse \nسورة $suraName");
   }
 
   Widget _buildVerseText(Size screenSize) {
-    return SizedBox(
-      width: screenSize.width * .8,
-      child: Text(
-        getVerse(suranumber, verseNumber),
-        textAlign: TextAlign.right,
-        style: TextStyle(
-            color: isDarkModeNotifier.value ? Colors.white70 : Colors.black,
-            fontSize: 22.sp,
-            fontFamily: "UthmanicHafs13"),
-      ),
+    final isDark = isDarkModeNotifier.value;
+    return Text(
+      getVerse(suranumber, verseNumber),
+      textAlign: TextAlign.right,
+      style: TextStyle(
+          color: isDark ? Colors.white.withOpacity(0.95) : Colors.white,
+          fontSize: 22.sp,
+          height: 1.9,
+          fontFamily: "UthmanicHafs13"),
     );
   }
 
   Widget _buildVerseInfo() {
+    final isDark = isDarkModeNotifier.value;
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -844,81 +1483,96 @@ class _HomeScreenState extends State<HomeScreen>
           convertToArabicNumber(verseNumber.toString()).toString(),
           textAlign: TextAlign.right,
           style: TextStyle(
-              color: orangeColor,
+              color: isDark ? orangeColor : goldColor,
               fontSize: 26.sp,
               fontFamily: "KFGQPC Uthmanic Script HAFS Regular"),
         ),
-        const Text(" - "),
+        Text(
+          " - ",
+          style: TextStyle(
+            color: isDark ? Colors.white70 : textColor,
+          ),
+        ),
         if (widgejsonData != null)
           Text(
             widgejsonData[suranumber - 1]["name"],
             textAlign: TextAlign.right,
             style: TextStyle(
               fontFamily: fontFamilies[0],
-              color: isDarkModeNotifier.value ? Colors.white70 : blueColor,
+              color: isDark ? Colors.white.withOpacity(0.9) : headingColor,
               fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
             ),
           ),
       ],
     );
   }
 
-  // 🔹 [CAN_BE_EXTRACTED] يمكن نقل ويدجت الحديث لملف widgets/hadith_widget.dart
   Widget _buildHadithWidget(Size screenSize) {
     return Directionality(
       textDirection: m.TextDirection.rtl,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.0.w, vertical: 6.h),
-        child: Material(
-          color: isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.2) : Colors.white,
-          shape: SuperellipseShape(borderRadius: BorderRadius.circular(40.0.r)),
-          child: suranumber != null ? _buildHadithContent(screenSize) : Container(),
-        ),
+      child: Container(
+        decoration: _cardDecoration(),
+        clipBehavior: Clip.antiAlias,
+        child: suranumber != null ? _buildHadithContent(screenSize) : const SizedBox(),
       ),
     );
   }
 
   Widget _buildHadithContent(Size screenSize) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Container(
-        decoration: BoxDecoration(
-            color: isDarkModeNotifier.value
-                ? quranPagesColorDark
-                : quranPagesColorLight.withOpacity(.6),
-            borderRadius: BorderRadius.circular(20.r)),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 10.h),
-              _buildHadithActionsRow(),
-              SizedBox(height: 10.h),
-              _buildHadithText(screenSize),
-              SizedBox(height: 10.h),
-            ],
-          ),
+    final isDark = isDarkModeNotifier.value;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDarkModeNotifier.value
+                ? [
+                    darkPrimaryColor.withOpacity(isDark ? 0.5 : 0.5),
+                    darkPrimaryColor.withOpacity(isDark ? 0.5 : 0.5),
+                  ]
+                : [
+                    quranPagesColorLight.withOpacity(isDark ? 0.05 : 0.5),
+                    quranPagesColorLight,
+                  ]),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(24.w),
+        child: Column(
+          children: [
+            _buildHadithActionsRow(),
+            SizedBox(height: 20.h),
+
+            // Hadith Container with highlight
+            Container(
+              padding: EdgeInsets.all(20.w),
+              decoration: buildCustomBoxDecoration(isDark),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.format_quote_rounded,
+                    color: (isDark ? orangeColor : Colors.white),
+                    size: 32.sp,
+                  ),
+                  SizedBox(height: 12.h),
+                  _buildHadithText(screenSize),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildHadithActionsRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildActionButton(
-          icon: Iconsax.refresh,
-          color: orangeColor,
-          onPressed: _refreshHadith,
-        ),
-        _buildActionButton(
-          icon: Iconsax.share,
-          color: isDarkModeNotifier.value ? orangeColor : blueColor,
-          onPressed: () => _showHadithShareOptions(context),
-        ),
-      ],
+    final title = context.locale.languageCode == "ar" ? "حديث اليوم" : "Hadith of the Day";
+    return _buildCardActionsRow(
+      title: title,
+      icon: Icons.format_quote_rounded,
+      onRefresh: _refreshHadith,
+      onShare: () => _showHadithShareOptions(context),
     );
   }
 
@@ -937,15 +1591,18 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildHadithShareOptionsBottomSheet() {
+    final isDark = isDarkModeNotifier.value;
     return Container(
-      decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius:
-              BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12))),
+      decoration: BoxDecoration(
+          color: isDark ? quranPagesColorDark : quranPagesColorLight,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24.r),
+            topRight: Radius.circular(24.r),
+          )),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 15.h),
+          SizedBox(height: 20.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -966,8 +1623,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _shareHadithAsImage() {
-    Navigator.pop(context); // إغلاق bottom sheet
-    // إنشاء Hadith object من البيانات المتاحة
+    Navigator.pop(context);
     final hadithData = hadithes[indexOfHadith];
     final hadith = Hadith(
       id: indexOfHadith.toString(),
@@ -995,21 +1651,20 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _shareHadithAsText() {
-    Navigator.pop(context); // إغلاق bottom sheet
+    Navigator.pop(context);
     Share.share(hadithes[indexOfHadith]["hadith"]);
   }
 
   Widget _buildHadithText(Size screenSize) {
-    return SizedBox(
-      width: screenSize.width * .8,
-      child: Text(
-        hadithes[indexOfHadith]["hadith"],
-        textAlign: TextAlign.right,
-        style: TextStyle(
-            color: isDarkModeNotifier.value ? Colors.white70 : Colors.black,
-            fontSize: 17.sp,
-            fontFamily: "Taha"),
-      ),
+    final isDark = isDarkModeNotifier.value;
+    return Text(
+      hadithes[indexOfHadith]["hadith"],
+      textAlign: TextAlign.right,
+      style: TextStyle(
+          color: isDark ? Colors.white.withOpacity(0.95) : Colors.white,
+          fontSize: 22.sp,
+          height: 1.9,
+          fontFamily: "Taha"),
     );
   }
 
@@ -1018,4 +1673,86 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+// Custom Painter for Islamic Background Pattern
+class IslamicBackgroundPainter extends CustomPainter {
+  final Color color;
+
+  IslamicBackgroundPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    const spacing = 60.0;
+
+    for (double x = 0; x < size.width + spacing; x += spacing) {
+      for (double y = 0; y < size.height + spacing; y += spacing) {
+        // Draw star pattern
+        _drawStar(canvas, Offset(x, y), 15, paint);
+      }
+    }
+  }
+
+  void _drawStar(Canvas canvas, Offset center, double size, Paint paint) {
+    const points = 8;
+    const angle = (3.14159 * 2) / points;
+
+    for (int i = 0; i < points; i++) {
+      final x1 = center.dx + size * cos(angle * i);
+      final y1 = center.dy + size * sin(angle * i);
+      final x2 = center.dx + (size / 2) * cos(angle * i + angle / 2);
+      final y2 = center.dy + (size / 2) * sin(angle * i + angle / 2);
+
+      canvas.drawLine(Offset(x1, y1), center, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Custom Painter for Card Pattern
+class IslamicPatternPainter extends CustomPainter {
+  final Color color;
+
+  IslamicPatternPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    const spacing = 40.0;
+
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        canvas.drawCircle(Offset(x, y), 8, paint);
+
+        if (x + spacing < size.width) {
+          canvas.drawLine(
+            Offset(x + 8, y),
+            Offset(x + spacing - 8, y),
+            paint..strokeWidth = 0.8,
+          );
+        }
+        if (y + spacing < size.height) {
+          canvas.drawLine(
+            Offset(x, y + 8),
+            Offset(x, y + spacing - 8),
+            paint..strokeWidth = 0.8,
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
