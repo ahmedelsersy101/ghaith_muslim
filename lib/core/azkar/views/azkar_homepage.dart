@@ -8,7 +8,7 @@ import 'package:ghaith/main.dart';
 // =============================================
 // 📁 IMPORTS - يمكن نقلها لملف imports منفصل
 // =============================================
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/core/azkar/data/azkar.dart';
 import 'package:ghaith/core/azkar/model/dua_model.dart';
 import 'package:ghaith/core/azkar/views/zikr_detailspage.dart';
@@ -89,7 +89,7 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
       height: MediaQuery.of(context).size.height,
       decoration: _buildBackgroundDecoration(),
       child: Scaffold(
-        backgroundColor: _getBackgroundColor(),
+        backgroundColor: _getsoftOffWhite(),
         body: CustomScrollView(
           slivers: <Widget>[
             _buildAppBar(),
@@ -121,7 +121,7 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
     return SliverAppBar(
       floating: true,
       pinned: true,
-      
+
       iconTheme: const IconThemeData(color: Colors.white),
       backgroundColor: _getAppBarColor(),
       elevation: 0,
@@ -252,39 +252,37 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
   // =============================================
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  Color _getBackgroundColor() {
-    return isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight;
+  Color _getsoftOffWhite() {
+    return isDarkModeNotifier.value ? darkSlateGray : paperBeige;
   }
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
   Color _getAppBarColor() {
-    return isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.9) : orangeColor;
+    return isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.9) : wineRed;
   }
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
   Color _getCardColor() {
     return isDarkModeNotifier.value
-        ? darkModeSecondaryColor.withOpacity(.8)
+        ? deepNavyBlack.withOpacity(.8)
         : const Color.fromARGB(255, 255, 255, 255).withOpacity(.2);
   }
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
   Color _getSplashColor() {
-    return isDarkModeNotifier.value
-        ? darkModeSecondaryColor.withOpacity(.5)
-        : blueColor.withOpacity(.2);
+    return isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.5) : tealBlue.withOpacity(.2);
   }
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
   TextStyle _getAzkarTitleStyle() {
     return TextStyle(
-      color: _getTextColor(),
+      color: _getcharcoalDarkGray(),
       fontSize: 18.sp,
     );
   }
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  Color _getTextColor() {
+  Color _getcharcoalDarkGray() {
     return isDarkModeNotifier.value ? Colors.white.withOpacity(.9) : Colors.black;
   }
 

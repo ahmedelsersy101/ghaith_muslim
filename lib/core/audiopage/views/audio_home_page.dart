@@ -1,7 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, unused_field
 import 'dart:convert';
 import 'dart:io';
-import 'package:ghaith/GlobalHelpers/home_blocs.dart';
+import 'package:ghaith/helpers/home_blocs.dart';
 import 'package:ghaith/core/audiopage/models/reciter.dart';
 import 'package:ghaith/main.dart';
 import 'package:azlistview/azlistview.dart';
@@ -23,8 +23,8 @@ import 'package:simple_annimated_staggered/simple_annimated_staggered.dart';
 // 📁 IMPORTS - يمكن نقلها لملف imports منفصل
 // =============================================
 import 'package:ghaith/blocs/player_bloc_bloc.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/blocs/quran_page_player_bloc.dart';
 import 'package:ghaith/core/audiopage/views/reciter_all_surahs_page.dart';
 
@@ -305,7 +305,7 @@ class _RecitersPageState extends State<RecitersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _getBackgroundColor(),
+      backgroundColor: _getsoftOffWhite(),
       appBar: _buildAppBar(),
       body: _buildBody(),
     );
@@ -385,7 +385,7 @@ class _RecitersPageState extends State<RecitersPage> {
   Widget _buildBody() {
     if (isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: darkPrimaryColor),
+        child: CircularProgressIndicator(color: deepNavyBlack),
       );
     }
 
@@ -403,7 +403,7 @@ class _RecitersPageState extends State<RecitersPage> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(color: _getTextColor(), fontSize: 16.sp),
+              style: TextStyle(color: _getcharcoalDarkGray(), fontSize: 16.sp),
             ),
             SizedBox(height: 20.h),
             if (selectedMode != "favorite")
@@ -411,7 +411,7 @@ class _RecitersPageState extends State<RecitersPage> {
                 onPressed: _fetchReciters,
                 child: Text(
                   "إعادة المحاولة",
-                  style: TextStyle(color: _getActionButtonColor(), fontSize: 16.sp),
+                  style: TextStyle(color: _getActionmutedGreen(), fontSize: 16.sp),
                 ),
               )
           ],
@@ -444,9 +444,9 @@ class _RecitersPageState extends State<RecitersPage> {
         verticalOffset: 50,
         child: FadeInAnimation(
           child: Padding(
-            padding: EdgeInsets.only(right: 15.0.w),
+            padding: EdgeInsets.only(right: 16.0.w),
             child: Card(
-              elevation: .8,
+              elevation: 8,
               color: _getCardColor(),
               margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               child: _buildReciterCardContent(reciter),
@@ -483,7 +483,7 @@ class _RecitersPageState extends State<RecitersPage> {
             reciter.name.toString(),
             style: TextStyle(
               fontSize: 14.sp,
-              color: _getTextColor(),
+              color: _getcharcoalDarkGray(),
               fontWeight: FontWeight.bold,
               fontFamily: 'cairo',
             ),
@@ -500,7 +500,7 @@ class _RecitersPageState extends State<RecitersPage> {
       icon: Icon(
         size: 20,
         favoriteRecitersList.contains(reciter) ? FontAwesome.heart : FontAwesome.heart_empty,
-        color: _getFavoriteButtonColor(),
+        color: _getFavoritemutedGreen(),
       ),
     );
   }
@@ -553,7 +553,7 @@ class _RecitersPageState extends State<RecitersPage> {
             moshaf.name,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: _getMoshafTextColor(),
+              color: _getMoshafcharcoalDarkGray(),
               fontSize: 14.sp,
               fontFamily: 'cairo',
             ),
@@ -586,7 +586,7 @@ class _RecitersPageState extends State<RecitersPage> {
       icon: Icon(
         isPlaying ? Icons.pause : Icons.play_arrow,
         size: 20.sp,
-        color: _getActionButtonColor(),
+        color: _getActionmutedGreen(),
       ),
     );
   }
@@ -605,7 +605,7 @@ class _RecitersPageState extends State<RecitersPage> {
               width: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: blueColor,
+                color: tealBlue,
               ),
             );
           }
@@ -613,7 +613,7 @@ class _RecitersPageState extends State<RecitersPage> {
           return Icon(
             snapshot.data == true ? Icons.download_done : Icons.download,
             size: 20.sp,
-            color: blueColor,
+            color: tealBlue,
           );
         },
       ),
@@ -723,11 +723,11 @@ class _RecitersPageState extends State<RecitersPage> {
     _showSnackBar("✅ تم تحميل المصحف بنجاح", Colors.green);
   }
 
-  void _showSnackBar(String message, Color backgroundColor) {
+  void _showSnackBar(String message, Color softOffWhite) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: backgroundColor,
+        backgroundColor: softOffWhite,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -755,32 +755,32 @@ class _RecitersPageState extends State<RecitersPage> {
   // 🎨 STYLE HELPER METHODS
   // =============================================
 
-  Color _getBackgroundColor() {
-    return isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight;
+  Color _getsoftOffWhite() {
+    return isDarkModeNotifier.value ? darkSlateGray : paperBeige.withOpacity(.99);
   }
 
   Color _getAppBarColor() {
-    return isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.9) : orangeColor;
+    return isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.9) : wineRed;
   }
 
   Color _getCardColor() {
-    return isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.9) : Colors.white;
+    return isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.9) : paperBeige.withOpacity(.9);
   }
 
-  Color _getTextColor() {
+  Color _getcharcoalDarkGray() {
     return isDarkModeNotifier.value ? Colors.white : Colors.black;
   }
 
-  Color _getMoshafTextColor() {
+  Color _getMoshafcharcoalDarkGray() {
     return isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black;
   }
 
-  Color _getFavoriteButtonColor() {
-    return isDarkModeNotifier.value ? backgroundColor : orangeColor;
+  Color _getFavoritemutedGreen() {
+    return isDarkModeNotifier.value ? softOffWhite : wineRed;
   }
 
-  Color _getActionButtonColor() {
-    return isDarkModeNotifier.value ? backgroundColor : orangeColor;
+  Color _getActionmutedGreen() {
+    return isDarkModeNotifier.value ? softOffWhite : wineRed;
   }
 
   // =============================================

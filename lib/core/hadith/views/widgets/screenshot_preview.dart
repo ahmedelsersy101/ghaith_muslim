@@ -8,8 +8,8 @@ import 'package:screenshot/screenshot.dart';
 // =============================================
 // 📁 IMPORTS - يمكن نقلها لملف imports منفصل
 // =============================================
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/QuranPages/helpers/save_image.dart';
 import 'package:ghaith/core/QuranPages/helpers/share_image.dart';
 import 'package:ghaith/core/hadith/models/hadith.dart';
@@ -55,8 +55,8 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
   // =============================================
 
   // [CAN_BE_EXTRACTED_CONSTANTS] -> app_constants.dart
-  static const Color _textColorDark = Color(0xff555555);
-  static const Color _goldColor = Color(0xffAE8422);
+  static const Color _charcoalDarkGrayDark = Color(0xff555555);
+  static const Color _deepBurgundyRed = Color(0xffAE8422);
   static const Color _appNameColor = Color(0xffA28858);
   static const String _arabicFont = 'Taha';
   static const String _secondaryArabicFont = 'Amiri';
@@ -83,7 +83,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
   // [CAN_BE_EXTRACTED] -> widgets/app_bar_widget.dart
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: backgroundColor,
+      backgroundColor: softOffWhite,
       elevation: 0,
       title: Text(
         "preview".tr(),
@@ -110,8 +110,8 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
     return Row(
       children: [
         Checkbox(
-          fillColor: WidgetStatePropertyAll(primaryColors[indexOfTheme]),
-          checkColor: backgroundColors[indexOfTheme],
+          fillColor: WidgetStatePropertyAll(darkWarmBrowns[indexOfTheme]),
+          checkColor: softOffWhites[indexOfTheme],
           value: addAppSlogan,
           onChanged: (newValue) {
             setState(() {
@@ -165,7 +165,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
     return BoxDecoration(
       boxShadow: [
         BoxShadow(
-          color: primaryColors[indexOfTheme].withOpacity(.2),
+          color: darkWarmBrowns[indexOfTheme].withOpacity(.2),
           blurRadius: 4,
           spreadRadius: 4,
           offset: const Offset(0, 2),
@@ -228,7 +228,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
         locale: const Locale("ar"),
         textAlign: TextAlign.right,
         style: TextStyle(
-          color: _textColorDark,
+          color: _charcoalDarkGrayDark,
           fontFamily: _arabicFont,
           fontSize: textSize.sp,
         ),
@@ -251,7 +251,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
               locale: const Locale("ar"),
               textAlign: TextAlign.right,
               style: TextStyle(
-                color: _goldColor,
+                color: _deepBurgundyRed,
                 fontSize: textSize.sp,
                 fontFamily: _arabicFont,
               ),
@@ -352,7 +352,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
       child: Text(
         widget.hadithOtherLanguage["hadeeth"],
         style: TextStyle(
-          color: _textColorDark,
+          color: _charcoalDarkGrayDark,
           fontSize: 16.sp,
           fontFamily: _englishFont,
         ),
@@ -368,7 +368,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
           Text(
             '${widget.hadithOtherLanguage["attribution"]} - [${widget.hadithOtherLanguage["grade"]}]',
             style: TextStyle(
-              color: _goldColor,
+              color: _deepBurgundyRed,
               fontSize: 16.sp,
               fontFamily: _englishFont,
             ),
@@ -430,7 +430,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
       color: Colors.white,
       boxShadow: [
         BoxShadow(
-          color: primaryColors[getValue("quranPageolorsIndex")].withOpacity(.4),
+          color: darkWarmBrowns[getValue("quranPageolorsIndex")].withOpacity(.4),
           blurRadius: 1,
           spreadRadius: 1,
           offset: const Offset(1, 0),
@@ -447,7 +447,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
         height: 50,
         width: MediaQuery.of(context).size.width * .3,
         onTap: _shareScreenshot,
-        color: quranPagesColorDark,
+        color: darkSlateGray,
         child: Text(
           "shareexternal".tr(),
           style: const TextStyle(color: Colors.white),
@@ -464,7 +464,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
         height: 50,
         width: MediaQuery.of(context).size.width * .3,
         onTap: _saveScreenshot,
-        color: quranPagesColorDark,
+        color: darkSlateGray,
         child: Text(
           "savetogallery".tr(),
           style: TextStyle(

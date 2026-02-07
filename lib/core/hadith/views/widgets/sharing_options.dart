@@ -10,7 +10,7 @@ import 'package:share_plus/share_plus.dart';
 // =============================================
 // 📁 IMPORTS - يمكن نقلها لملف imports منفصل
 // =============================================
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/core/hadith/models/hadith.dart';
 import 'package:ghaith/core/hadith/views/widgets/screenshot_preview.dart';
 
@@ -126,7 +126,7 @@ class _SharingOptionsState extends State<SharingOptions> {
       child: EasyContainer(
         onTap: _handleSharingAction,
         borderRadius: 22,
-        color: orangeColor,
+        color: wineRed,
         child: Text(
           widget.isImage ? "preview".tr() : "share".tr(),
           style: TextStyle(
@@ -226,7 +226,8 @@ class _SharingOptionsState extends State<SharingOptions> {
     String text = "";
 
     if (_includeArabic) {
-      text = "${hadithOtherLanguage["hadeeth"]}\n" '${hadithOtherLanguage["attribution"]} - [${hadithOtherLanguage["grade"]}]';
+      text = "${hadithOtherLanguage["hadeeth"]}\n"
+          '${hadithOtherLanguage["attribution"]} - [${hadithOtherLanguage["grade"]}]';
     }
 
     if (_includeExplanation) {

@@ -9,8 +9,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/QuranPages/views/quranDetailsPage.dart';
 import 'package:ghaith/core/widgets/hizb_quarter_circle.dart';
 import 'package:quran/quran.dart' as quran;
@@ -119,11 +119,10 @@ class _SurahListPageState extends State<SurahListPage> {
       child: KeyboardDismissOnTap(
         dismissOnCapturedTaps: true,
         child: Container(
-          decoration: BoxDecoration(
-              color: isDarkModeNotifier.value ? quranPagesColorDark : backgroundColor),
+          decoration: BoxDecoration(color: isDarkModeNotifier.value ? darkSlateGray : softOffWhite),
           child: Scaffold(
             resizeToAvoidBottomInset: false,
-            backgroundColor: isDarkModeNotifier.value ? quranPagesColorDark : borderColor,
+            backgroundColor: isDarkModeNotifier.value ? darkSlateGray : paperBeige.withOpacity(.99),
             endDrawer: SafeArea(child: _buildBookmarksDrawer(context)),
             key: scaffoldKey,
             appBar: _buildAppBar(context),
@@ -144,7 +143,7 @@ class _SurahListPageState extends State<SurahListPage> {
       bottom: _buildTabBar(),
       elevation: 0,
       centerTitle: !_isSearchOpen,
-      backgroundColor: isDarkModeNotifier.value ? darkModeSecondaryColor : orangeColor,
+      backgroundColor: isDarkModeNotifier.value ? deepNavyBlack : wineRed,
       title: _isSearchOpen
           ? _buildAppBarSearchField()
           : Text(
@@ -201,7 +200,7 @@ class _SurahListPageState extends State<SurahListPage> {
       child: Builder(builder: (context) {
         return IconButton(
           onPressed: () => Scaffold.of(context).openEndDrawer(),
-          icon: const Icon(Iconsax.bookmark, color: backgroundColor),
+          icon: const Icon(Iconsax.bookmark, color: softOffWhite),
         );
       }),
     );
@@ -258,7 +257,7 @@ class _SurahListPageState extends State<SurahListPage> {
   Widget _buildSurahTab(BuildContext context) {
     return SafeArea(
       child: Container(
-        color: isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight,
+        color: isDarkModeNotifier.value ? darkSlateGray : paperBeige,
         child: Column(
           children: [
             if (getValue("lastRead") != "non") _buildLastReadSection(),
@@ -273,7 +272,7 @@ class _SurahListPageState extends State<SurahListPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: EasyContainer(
-        color: isDarkModeNotifier.value ? darkPrimaryColor : orangeColor,
+        color: isDarkModeNotifier.value ? deepNavyBlack : wineRed,
         height: 60.h,
         padding: 12,
         margin: 0,
@@ -334,7 +333,7 @@ class _SurahListPageState extends State<SurahListPage> {
   //     ),
   //     focusedBorder: OutlineInputBorder(
   //       borderRadius: BorderRadius.circular(12.r),
-  //       borderSide: BorderSide(color: primaryColor, width: 1.w),
+  //       borderSide: BorderSide(color: darkWarmBrown, width: 1.w),
   //     ),
   //   );
   // }
@@ -467,7 +466,7 @@ class _SurahListPageState extends State<SurahListPage> {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: EasyContainer(
-        color: getValue("darkMode") ? Colors.white70 : primaryColor,
+        color: getValue("darkMode") ? Colors.white70 : darkWarmBrown,
         onTap: () => _navigateToPage(pageNumber),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -644,7 +643,7 @@ class _SurahListPageState extends State<SurahListPage> {
     return Padding(
       padding: const EdgeInsets.all(6.0),
       child: EasyContainer(
-        color: isDarkModeNotifier.value ? darkModeSecondaryColor : Colors.white70,
+        color: isDarkModeNotifier.value ? deepNavyBlack : Colors.white70,
         borderRadius: 14,
         onTap: () => _navigateToSearchResult(surah, verse),
         child: Text(
@@ -693,8 +692,8 @@ class _SurahListPageState extends State<SurahListPage> {
     final isLastRead = juzNumberLastRead == juzNumber;
 
     return Card(
-      color:
-          isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : quranPagesColorLight,
+      color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : paperBeige,
+      elevation: 8,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
@@ -721,18 +720,18 @@ class _SurahListPageState extends State<SurahListPage> {
         shape: BoxShape.circle,
         color: isLastRead
             ? isDarkModeNotifier.value
-                ? quranPagesColorDark
-                : quranPagesColorLight
+                ? darkSlateGray
+                : paperBeige
             : isDarkModeNotifier.value
-                ? quranPagesColorDark
-                : quranPagesColorLight.withOpacity(.1),
+                ? darkSlateGray
+                : paperBeige.withOpacity(.1),
       ),
       child: Center(
         child: Text(
           juzNumber.toString(),
           style: TextStyle(
             fontSize: 14.sp,
-            color: isDarkModeNotifier.value ? primaryColor : const Color.fromARGB(228, 0, 0, 0),
+            color: isDarkModeNotifier.value ? darkWarmBrown : const Color.fromARGB(228, 0, 0, 0),
           ),
         ),
       ),
@@ -775,8 +774,8 @@ class _SurahListPageState extends State<SurahListPage> {
     final ayah = quarterData["ayah"];
 
     return Card(
-      color:
-          isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : quranPagesColorLight,
+      color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : paperBeige,
+      elevation: 8,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
@@ -802,15 +801,21 @@ class _SurahListPageState extends State<SurahListPage> {
   Widget _buildQuarterHeader(int section) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-      child: Text(
-        "${"hizb".tr()} ${section + 1}",
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: isDarkModeNotifier.value
-              ? const Color.fromARGB(234, 255, 255, 255)
-              : const Color.fromARGB(228, 0, 0, 0),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "${"hizb".tr()} ${section + 1}",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: isDarkModeNotifier.value
+                  ? const Color.fromARGB(234, 255, 255, 255)
+                  : const Color.fromARGB(228, 0, 0, 0),
+            ),
+          ),
+          const Divider(endIndent: 370)
+        ],
       ),
     );
   }
@@ -834,9 +839,8 @@ class _SurahListPageState extends State<SurahListPage> {
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل دوائر الأرباع لملف utils/quarter_circle_utils.dart
   Widget getCircleWidget(int index, int hizbNumber) {
-    final circleColor =
-        isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight.withOpacity(.1);
-    final iconColor = isDarkModeNotifier.value ? primaryColor : const Color.fromARGB(228, 0, 0, 0);
+    final circleColor = isDarkModeNotifier.value ? darkSlateGray : paperBeige.withOpacity(.1);
+    final iconColor = isDarkModeNotifier.value ? darkWarmBrown : const Color.fromARGB(228, 0, 0, 0);
 
     switch (index) {
       case 0:
@@ -897,7 +901,7 @@ class _SurahListPageState extends State<SurahListPage> {
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width * .7,
-      color: isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight,
+      color: isDarkModeNotifier.value ? darkSlateGray : paperBeige,
       child: ListView(
         shrinkWrap: true,
         children: [
@@ -928,7 +932,7 @@ class _SurahListPageState extends State<SurahListPage> {
 
     return EasyContainer(
       borderRadius: 18,
-      color: primaryColors[0].withOpacity(.05),
+      color: darkWarmBrowns[0].withOpacity(.05),
       onTap: () => _navigateToBookmark(suraNumber, verseNumber),
       child: SizedBox(
         width: double.infinity,
@@ -956,7 +960,7 @@ class _SurahListPageState extends State<SurahListPage> {
           style: TextStyle(
             fontFamily: "cairo",
             fontSize: 14.sp,
-            color: getValue("darkMode") ? Colors.white.withOpacity(.87) : primaryColors[0],
+            color: getValue("darkMode") ? Colors.white.withOpacity(.87) : darkWarmBrowns[0],
           ),
         ),
       ],
@@ -971,7 +975,7 @@ class _SurahListPageState extends State<SurahListPage> {
         style: TextStyle(
           fontFamily: fontFamilies[0],
           fontSize: 18.sp,
-          color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : primaryColors[0],
+          color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : darkWarmBrowns[0],
         ),
       ),
     );
@@ -1050,7 +1054,7 @@ class _SurahListPageState extends State<SurahListPage> {
     final verseNumber = int.parse(parts[1]);
 
     return EasyContainer(
-      color: primaryColors[0].withOpacity(.05),
+      color: darkWarmBrowns[0].withOpacity(.05),
       onTap: () => _navigateToStarredVerse(suraNumber, verseNumber),
       child: Column(
         children: [
@@ -1068,7 +1072,7 @@ class _SurahListPageState extends State<SurahListPage> {
       style: TextStyle(
         fontFamily: fontFamilies[0],
         fontSize: 18.sp,
-        color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : primaryColors[0],
+        color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : darkWarmBrowns[0],
       ),
     );
   }
@@ -1117,13 +1121,13 @@ class _SurahListPageState extends State<SurahListPage> {
       itemBuilder: (context, index) {
         return Shimmer.fromColors(
           baseColor: Colors.grey.shade300.withOpacity(.5),
-          highlightColor: isDarkModeNotifier.value ? darkModeSecondaryColor : quranPagesColorLight,
+          highlightColor: isDarkModeNotifier.value ? deepNavyBlack : paperBeige,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: 8.h),
             child: ListTile(
-              leading: Container(width: 45, height: 45, color: backgroundColor),
-              title: Container(height: 15, color: backgroundColor),
-              subtitle: Container(height: 12, color: backgroundColor),
+              leading: Container(width: 45, height: 45, color: softOffWhite),
+              title: Container(height: 15, color: softOffWhite),
+              subtitle: Container(height: 12, color: softOffWhite),
             ),
           ),
         );

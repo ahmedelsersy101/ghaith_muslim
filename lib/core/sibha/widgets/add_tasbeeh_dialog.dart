@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/main.dart';
 
 class AddTasbeehDialog extends StatefulWidget {
@@ -18,7 +18,7 @@ class _AddTasbeehDialogState extends State<AddTasbeehDialog> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isDarkModeNotifier.value ? darkPrimaryColor.withOpacity(0.6) : backgroundColor,
+      color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(0.6) : softOffWhite,
       borderRadius: BorderRadius.circular(18.r),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,

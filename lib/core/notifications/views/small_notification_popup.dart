@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 
 class TrueCallerOverlay extends StatefulWidget {
   const TrueCallerOverlay({Key? key}) : super(key: key);
@@ -16,7 +16,7 @@ class TrueCallerOverlay extends StatefulWidget {
 class _TrueCallerOverlayState extends State<TrueCallerOverlay> {
   bool isGold = true;
 
-  final _goldColors = const [
+  final _deepBurgundyReds = const [
     Color(0xFFa2790d),
     Color(0xFFebd197),
     Color(0xFFa2790d),
@@ -71,16 +71,11 @@ class _TrueCallerOverlayState extends State<TrueCallerOverlay> {
             width: double.infinity,
             decoration: BoxDecoration(
               boxShadow: [
-                BoxShadow(
-                    color: goldColor.withOpacity(.2),
-                    blurRadius: 2,
-                    spreadRadius: 2)
+                BoxShadow(color: deepBurgundyRed.withOpacity(.2), blurRadius: 2, spreadRadius: 2)
               ],
-              color: quranPagesColorLight,
+              color: paperBeige,
               image: const DecorationImage(
-                  image: AssetImage("assets/images/zikrback.png"),
-                  fit: BoxFit.cover,
-                  opacity: .2),
+                  image: AssetImage("assets/images/zikrback.png"), fit: BoxFit.cover, opacity: .2),
               borderRadius: BorderRadius.circular(26.0),
             ),
             child: GestureDetector(
@@ -94,8 +89,8 @@ class _TrueCallerOverlayState extends State<TrueCallerOverlay> {
                       child: Text(
                     azkarList[Random().nextInt(azkarList.length)],
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        color: goldColor, fontSize: 26, fontFamily: "Taha"),
+                    style:
+                        const TextStyle(color: deepBurgundyRed, fontSize: 26, fontFamily: "Taha"),
                   )),
                   Positioned(
                     top: 10,

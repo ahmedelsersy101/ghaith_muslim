@@ -7,8 +7,8 @@ import 'package:ghaith/main.dart';
 // =============================================
 // 📁 IMPORTS - يمكن نقلها لملف imports منفصل
 // =============================================
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/azkar/model/dua_model.dart';
 
 // =============================================
@@ -104,7 +104,7 @@ class _ZikrPageState extends State<ZikrPage> {
   // [CAN_BE_EXTRACTED] -> widgets/background_decoration.dart
   BoxDecoration _buildBackgroundDecoration() {
     return BoxDecoration(
-      color: _getBackgroundColor(),
+      color: _getsoftOffWhite(),
       image: const DecorationImage(
         fit: BoxFit.contain,
         image: AssetImage("assets/images/mosquepnggold.png"),
@@ -144,7 +144,7 @@ class _ZikrPageState extends State<ZikrPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+        color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : wineRed,
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
@@ -172,7 +172,7 @@ class _ZikrPageState extends State<ZikrPage> {
       margin: EdgeInsets.symmetric(horizontal: 20.w),
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+        color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : wineRed,
         borderRadius: BorderRadius.circular(30.r),
       ),
       child: AnimatedSwitcher(
@@ -252,7 +252,7 @@ class _ZikrPageState extends State<ZikrPage> {
         height: 55.h,
         width: 55.w,
         decoration: BoxDecoration(
-          color: isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+          color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : wineRed,
           borderRadius: BorderRadius.circular(15.r),
         ),
         child: Center(
@@ -274,7 +274,7 @@ class _ZikrPageState extends State<ZikrPage> {
         height: 55.h,
         width: 55.w,
         decoration: BoxDecoration(
-          color: isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+          color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : wineRed,
           borderRadius: BorderRadius.circular(15.r),
         ),
         child: Center(
@@ -301,8 +301,7 @@ class _ZikrPageState extends State<ZikrPage> {
             width: 140.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color:
-                  isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+              color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : wineRed,
             ),
           ),
 
@@ -333,8 +332,7 @@ class _ZikrPageState extends State<ZikrPage> {
         widget.zikr.category,
         style: _getAppBarTitleStyle(),
       ),
-      backgroundColor:
-          isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.8) : orangeColor,
+      backgroundColor: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : wineRed,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => Navigator.pop(context),
@@ -412,8 +410,8 @@ class _ZikrPageState extends State<ZikrPage> {
   // 🎨 STYLE HELPER METHODS
   // =============================================
 
-  Color _getBackgroundColor() {
-    return isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight;
+  Color _getsoftOffWhite() {
+    return isDarkModeNotifier.value ? darkSlateGray : paperBeige;
   }
 
   TextStyle _getAppBarTitleStyle() {

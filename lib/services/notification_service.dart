@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 // ignore: library_prefixes
 import 'package:flutter_local_notifications/flutter_local_notifications.dart' as notificationPlugin;
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/messaging_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/messaging_helper.dart';
 import 'package:ghaith/core/notifications/data/40hadith.dart';
 import 'package:quran/quran.dart';
 import 'package:workmanager/workmanager.dart';

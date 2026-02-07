@@ -5,12 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ghaith/GlobalHelpers/initializeData.dart';
-import 'package:ghaith/GlobalHelpers/zikr_constants.dart';
+import 'package:ghaith/helpers/initializeData.dart';
+import 'package:ghaith/helpers/zikr_constants.dart';
 import 'package:ghaith/services/permission_service.dart';
 import 'package:lottie/lottie.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/messaging_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/messaging_helper.dart';
 import 'package:ghaith/core/home_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:media_store_plus/media_store_plus.dart';
@@ -227,7 +227,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: quranPagesColorLight,
+        backgroundColor: paperBeige,
         body: _buildSplashContent(),
       ),
     );

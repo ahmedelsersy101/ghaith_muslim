@@ -1,14 +1,11 @@
-<div align="center">
-  <img src="assets/images/ghaith.png" width="120" height="120" alt="Ghaith Logo" />
-  <h1>غيث المسلم | Ghaith Muslim</h1>
-  <p><b>Your Comprehensive Islamic Companion & Quran Guide</b></p>
+# غيث المسلم | Ghaith Muslim
 
-[![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
-[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-blue?style=for-the-badge)](https://flutter.dev)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+**Your Comprehensive Islamic Companion & Quran Guide**
 
-</div>
+[Flutter](https://flutter.dev)
+[Dart](https://dart.dev)
+[Platform](https://flutter.dev)
+[License](LICENSE)
 
 ---
 
@@ -20,25 +17,10 @@
 
 ---
 
-## 📸 Screenshots | لقطات الشاشة
+## 🌟 App Screenshots | صور التطبيق
 
 <div align="center">
-  <table style="border-collapse: collapse; border: none;">
-    <tr>
-      <td style="padding: 10px; border: none;">
-        <img src="assets/screenshot1.jpeg" width="220" alt="Screenshot 1" style="border-radius: 15px;" />
-      </td>
-      <td style="padding: 10px; border: none;">
-        <img src="assets/screenshot2.jpeg" width="220" alt="Screenshot 2" style="border-radius: 15px;" />
-      </td>
-      <td style="padding: 10px; border: none;">
-        <img src="assets/screenshot3.jpeg" width="220" alt="Screenshot 3" style="border-radius: 15px;" />
-      </td>
-      <td style="padding: 10px; border: none;">
-        <img src="assets/demo.gif" width="220" alt="Demo GIF" style="border-radius: 15px;" />
-      </td>
-    </tr>
-  </table>
+  <img src="assets/ghaith_banner.jpg" alt="App Banner" width="100%" style="border-radius: 12px;" />
 </div>
 
 ---
@@ -52,15 +34,12 @@
 - **Tafsir & Translation**: Understand every Ayah deeply.
 - **Interactive Player**: Smooth audio controls for listening and memorizing.
 
-### 📅 Prayer & Azkar | الصلاة والأذكار
+### 📅 Azkar | الأذكار
 
-- **Accurate Adhan**: Precise prayer times based on location.
 - **Azkar & Duaa**: Comprehensive collection of morning, evening, and daily supplications.
-- **99 Names of Allah**: Explore the meanings and beauty of Allah's names.
 
 ### 📻 Extra Tools | أدوات إضافية
 
-- **Islamic Radio**: Live streams from various Islamic stations.
 - **Hijri Calendar**: Stay updated with Islamic dates.
 - **Modern Interface**: Supports both Light and Dark modes with a premium aesthetic.
 
@@ -89,33 +68,31 @@
 ### Installation
 
 1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Epic-Apps-Hub/Skoon-Flutter-Islamic-App
-   ```
+
+```bash
+ git clone https://github.com/ahmedelsersy101/ghaith_muslim
+```
+
 2. **Navigate to project folder:**
-   ```bash
-   cd ghaith_muslim
-   ```
+
+```bash
+ cd ghaith_muslim
+```
+
 3. **Install dependencies:**
-   ```bash
-   flutter pub get
-   ```
+
+```bash
+ flutter pub get
+```
+
 4. **Run the app:**
-   ```bash
-   flutter run
-   ```
+
+```bash
+ flutter run
+```
 
 ---
 
-## 🤝 Contributing | المساهمة
+Made with ❤️ for the Ummah
 
-Contributions are welcome! If you have any ideas, feel free to open an issue or submit a pull request.
-
-المساهمات مرحب بها! إذا كان لديك أي أفكار، فلا تتردد في فتح "Issue" أو تقديم "Pull Request".
-
----
-
-<div align="center">
-  <p>Made with ❤️ for the Ummah</p>
-  <p><b>Epic-Apps-Hub</b></p>
-</div>
+**Epic-Apps-Hub**

@@ -10,8 +10,8 @@ import 'package:ghaith/main.dart';
 // =============================================
 // 📁 IMPORTS - يمكن نقلها لملف imports منفصل
 // =============================================
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 
 // =============================================
 // 🏗️ MAIN WIDGET - Notifications Page
@@ -68,7 +68,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: softOffWhite,
       appBar: _buildAppBar(),
       body: _buildBody(),
     );
@@ -87,17 +87,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
         "notifications".tr(),
         style: const TextStyle(
           fontFamily: "cairo",
-          color: backgroundColor,
+          color: softOffWhite,
         ),
       ),
-      foregroundColor: backgroundColor,
+      foregroundColor: softOffWhite,
     );
   }
 
   // [CAN_BE_EXTRACTED] -> widgets/notifications_body.dart
   Widget _buildBody() {
     return Container(
-      color: _getBackgroundColor(),
+      color: _getsoftOffWhite(),
       child: ListView(
         children: [
           _buildSalahNotificationCard(),
@@ -250,7 +250,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     required bool requiresOverlayPermission,
   }) {
     return CupertinoSwitch(
-      activeColor: orangeColor,
+      activeColor: wineRed,
       thumbColor: Colors.white,
       trackColor: Colors.grey,
       value: value,
@@ -275,7 +275,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       child: Text(
         "test".tr(),
         style: TextStyle(
-          color: _getTextColor(),
+          color: _getcharcoalDarkGray(),
           fontSize: 14.sp,
           fontFamily: 'cairo',
         ),
@@ -291,7 +291,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           title,
           style: TextStyle(
             fontSize: 18.sp,
-            color: _getTextColor(),
+            color: _getcharcoalDarkGray(),
             fontWeight: FontWeight.bold,
             fontFamily: 'cairo',
           ),
@@ -318,7 +318,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         description,
         softWrap: true,
         style: TextStyle(
-          color: _getTextColor(),
+          color: _getcharcoalDarkGray(),
         ),
       ),
     );
@@ -350,7 +350,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     "shownotificationevery".tr(),
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: _getTextColor(),
+                      color: _getcharcoalDarkGray(),
                       fontSize: 16.sp,
                       fontFamily: 'cairo',
                     ),
@@ -360,7 +360,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     "daily".tr(),
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: _getTextColor(),
+                      color: _getcharcoalDarkGray(),
                       fontSize: 16.sp,
                       fontFamily: 'cairo',
                     ),
@@ -384,7 +384,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 child: Text(
                   period["name"],
                   style: TextStyle(
-                    color: _getTextColor(),
+                    color: _getcharcoalDarkGray(),
                     fontSize: 16.sp,
                     fontFamily: 'cairo',
                   ),
@@ -526,21 +526,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
   Color _getAppBarColor() {
-    return isDarkModeNotifier.value ? darkModeSecondaryColor : orangeColor;
+    return isDarkModeNotifier.value ? deepNavyBlack : wineRed;
   }
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  Color _getBackgroundColor() {
-    return isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight;
+  Color _getsoftOffWhite() {
+    return isDarkModeNotifier.value ? darkSlateGray : paperBeige;
   }
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
   Color _getCardColor() {
-    return isDarkModeNotifier.value ? darkModeSecondaryColor : Colors.white;
+    return isDarkModeNotifier.value ? deepNavyBlack : Colors.white;
   }
 
   // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-  Color _getTextColor() {
+  Color _getcharcoalDarkGray() {
     return isDarkModeNotifier.value ? Colors.white : Colors.black;
   }
 }

@@ -6,7 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttericon/entypo_icons.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/core/hadith/models/hadith_min.dart';
 import 'package:ghaith/core/hadith/views/hadithdetailspage.dart';
 import 'package:quran/quran.dart';
@@ -146,7 +146,7 @@ class _HadithListState extends State<HadithList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight,
+      backgroundColor: isDarkModeNotifier.value ? darkSlateGray : paperBeige,
       body: _isLoading ? _buildLoadingIndicator() : _buildHadithList(),
     );
   }
@@ -197,9 +197,7 @@ class _HadithListState extends State<HadithList> {
   }
 
   Color _getAppBarColor() {
-    return isDarkModeNotifier.value
-        ? darkModeSecondaryColor
-        : const Color(0xffF5EFE8).withOpacity(.3);
+    return isDarkModeNotifier.value ? deepNavyBlack : const Color(0xffF5EFE8).withOpacity(.3);
   }
 
   Widget _buildAppBarTitle() {
@@ -252,8 +250,8 @@ class _HadithListState extends State<HadithList> {
       padding: const EdgeInsets.all(8.0),
       child: OpenContainer(
         closedElevation: 0,
-        closedColor: _getItemBackgroundColor(),
-        middleColor: _getItemBackgroundColor(),
+        closedColor: _getItemsoftOffWhite(),
+        middleColor: _getItemsoftOffWhite(),
         transitionType: ContainerTransitionType.fadeThrough,
         transitionDuration: const Duration(milliseconds: 500),
         openBuilder: (context, action) => _buildHadithDetailsPage(index),
@@ -262,8 +260,8 @@ class _HadithListState extends State<HadithList> {
     );
   }
 
-  Color _getItemBackgroundColor() {
-    return isDarkModeNotifier.value ? darkModeSecondaryColor : Colors.white.withOpacity(0.8);
+  Color _getItemsoftOffWhite() {
+    return isDarkModeNotifier.value ? deepNavyBlack : Colors.white.withOpacity(0.8);
   }
 
   Widget _buildHadithDetailsPage(int index) {
@@ -293,9 +291,7 @@ class _HadithListState extends State<HadithList> {
   }
 
   Color _getListItemColor() {
-    return isDarkModeNotifier.value
-        ? darkModeSecondaryColor
-        : const Color(0xffF5EFE8).withOpacity(.4);
+    return isDarkModeNotifier.value ? deepNavyBlack : const Color(0xffF5EFE8).withOpacity(.4);
   }
 
   Widget _buildHadithTitle(int index) {

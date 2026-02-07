@@ -5,8 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/notifications/views/all_notification_page.dart';
 import 'package:ghaith/core/settings/rate_share_section.dart';
 import 'package:ghaith/main.dart';
@@ -27,21 +27,21 @@ class _SettingsViewState extends State<SettingsView> {
       valueListenable: isDarkModeNotifier,
       builder: (context, isDark, _) {
         return Scaffold(
-          backgroundColor: isDark ? darkModeSecondaryColor : quranPagesColorLight,
+          backgroundColor: isDark ? deepNavyBlack : paperBeige,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             title: Text(
               'settings'.tr(),
               style: TextStyle(
-                color: isDark ? backgroundColor : darkModeSecondaryColor,
+                color: isDark ? softOffWhite : deepNavyBlack,
                 fontFamily: "cairo",
                 fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
             centerTitle: true,
-            foregroundColor: isDark ? backgroundColor : darkModeSecondaryColor,
+            foregroundColor: isDark ? softOffWhite : deepNavyBlack,
           ),
           body: SingleChildScrollView(
             child: Padding(
@@ -76,7 +76,7 @@ class _SettingsViewState extends State<SettingsView> {
                               Text(
                                 'languageApp'.tr(),
                                 style: TextStyle(
-                                  color: isDark ? Colors.white : darkModeSecondaryColor,
+                                  color: isDark ? Colors.white : deepNavyBlack,
                                   fontFamily: "cairo",
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.w600,
@@ -122,7 +122,7 @@ class _SettingsViewState extends State<SettingsView> {
                                         child: Text(
                                           getNativeLanguageName(locale.languageCode),
                                           style: TextStyle(
-                                            color: isDark ? Colors.white : darkModeSecondaryColor,
+                                            color: isDark ? Colors.white : deepNavyBlack,
                                             fontFamily: "cairo",
                                             fontSize: 15.sp,
                                           ),
@@ -164,7 +164,7 @@ class _SettingsViewState extends State<SettingsView> {
                           child: Text(
                             'theme'.tr(),
                             style: TextStyle(
-                              color: isDark ? Colors.white : darkModeSecondaryColor,
+                              color: isDark ? Colors.white : deepNavyBlack,
                               fontFamily: "cairo",
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w600,
@@ -241,7 +241,7 @@ class _SettingsViewState extends State<SettingsView> {
                           child: Text(
                             "notifications".tr(),
                             style: TextStyle(
-                              color: isDark ? Colors.white : darkModeSecondaryColor,
+                              color: isDark ? Colors.white : deepNavyBlack,
                               fontFamily: "cairo",
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w600,

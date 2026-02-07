@@ -115,8 +115,8 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       backgroundColor:
-//           isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight,
+//       softOffWhite:
+//           isDarkModeNotifier.value ? darkSlateGray : paperBeige,
 //       appBar: AppBar(
 //         elevation: 0,
 //         actions: [
@@ -155,8 +155,8 @@
 //         centerTitle: true,
 //         // leading: Padding(
 
-//         backgroundColor:
-//             isDarkModeNotifier.value ? darkModeSecondaryColor : blueColor,
+//         softOffWhite:
+//             isDarkModeNotifier.value ? deepNavyBlack : tealBlue,
 //         automaticallyImplyLeading: true,
 //         iconTheme: const IconThemeData(color: Colors.white),
 //         title: isSearching
@@ -187,7 +187,7 @@
 //       body: isLoading
 //           ? const Center(
 //               child: CircularProgressIndicator(
-//                 color: darkPrimaryColor,
+//                 color: deepNavyBlack,
 //               ),
 //             )
 //           : ListView.builder(
@@ -220,8 +220,8 @@
 //                   },
 //                   borderRadius: 16.r,
 //                   color: isDarkModeNotifier.value
-//                       ? darkModeSecondaryColor
-//                       : quranPagesColorLight,
+//                       ? deepNavyBlack
+//                       : paperBeige,
 //                   child: Padding(
 //                     padding: const EdgeInsets.all(10.0),
 //                     child: Row(

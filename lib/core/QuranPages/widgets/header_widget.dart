@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:quran/quran.dart';
 
 class HeaderWidget extends StatelessWidget {
@@ -50,10 +50,10 @@ class HeaderWidget extends StatelessWidget {
                   textAlign: TextAlign.center,
                   "اياتها\n${getVerseCount(e["surah"])}",
                   style: TextStyle(
-                      // color: accentColor,
+                      // color: deepBurgundyRed,
                       color: indexOfTheme == null
-                          ? primaryColors[getValue("quranPageolorsIndex")].withOpacity(.9)
-                          : primaryColors[indexOfTheme].withOpacity(.92),
+                          ? darkWarmBrowns[getValue("quranPageolorsIndex")].withOpacity(.9)
+                          : darkWarmBrowns[indexOfTheme].withOpacity(.92),
                       fontSize: 5.sp,
                       fontFamily: "UthmanicHafs13"),
                 ),
@@ -65,8 +65,8 @@ class HeaderWidget extends StatelessWidget {
                       fontFamily: "arsura",
                       fontSize: 25.sp,
                       color: indexOfTheme == null
-                          ? primaryColors[getValue("quranPageolorsIndex")].withOpacity(.9)
-                          : primaryColors[indexOfTheme].withOpacity(.9),
+                          ? darkWarmBrowns[getValue("quranPageolorsIndex")].withOpacity(.9)
+                          : darkWarmBrowns[indexOfTheme].withOpacity(.9),
                     ),
                   ),
                   textAlign: TextAlign.center,
@@ -75,10 +75,10 @@ class HeaderWidget extends StatelessWidget {
                   "ترتيبها\n${e["surah"]}",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      //color: accentColor,//
+                      //color: deepBurgundyRed,//
                       color: indexOfTheme == null
-                          ? primaryColors[getValue("quranPageolorsIndex")].withOpacity(.9)
-                          : primaryColors[indexOfTheme].withOpacity(.9),
+                          ? darkWarmBrowns[getValue("quranPageolorsIndex")].withOpacity(.9)
+                          : darkWarmBrowns[indexOfTheme].withOpacity(.9),
                       fontSize: 5.sp,
                       fontFamily: "UthmanicHafs13"),
                 ),

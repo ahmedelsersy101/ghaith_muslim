@@ -2,8 +2,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:ghaith/GlobalHelpers/home_blocs.dart';
-import 'package:ghaith/GlobalHelpers/home_state.dart';
+import 'package:ghaith/helpers/home_blocs.dart';
+import 'package:ghaith/helpers/home_state.dart';
 import 'package:ghaith/core/calender/calender.dart';
 import 'package:ghaith/core/settings/settings_view.dart';
 import 'package:ghaith/core/widgets/superellipse_button.dart';
@@ -19,9 +19,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/initializeData.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/initializeData.dart';
 import 'package:ghaith/core/QuranPages/helpers/convertNumberToAr.dart';
 import 'package:ghaith/core/QuranPages/views/quran_sura_list.dart';
 import 'package:ghaith/core/QuranPages/views/screenshot_preview.dart';
@@ -430,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen>
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: isDarkModeNotifier.value ? darkModeSecondaryColor : quranPagesColorLight,
+      backgroundColor: isDarkModeNotifier.value ? deepNavyBlack : paperBeige,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(0),
         child: SizedBox.shrink(),
@@ -457,14 +457,14 @@ class _HomeScreenState extends State<HomeScreen>
           end: Alignment.bottomCenter,
           colors: isDark
               ? [
-                  darkPrimaryColor,
-                  darkModeSecondaryColor,
-                  darkModeSecondaryColor.withOpacity(0.95),
+                  deepNavyBlack,
+                  deepNavyBlack,
+                  deepNavyBlack.withOpacity(0.95),
                 ]
               : [
-                  quranPagesColorLight.withOpacity(isDark ? 0.4 : 0.08),
-                  quranPagesColorLight,
-                  quranPagesColorLight.withOpacity(isDark ? 0.4 : 0.08),
+                  paperBeige.withOpacity(isDark ? 0.4 : 0.08),
+                  paperBeige,
+                  paperBeige.withOpacity(isDark ? 0.4 : 0.08),
                 ],
           stops: const [0.0, 0.6, 1.0],
         ),
@@ -490,7 +490,7 @@ class _HomeScreenState extends State<HomeScreen>
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    (isDark ? orangeColor : orangeColor).withOpacity(0.08),
+                    (isDark ? wineRed : wineRed).withOpacity(0.08),
                     Colors.transparent,
                   ],
                 ),
@@ -508,7 +508,7 @@ class _HomeScreenState extends State<HomeScreen>
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    (isDark ? accentColor : goldColor).withOpacity(0.06),
+                    (isDark ? deepBurgundyRed : deepBurgundyRed).withOpacity(0.06),
                     Colors.transparent,
                   ],
                 ),
@@ -896,7 +896,7 @@ class _HomeScreenState extends State<HomeScreen>
       borderRadius: BorderRadius.circular(32.r),
       boxShadow: [
         BoxShadow(
-          color: (isDark ? const Color(0xFF8C2F3A) : orangeColor).withOpacity(0.3),
+          color: (isDark ? const Color(0xFF8C2F3A) : wineRed).withOpacity(0.3),
           blurRadius: 30,
           offset: const Offset(0, 15),
           spreadRadius: -16,
@@ -932,12 +932,12 @@ class _HomeScreenState extends State<HomeScreen>
         end: Alignment.bottomRight,
         colors: isDark
             ? [
-                quranPagesColorDark.withOpacity(0.6),
-                quranPagesColorDark.withOpacity(0.4),
+                darkSlateGray.withOpacity(0.6),
+                darkSlateGray.withOpacity(0.4),
               ]
             : [
                 Colors.white,
-                quranPagesColorLight.withOpacity(0.95),
+                paperBeige.withOpacity(0.95),
               ],
       ),
       borderRadius: BorderRadius.circular(28.r),
@@ -1176,12 +1176,12 @@ class _HomeScreenState extends State<HomeScreen>
             end: Alignment.bottomCenter,
             colors: isDarkModeNotifier.value
                 ? [
-                    darkPrimaryColor.withOpacity(isDark ? 0.5 : 0.5),
-                    darkPrimaryColor.withOpacity(isDark ? 0.5 : 0.5),
+                    deepNavyBlack.withOpacity(isDark ? 0.5 : 0.5),
+                    deepNavyBlack.withOpacity(isDark ? 0.5 : 0.5),
                   ]
                 : [
-                    quranPagesColorLight.withOpacity(isDark ? 0.05 : 0.5),
-                    quranPagesColorLight,
+                    paperBeige.withOpacity(isDark ? 0.05 : 0.5),
+                    paperBeige,
                   ]),
       ),
       child: Padding(
@@ -1211,7 +1211,7 @@ class _HomeScreenState extends State<HomeScreen>
                     gradient: LinearGradient(
                       colors: [
                         Colors.transparent,
-                        (isDark ? orangeColor : goldColor).withOpacity(0.5),
+                        (isDark ? wineRed : deepBurgundyRed).withOpacity(0.5),
                       ],
                     ),
                   ),
@@ -1225,7 +1225,7 @@ class _HomeScreenState extends State<HomeScreen>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          (isDark ? orangeColor : goldColor).withOpacity(0.5),
+                          (isDark ? wineRed : deepBurgundyRed).withOpacity(0.5),
                           Colors.transparent,
                         ],
                       ),
@@ -1263,10 +1263,10 @@ class _HomeScreenState extends State<HomeScreen>
         Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           decoration: BoxDecoration(
-            color: isDark ? orangeColor.withOpacity(0.2) : orangeColor.withOpacity(0.15),
+            color: isDark ? wineRed.withOpacity(0.2) : wineRed.withOpacity(0.15),
             borderRadius: BorderRadius.circular(14.r),
             border: Border.all(
-              color: isDark ? orangeColor.withOpacity(0.4) : orangeColor.withOpacity(0.3),
+              color: isDark ? wineRed.withOpacity(0.4) : wineRed.withOpacity(0.3),
               width: 1.5,
             ),
           ),
@@ -1275,14 +1275,14 @@ class _HomeScreenState extends State<HomeScreen>
             children: [
               Icon(
                 icon,
-                color: isDark ? orangeColor : orangeColor,
+                color: isDark ? wineRed : wineRed,
                 size: 18.sp,
               ),
               SizedBox(width: 6.w),
               Text(
                 title,
                 style: TextStyle(
-                  color: isDark ? Colors.white : textColor,
+                  color: isDark ? Colors.white : charcoalDarkGray,
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
                   fontFamily: "cairo",
@@ -1294,13 +1294,13 @@ class _HomeScreenState extends State<HomeScreen>
         const Spacer(),
         _buildActionButton(
           icon: Iconsax.refresh,
-          color: isDark ? orangeColor : buttonColor,
+          color: isDark ? wineRed : mutedGreen,
           onPressed: onRefresh,
         ),
         SizedBox(width: 8.w),
         _buildActionButton(
           icon: Iconsax.share,
-          color: isDark ? accentColor : goldColor,
+          color: isDark ? deepBurgundyRed : deepBurgundyRed,
           onPressed: onShare,
         ),
       ],
@@ -1376,7 +1376,7 @@ class _HomeScreenState extends State<HomeScreen>
     final isDark = isDarkModeNotifier.value;
     return Container(
       decoration: BoxDecoration(
-          color: isDark ? quranPagesColorDark : quranPagesColorLight,
+          color: isDark ? darkSlateGray : paperBeige,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(24.r),
             topRight: Radius.circular(24.r),
@@ -1412,12 +1412,12 @@ class _HomeScreenState extends State<HomeScreen>
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isDark ? [orangeColor, accentColor] : [accentColor, accentColor],
+          colors: isDark ? [wineRed, deepBurgundyRed] : [deepBurgundyRed, deepBurgundyRed],
         ),
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? orangeColor : accentColor).withOpacity(0.3),
+            color: (isDark ? wineRed : deepBurgundyRed).withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -1483,14 +1483,14 @@ class _HomeScreenState extends State<HomeScreen>
           convertToArabicNumber(verseNumber.toString()).toString(),
           textAlign: TextAlign.right,
           style: TextStyle(
-              color: isDark ? orangeColor : goldColor,
+              color: isDark ? wineRed : deepBurgundyRed,
               fontSize: 26.sp,
               fontFamily: "KFGQPC Uthmanic Script HAFS Regular"),
         ),
         Text(
           " - ",
           style: TextStyle(
-            color: isDark ? Colors.white70 : textColor,
+            color: isDark ? Colors.white70 : charcoalDarkGray,
           ),
         ),
         if (widgejsonData != null)
@@ -1499,7 +1499,7 @@ class _HomeScreenState extends State<HomeScreen>
             textAlign: TextAlign.right,
             style: TextStyle(
               fontFamily: fontFamilies[0],
-              color: isDark ? Colors.white.withOpacity(0.9) : headingColor,
+              color: isDark ? Colors.white.withOpacity(0.9) : mediumGray,
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
             ),
@@ -1529,12 +1529,12 @@ class _HomeScreenState extends State<HomeScreen>
             end: Alignment.bottomCenter,
             colors: isDarkModeNotifier.value
                 ? [
-                    darkPrimaryColor.withOpacity(isDark ? 0.5 : 0.5),
-                    darkPrimaryColor.withOpacity(isDark ? 0.5 : 0.5),
+                    deepNavyBlack.withOpacity(isDark ? 0.5 : 0.5),
+                    deepNavyBlack.withOpacity(isDark ? 0.5 : 0.5),
                   ]
                 : [
-                    quranPagesColorLight.withOpacity(isDark ? 0.05 : 0.5),
-                    quranPagesColorLight,
+                    paperBeige.withOpacity(isDark ? 0.05 : 0.5),
+                    paperBeige,
                   ]),
       ),
       child: Padding(
@@ -1552,7 +1552,7 @@ class _HomeScreenState extends State<HomeScreen>
                 children: [
                   Icon(
                     Icons.format_quote_rounded,
-                    color: (isDark ? orangeColor : Colors.white),
+                    color: (isDark ? wineRed : Colors.white),
                     size: 32.sp,
                   ),
                   SizedBox(height: 12.h),
@@ -1594,7 +1594,7 @@ class _HomeScreenState extends State<HomeScreen>
     final isDark = isDarkModeNotifier.value;
     return Container(
       decoration: BoxDecoration(
-          color: isDark ? quranPagesColorDark : quranPagesColorLight,
+          color: isDark ? darkSlateGray : paperBeige,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(24.r),
             topRight: Radius.circular(24.r),

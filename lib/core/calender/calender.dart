@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hijri/hijri_calendar.dart' as j;
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:jhijri_picker/jhijri_picker.dart';
 import 'package:ghaith/main.dart';
@@ -47,8 +47,8 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final isDark = isDarkModeNotifier.value;
-    final primaryColor = isDark ? orangeColor : buttonColor;
-    final accentColorApp = isDark ? accentColor : goldColor;
+    final darkWarmBrown = isDark ? wineRed : wineRed;
+    final deepBurgundyRedApp = isDark ? wineRed : wineRed;
 
     return Container(
       decoration: BoxDecoration(
@@ -56,8 +56,11 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: isDark
-              ? [darkPrimaryColor, darkModeSecondaryColor]
-              : [backgroundColor, const Color(0xFFE8EAF6)],
+              ? [deepNavyBlack, deepNavyBlack]
+              : [
+                  paperBeige.withOpacity(0.99),
+                  paperBeige.withOpacity(0.99),
+                ],
         ),
       ),
       child: Scaffold(
@@ -68,7 +71,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [primaryColor, accentColorApp],
+                colors: [darkWarmBrown, deepBurgundyRedApp],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -82,7 +85,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
             ),
             child: AppBar(
               elevation: 0,
-              backgroundColor: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+              backgroundColor: isDarkModeNotifier.value ? darkSlateGray : wineRed,
               toolbarHeight: 70.h,
               title: Text(
                 "calender".tr(),
@@ -108,11 +111,11 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                 // Date Display Card
                 Container(
                   decoration: BoxDecoration(
-                    color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+                    color: isDarkModeNotifier.value ? darkSlateGray : wineRed,
                     borderRadius: BorderRadius.circular(24.r),
                     boxShadow: [
                       BoxShadow(
-                        color: primaryColor.withOpacity(0.3),
+                        color: darkWarmBrown.withOpacity(0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                         spreadRadius: -5,
@@ -231,7 +234,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                 // Calendar Type Selector
                 Container(
                   decoration: BoxDecoration(
-                    color: isDark ? quranPagesColorDark : quranPagesColorLight,
+                    color: isDark ? darkSlateGray : paperBeige,
                     borderRadius: BorderRadius.circular(20.r),
                     boxShadow: [
                       BoxShadow(
@@ -254,7 +257,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                                 index = 1;
                               });
                             },
-                            primaryColor: primaryColor,
+                            darkWarmBrown: darkWarmBrown,
                             isDark: isDark,
                           ),
                         ),
@@ -267,7 +270,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                                 index = 0;
                               });
                             },
-                            primaryColor: primaryColor,
+                            darkWarmBrown: darkWarmBrown,
                             isDark: isDark,
                           ),
                         ),
@@ -281,11 +284,11 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                 // Calendar Widget
                 Container(
                   decoration: BoxDecoration(
-                    color: isDark ? quranPagesColorDark : quranPagesColorLight,
+                    color: isDark ? darkSlateGray : paperBeige,
                     borderRadius: BorderRadius.circular(24.r),
                     boxShadow: [
                       BoxShadow(
-                        color: primaryColor.withOpacity(0.15),
+                        color: darkWarmBrown.withOpacity(0.15),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                         spreadRadius: -5,
@@ -298,14 +301,14 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                       widgetType: WidgetType.JContainer,
                       pickerType: index == 1 ? PickerType.JHijri : PickerType.JNormal,
                       buttons: const SizedBox(),
-                      primaryColor: orangeColor,
-                      calendarTextColor: isDark ? Colors.white.withOpacity(0.9) : textColor,
-                      backgroundColor: isDark ? quranPagesColorDark : quranPagesColorLight,
+                      primaryColor: wineRed,
+                      calendarTextColor: isDark ? Colors.white.withOpacity(0.9) : charcoalDarkGray,
+                      backgroundColor: isDark ? darkSlateGray : paperBeige,
                       borderRadius: const Radius.circular(0),
                       headerTitle: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [orangeColor, quranPagesColorLight],
+                            colors: [wineRed, paperBeige],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),
@@ -319,7 +322,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                       pickerMode: DatePickerMode.day,
                       pickerTheme: Theme.of(context).copyWith(
                         colorScheme: Theme.of(context).colorScheme.copyWith(
-                              primary: primaryColor,
+                              primary: darkWarmBrown,
                               onPrimary: Colors.white,
                             ),
                       ),
@@ -349,7 +352,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
-    required Color primaryColor,
+    required Color darkWarmBrown,
     required bool isDark,
   }) {
     return Material(
@@ -363,7 +366,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
           decoration: BoxDecoration(
             gradient: isSelected
                 ? LinearGradient(
-                    colors: [orangeColor, orangeColor.withOpacity(0.8)],
+                    colors: [wineRed, wineRed.withOpacity(0.8)],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   )
@@ -376,7 +379,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
               style: TextStyle(
                 color: isSelected
                     ? Colors.white
-                    : (isDark ? Colors.white.withOpacity(0.6) : textColor.withOpacity(0.6)),
+                    : (isDark ? Colors.white.withOpacity(0.6) : charcoalDarkGray.withOpacity(0.6)),
                 fontSize: 16.sp,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                 fontFamily: 'cairo',

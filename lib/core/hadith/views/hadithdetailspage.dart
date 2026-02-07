@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:ghaith/main.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/core/hadith/models/hadith.dart';
 import 'package:ghaith/core/hadith/views/widgets/sharing_options.dart';
 import 'package:flutter/services.dart';
@@ -178,7 +178,7 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
         children: [
           // دائرة التحميل
           CircularProgressIndicator(
-            color: isDarkModeNotifier.value ? orangeColor : orangeColor,
+            color: isDarkModeNotifier.value ? wineRed : wineRed,
             strokeWidth: 3,
           ),
           SizedBox(height: 24.h),
@@ -277,7 +277,7 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: orangeColor,
+                  backgroundColor: wineRed,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
                   shape: RoundedRectangleBorder(
@@ -638,7 +638,7 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
     return TextStyle(
       color: isExpanded
           ? (isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87)
-          : (isDarkModeNotifier.value ? orangeColor : const Color(0xffA28858)),
+          : (isDarkModeNotifier.value ? wineRed : const Color(0xffA28858)),
       fontFamily: 'Taha',
       fontSize: 16.sp,
     );

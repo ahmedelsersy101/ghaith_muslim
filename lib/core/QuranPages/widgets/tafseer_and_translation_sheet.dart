@@ -8,8 +8,8 @@ import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttericon/mfg_labs_icons.dart';
 import 'package:ghaith/main.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/QuranPages/helpers/convertNumberToAr.dart';
 import 'package:ghaith/core/QuranPages/helpers/translation/get_translation_data.dart';
 import 'package:ghaith/core/QuranPages/helpers/translation/translationdata.dart';
@@ -98,8 +98,8 @@ class _TafseerAndTranslateSheetState extends State<TafseerAndTranslateSheet> {
                       size: 16.sp,
                       color: (widget.verseNumber + verseNumber > 1)
                           ? isDarkModeNotifier.value
-                              ? quranPagesColorDark
-                              : quranPagesColorLight
+                              ? darkSlateGray
+                              : paperBeige
                           : Colors.grey.withOpacity(.4),
                     )),
                 SizedBox(
@@ -133,8 +133,8 @@ class _TafseerAndTranslateSheetState extends State<TafseerAndTranslateSheet> {
                       color: (widget.verseNumber + verseNumber !=
                               quran.getVerseCount(widget.surahNumber))
                           ? isDarkModeNotifier.value
-                              ? quranPagesColorDark
-                              : quranPagesColorLight
+                              ? darkSlateGray
+                              : paperBeige
                           : Colors.grey.withOpacity(.4),
                     ))
               ],
@@ -173,7 +173,7 @@ class _TafseerAndTranslateSheetState extends State<TafseerAndTranslateSheet> {
                         elevation: 0,
                         bounce: true,
                         duration: const Duration(milliseconds: 400),
-                        backgroundColor: backgroundColor,
+                        backgroundColor: softOffWhite,
                         context: context,
                         builder: (builder) {
                           return Directionality(
@@ -187,7 +187,7 @@ class _TafseerAndTranslateSheetState extends State<TafseerAndTranslateSheet> {
                                     child: Text(
                                       "choosetranslation".tr(),
                                       style: TextStyle(
-                                          color: primaryColor,
+                                          color: darkWarmBrown,
                                           fontSize: 22.sp,
                                           fontFamily: context.locale.languageCode == "ar"
                                               ? "cairo"
@@ -267,7 +267,7 @@ class _TafseerAndTranslateSheetState extends State<TafseerAndTranslateSheet> {
                                                       translationDataList[i]
                                                           .typeTextInRelatedLanguage,
                                                       style: TextStyle(
-                                                          color: primaryColor.withOpacity(.9),
+                                                          color: darkWarmBrown.withOpacity(.9),
                                                           fontSize: 14.sp),
                                                     ),
                                                     isDownloading != translationDataList[i].url
@@ -353,7 +353,7 @@ class _TafseerAndTranslateSheetState extends State<TafseerAndTranslateSheet> {
                             fontSize: FontSize(18.sp),
                             lineHeight: LineHeight(1.7.sp),
 
-                            // color: primaryColors[getValue("quranPageolorsIndex")]
+                            // color: darkWarmBrowns[getValue("quranPageolorsIndex")]
                             //     .withOpacity(.9),
                           ),
                         },

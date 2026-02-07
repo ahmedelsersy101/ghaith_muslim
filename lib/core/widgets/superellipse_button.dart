@@ -1,7 +1,7 @@
 // ignore_for_file: unused_field, unused_element, unnecessary_null_comparison, prefer_single_quotes, prefer_interpolation_to_compose_strings
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/main.dart';
 import 'package:superellipse_shape/superellipse_shape.dart';
 
@@ -22,13 +22,11 @@ class SuperellipseButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
           color: isDarkModeNotifier.value
-              ? quranPagesColorDark.withOpacity(0.2)
+              ? darkSlateGray.withOpacity(0.2)
               : Colors.white.withOpacity(0.1),
         ),
         child: Material(
-          color: isDarkModeNotifier.value
-              ? quranPagesColorDark.withOpacity(0.5)
-              : quranPagesColorLight,
+          color: isDarkModeNotifier.value ? darkSlateGray.withOpacity(0.5) : paperBeige,
           shape: SuperellipseShape(
             borderRadius: BorderRadius.circular(24.0.r),
           ),

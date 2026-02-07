@@ -1,4 +1,4 @@
-List azkar = [
+const List azkar = [
   {
     'id': 1,
     'category': 'جوامع الدعاء',

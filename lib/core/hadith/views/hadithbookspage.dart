@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/hadith/views/booklistpage.dart';
 import 'package:ghaith/main.dart';
 import 'package:dio/dio.dart';
@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttericon/entypo_icons.dart';
 import 'package:fluttericon/mfg_labs_icons.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/core/hadith/models/category.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -96,7 +96,7 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _getBackgroundColor(),
+      backgroundColor: _getsoftOffWhite(),
       appBar: _buildAppBar(),
       body: _isLoading
           ? _buildLoadingIndicator()
@@ -157,13 +157,13 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
   }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل واجهة المستخدم لملف ui/hadith_books_view.dart
-  Color _getBackgroundColor() {
-    return isDarkModeNotifier.value ? quranPagesColorDark.withOpacity(0.4) : quranPagesColorLight;
+  Color _getsoftOffWhite() {
+    return isDarkModeNotifier.value ? darkSlateGray.withOpacity(0.4) : paperBeige;
   }
 
   Color _getCardColor() {
     return isDarkModeNotifier.value
-        ? quranPagesColorDark
+        ? darkSlateGray
         : const Color.fromARGB(255, 255, 255, 255).withOpacity(.2);
   }
 
@@ -184,7 +184,7 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
   }
 
   Color _getAppBarColor() {
-    return isDarkModeNotifier.value ? quranPagesColorDark : orangeColor;
+    return isDarkModeNotifier.value ? darkSlateGray : wineRed;
   }
 
   IconThemeData _getIconTheme() {
@@ -200,7 +200,7 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
   Widget _buildLoadingIndicator() {
     return Center(
       child: CircularProgressIndicator(
-        color: isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight,
+        color: isDarkModeNotifier.value ? darkSlateGray : paperBeige,
       ),
     );
   }

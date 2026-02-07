@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ghaith/services/display_service.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/blocs/observer.dart';
 import 'package:ghaith/services/notification_service.dart';
 import 'package:just_audio_background/just_audio_background.dart';

@@ -3,8 +3,8 @@ import 'package:easy_container/easy_container.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/QuranPages/helpers/convertNumberToAr.dart';
 import 'package:ghaith/core/QuranPages/helpers/save_image.dart';
 import 'package:ghaith/core/QuranPages/helpers/translation/translationdata.dart';
@@ -66,8 +66,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
       File file = File(
           "${_appDir!.path}/${translationDataList[getValue("addTafseerValue")].typeText}.json");
       String jsonData = await file.readAsString();
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -96,7 +95,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
 
   TextStyle _getVerseTextStyle() {
     return TextStyle(
-      color: primaryColors[_indexOfTheme],
+      color: darkWarmBrowns[_indexOfTheme],
       fontSize: _textSize.sp,
       wordSpacing: 0,
       height: 2,
@@ -142,7 +141,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
 
   TextStyle _getTafseerHeaderStyle() {
     return TextStyle(
-      color: primaryColors[_indexOfTheme],
+      color: darkWarmBrowns[_indexOfTheme],
       fontSize: ((_textSize + 6.5) / 2).sp,
       wordSpacing: .2,
       letterSpacing: .2,
@@ -152,7 +151,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
 
   TextStyle _getTafseerTextStyle() {
     return TextStyle(
-      color: primaryColors[_indexOfTheme],
+      color: darkWarmBrowns[_indexOfTheme],
       fontSize: ((_textSize + 6) / 2).sp,
       wordSpacing: .2,
       letterSpacing: .2,
@@ -173,7 +172,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل الـ AppBar لملف ui/components/screenshot_app_bar.dart
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: isDarkModeNotifier.value ? darkModeSecondaryColor : orangeColor,
+      backgroundColor: isDarkModeNotifier.value ? deepNavyBlack : wineRed,
       elevation: 0,
       foregroundColor: Colors.white,
       title: Text(
@@ -226,8 +225,8 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
     return Row(
       children: [
         Checkbox(
-          fillColor: WidgetStatePropertyAll(primaryColors[getValue("quranPageolorsIndex")]),
-          checkColor: backgroundColors[getValue("quranPageolorsIndex")],
+          fillColor: WidgetStatePropertyAll(darkWarmBrowns[getValue("quranPageolorsIndex")]),
+          checkColor: softOffWhites[getValue("quranPageolorsIndex")],
           value: value,
           onChanged: onChanged,
         ),
@@ -311,8 +310,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
     );
   }
 
-  void _showTafseerSelectionSheet() {
-  }
+  void _showTafseerSelectionSheet() {}
 
   Widget _buildTextAlignmentSettings() {
     return Column(
@@ -350,7 +348,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
       width: MediaQuery.of(context).size.width,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: primaryColors.length,
+        itemCount: darkWarmBrowns.length,
         itemBuilder: (context, index) => _buildThemeOption(index),
       ),
     );
@@ -375,7 +373,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
                       BoxShadow(blurRadius: 1, color: Colors.grey.withOpacity(.5)),
                     ],
                     borderRadius: BorderRadius.circular(10),
-                    color: backgroundColors[index],
+                    color: softOffWhites[index],
                   ),
                 ),
               ),
@@ -385,7 +383,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
                   height: 20,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: primaryColors[index],
+                    color: darkWarmBrowns[index],
                   ),
                 ),
               ),
@@ -403,7 +401,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: primaryColors[_indexOfTheme].withOpacity(.2),
+              color: darkWarmBrowns[_indexOfTheme].withOpacity(.2),
               blurRadius: 4,
               spreadRadius: 4,
               offset: const Offset(0, 2),
@@ -414,7 +412,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
           controller: _screenshotController,
           child: Container(
             decoration: BoxDecoration(
-              color: backgroundColors[_indexOfTheme],
+              color: softOffWhites[_indexOfTheme],
             ),
             child: Column(
               children: [
@@ -464,7 +462,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
           text: TextSpan(
             text: '',
             style: TextStyle(
-              color: primaryColors[_indexOfTheme],
+              color: darkWarmBrowns[_indexOfTheme],
               fontSize: 20.sp,
               fontFamily: getValue("selectedFontFamily"),
             ),
@@ -521,7 +519,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
             SizedBox(width: 6.w),
             Text(
               "تطبيق غيث المسلم",
-              style: TextStyle(fontSize: 10.sp, color: primaryColors[_indexOfTheme]),
+              style: TextStyle(fontSize: 10.sp, color: darkWarmBrowns[_indexOfTheme]),
             ),
           ],
         ),
@@ -543,7 +541,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.bold,
-                color: backgroundColors[_indexOfTheme].withOpacity(.6),
+                color: softOffWhites[_indexOfTheme].withOpacity(.6),
               ),
             ),
             Text(
@@ -552,7 +550,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
                 fontSize: 12.sp,
                 fontWeight: FontWeight.bold,
                 fontFamily: fontFamilies[0],
-                color: backgroundColors[_indexOfTheme].withOpacity(.6),
+                color: softOffWhites[_indexOfTheme].withOpacity(.6),
               ),
             ),
           ],
@@ -565,7 +563,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
   Widget _buildBottomNavigationBar() {
     return Container(
       decoration: BoxDecoration(
-        color: isDarkModeNotifier.value ? darkModeSecondaryColor : Colors.transparent,
+        color: isDarkModeNotifier.value ? deepNavyBlack : Colors.transparent,
       ),
       child: Padding(
         padding: const EdgeInsets.only(left: 0),
@@ -599,7 +597,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
         height: 50,
         width: width,
         onTap: onTap,
-        color: orangeColor,
+        color: wineRed,
         child: Text(
           text,
           style: TextStyle(

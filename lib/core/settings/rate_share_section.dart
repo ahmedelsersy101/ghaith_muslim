@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/main.dart';
 import 'package:share_plus/share_plus.dart';
 // ignore: depend_on_referenced_packages
@@ -19,14 +19,10 @@ class RateShareSection extends StatelessWidget {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20.r),
-            color: isDark
-                ? const Color(0xFF6B4B4B).withOpacity(0.6)
-                : Colors.white,
+            color: isDark ? const Color(0xFF6B4B4B).withOpacity(0.6) : Colors.white,
             boxShadow: [
               BoxShadow(
-                color: isDark 
-                    ? Colors.black.withOpacity(0.4) 
-                    : Colors.grey.withOpacity(0.2),
+                color: isDark ? Colors.black.withOpacity(0.4) : Colors.grey.withOpacity(0.2),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
                 spreadRadius: 2,
@@ -43,22 +39,20 @@ class RateShareSection extends StatelessWidget {
                   ('rateShare').tr(),
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                    color: isDark ? Colors.white : darkModeSecondaryColor,
+                    color: isDark ? Colors.white : deepNavyBlack,
                     fontFamily: "cairo",
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 20),
-                
+
                 // Rate App Card
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(18.0),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.black.withOpacity(0.2)
-                        : const Color(0xFFFAFAFA),
+                    color: isDark ? Colors.black.withOpacity(0.2) : const Color(0xFFFAFAFA),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -83,7 +77,7 @@ class RateShareSection extends StatelessWidget {
                             child: Text(
                               ('rateApp').tr(),
                               style: TextStyle(
-                                color: isDark ? Colors.white : darkModeSecondaryColor,
+                                color: isDark ? Colors.white : deepNavyBlack,
                                 fontFamily: "cairo",
                                 fontSize: 17.sp,
                                 fontWeight: FontWeight.w600,
@@ -110,7 +104,7 @@ class RateShareSection extends StatelessWidget {
                           Text(
                             '5.0',
                             style: TextStyle(
-                              color: isDark ? Colors.white : darkModeSecondaryColor,
+                              color: isDark ? Colors.white : deepNavyBlack,
                               fontFamily: "cairo",
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w600,
@@ -152,17 +146,15 @@ class RateShareSection extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Share App Card
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(18.0),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.black.withOpacity(0.2)
-                        : const Color(0xFFFAFAFA),
+                    color: isDark ? Colors.black.withOpacity(0.2) : const Color(0xFFFAFAFA),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -173,9 +165,8 @@ class RateShareSection extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: isDark 
-                                  ? Colors.white.withOpacity(0.15)
-                                  : const Color(0xFFE8E8E8),
+                              color:
+                                  isDark ? Colors.white.withOpacity(0.15) : const Color(0xFFE8E8E8),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
@@ -189,7 +180,7 @@ class RateShareSection extends StatelessWidget {
                             child: Text(
                               ('shareAppTitle').tr(),
                               style: TextStyle(
-                                color: isDark ? Colors.white : darkModeSecondaryColor,
+                                color: isDark ? Colors.white : deepNavyBlack,
                                 fontFamily: "cairo",
                                 fontSize: 17.sp,
                                 fontWeight: FontWeight.w600,
@@ -202,9 +193,7 @@ class RateShareSection extends StatelessWidget {
                       Text(
                         ('shareAppSubtitle').tr(),
                         style: TextStyle(
-                          color: isDark 
-                              ? Colors.white.withOpacity(0.7) 
-                              : Colors.grey.shade600,
+                          color: isDark ? Colors.white.withOpacity(0.7) : Colors.grey.shade600,
                           fontFamily: "cairo",
                           fontSize: 13.sp,
                           height: 1.4,
@@ -244,16 +233,15 @@ class RateShareSection extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Info Box
                 Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.orange.withOpacity(0.1)
-                        : Colors.orange.withOpacity(0.08),
+                    color:
+                        isDark ? Colors.orange.withOpacity(0.1) : Colors.orange.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: Colors.orange.withOpacity(0.3),

@@ -9,14 +9,14 @@ import 'package:flutter/material.dart' as m;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/linearicons_free_icons.dart';
-import 'package:ghaith/GlobalHelpers/home_blocs.dart';
+import 'package:ghaith/helpers/home_blocs.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:ghaith/blocs/player_bar_bloc.dart';
 import 'package:ghaith/blocs/player_bloc_bloc.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:quran/quran.dart';
@@ -69,7 +69,8 @@ class _PlayerBarState extends State<PlayerBar> {
     }
     return path;
   }
-Future<Directory> getAppDirectory() async {
+
+  Future<Directory> getAppDirectory() async {
     final dir = await getExternalStorageDirectory();
     final appDir = Directory('${dir!.path}/Ghaith');
     if (!(await appDir.exists())) {
@@ -77,6 +78,7 @@ Future<Directory> getAppDirectory() async {
     }
     return appDir;
   }
+
   bool isPlaylistShown = false;
   bool isMinimized = true;
   @override
@@ -121,14 +123,14 @@ Future<Directory> getAppDirectory() async {
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
                                                 color: getValue('darkMode')
-                                                    ? quranPagesColorDark
-                                                    : quranPagesColorLight,
+                                                    ? darkSlateGray
+                                                    : paperBeige,
                                               ),
                                               child: Center(
                                                 child: CircleAvatar(
                                                   backgroundColor: getValue('darkMode')
-                                                      ? quranPagesColorDark
-                                                      : quranPagesColorLight,
+                                                      ? darkSlateGray
+                                                      : paperBeige,
                                                   backgroundImage:
                                                       const AssetImage('assets/images/quran.png'),
                                                   foregroundImage: CachedNetworkImageProvider(
@@ -206,10 +208,10 @@ Future<Directory> getAppDirectory() async {
                                                           width: 50.w,
                                                           decoration: const BoxDecoration(
                                                               shape: BoxShape.circle,
-                                                              color: darkPrimaryColor),
+                                                              color: deepNavyBlack),
                                                           child: Center(
                                                             child: CircleAvatar(
-                                                              backgroundColor: darkPrimaryColor,
+                                                              backgroundColor: deepNavyBlack,
                                                               backgroundImage: const AssetImage(
                                                                   'assets/images/quran.png'),
                                                               foregroundImage: getValue(
@@ -344,7 +346,7 @@ Future<Directory> getAppDirectory() async {
                                       ),
                                     )
                                   : Material(
-                                      color: darkPrimaryColor,
+                                      color: deepNavyBlack,
                                       child: Container(
                                         decoration: const BoxDecoration(
                                             image: DecorationImage(
@@ -721,7 +723,7 @@ Future<Directory> getAppDirectory() async {
                                                 duration: const Duration(milliseconds: 600),
                                                 height: isPlaylistShown ? 240.0.h : 50.h,
                                                 child: MaterialApp(
-                                                  //color:  isDarkModeNotifier.value?quranPagesColorDark:quranPagesColorLight,
+                                                  //color:  isDarkModeNotifier.value?darkSlateGray:paperBeige,
                                                   home: StreamBuilder<SequenceState?>(
                                                     stream: state.audioPlayer.sequenceStateStream,
                                                     builder: (context, snapshot) {
@@ -753,12 +755,11 @@ Future<Directory> getAppDirectory() async {
                                                                 state.playList.removeAt(i);
                                                               },
                                                               child: Material(
-                                                                color:
-                                                                    i == sequenceState!.currentIndex
-                                                                        ? const m.Color.fromARGB(
-                                                                            255, 46, 100, 110)
-                                                                        : darkPrimaryColor
-                                                                            .withOpacity(.9),
+                                                                color: i ==
+                                                                        sequenceState!.currentIndex
+                                                                    ? const m.Color.fromARGB(
+                                                                        255, 46, 100, 110)
+                                                                    : deepNavyBlack.withOpacity(.9),
                                                                 child: ListTile(
                                                                   trailing: const Icon(
                                                                     Icons.reorder,

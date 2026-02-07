@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
+import 'package:ghaith/helpers/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Basmallah extends StatefulWidget {
@@ -26,12 +26,12 @@ class _BasmallahState extends State<Basmallah> {
             // Text("115",
             // textAlign: TextAlign.center,
             // style: TextStyle(
-            //   color: primaryColors[widget.index],
+            //   color: darkWarmBrowns[widget.index],
             //   fontFamily: "arsura",fontSize: 40.sp
             // ),)
             Image.asset(
           "assets/images/Basmala.png",
-          color: primaryColors[widget.index].withOpacity(.9),
+          color: darkWarmBrowns[widget.index].withOpacity(.9),
           width: MediaQuery.of(context).size.width.w * .4,
         ),
       ),

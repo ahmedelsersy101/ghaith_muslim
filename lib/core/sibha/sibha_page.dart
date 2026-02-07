@@ -4,8 +4,8 @@ import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/sibha/models/tasbeh.dart';
 import 'package:ghaith/core/sibha/widgets/add_tasbeeh_dialog.dart';
 import 'package:ghaith/main.dart';
@@ -229,19 +229,17 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
         ? [const Color(0xFF6a1e2c), const Color(0xFF8C2F3A)]
         : [const Color(0xFF5D9566), const Color(0xFF87669A)];
 
-    final cardColor = isDark ? quranPagesColorDark : quranPagesColorLight;
+    final cardColor = isDark ? darkSlateGray : paperBeige;
 
-    final textPrimary = isDark ? Colors.white : textColor;
-    final textSecondary = isDark ? Colors.white.withOpacity(0.7) : headingColor;
+    final textPrimary = isDark ? Colors.white : charcoalDarkGray;
+    final textSecondary = isDark ? Colors.white.withOpacity(0.7) : mediumGray;
 
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: isDark
-              ? [darkPrimaryColor, darkModeSecondaryColor]
-              : [backgroundColor, const Color(0xFFE8EAF6)],
+          colors: isDark ? [deepNavyBlack, deepNavyBlack] : [paperBeige, paperBeige],
         ),
       ),
       child: Scaffold(
@@ -266,7 +264,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
             ),
             child: AppBar(
               elevation: 0,
-              backgroundColor: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+              backgroundColor: isDarkModeNotifier.value ? darkSlateGray : wineRed,
               toolbarHeight: 70.h,
               foregroundColor: Colors.white,
               actions: [
@@ -313,7 +311,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+                  color: isDarkModeNotifier.value ? darkSlateGray : wineRed,
                   borderRadius: BorderRadius.circular(20.r),
                   boxShadow: [
                     BoxShadow(
@@ -361,7 +359,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
                       padding: EdgeInsets.symmetric(horizontal: 20.w),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+                          color: isDarkModeNotifier.value ? darkSlateGray : wineRed,
                           borderRadius: BorderRadius.circular(30.r),
                           boxShadow: [
                             BoxShadow(
@@ -492,7 +490,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
                         }
                       },
                       enabled: currentIndex > 0,
-                      primaryColor: primaryGradient[0],
+                      darkWarmBrown: primaryGradient[0],
                     ),
 
                     // Reset Button
@@ -501,7 +499,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
                         updateValue("${currentIndex}number", 0);
                         setState(() {});
                       },
-                      primaryColor: primaryGradient[0],
+                      darkWarmBrown: primaryGradient[0],
                     ),
 
                     // Next Button
@@ -517,7 +515,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
                         }
                       },
                       enabled: currentIndex < tasbeehList.length - 1,
-                      primaryColor: primaryGradient[0],
+                      darkWarmBrown: primaryGradient[0],
                     ),
                   ],
                 ),
@@ -543,7 +541,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+                                color: isDarkModeNotifier.value ? darkSlateGray : wineRed,
                                 width: 2,
                               ),
                             ),
@@ -561,7 +559,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
                             height: 200.w,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+                              color: isDarkModeNotifier.value ? darkSlateGray : wineRed,
                               boxShadow: [
                                 BoxShadow(
                                   color: primaryGradient[0].withOpacity(0.4),
@@ -634,7 +632,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
     required IconData icon,
     required VoidCallback onTap,
     required bool enabled,
-    required Color primaryColor,
+    required Color darkWarmBrown,
   }) {
     return Material(
       color: Colors.transparent,
@@ -645,10 +643,10 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
           width: 56.w,
           height: 56.w,
           decoration: BoxDecoration(
-            color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+            color: isDarkModeNotifier.value ? darkSlateGray : wineRed,
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
-              color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+              color: isDarkModeNotifier.value ? darkSlateGray : wineRed,
               width: 1.5,
             ),
           ),
@@ -664,7 +662,7 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
 
   Widget _buildResetButton({
     required VoidCallback onTap,
-    required Color primaryColor,
+    required Color darkWarmBrown,
   }) {
     return Material(
       color: Colors.transparent,
@@ -675,10 +673,10 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
           width: 56.w,
           height: 56.w,
           decoration: BoxDecoration(
-            color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+            color: isDarkModeNotifier.value ? darkSlateGray : wineRed,
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
-              color: isDarkModeNotifier.value ? quranPagesColorDark : orangeColor,
+              color: isDarkModeNotifier.value ? darkSlateGray : wineRed,
               width: 1.5,
             ),
           ),

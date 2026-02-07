@@ -1,7 +1,6 @@
 // import 'package:flutter/material.dart';
 // import 'package:url_launcher/url_launcher.dart';
 
-
 // class ContactSection extends StatelessWidget {
 //   const ContactSection({super.key});
 
@@ -74,7 +73,7 @@
 //                       AppLocalizations.of(context).tr('contact.sendEmail'),
 //                     ),
 //                     style: ElevatedButton.styleFrom(
-//                       backgroundColor: colorScheme.primary,
+//                       softOffWhite: colorScheme.primary,
 //                       foregroundColor: colorScheme.onPrimary,
 //                       shape: RoundedRectangleBorder(
 //                         borderRadius: BorderRadius.circular(8),

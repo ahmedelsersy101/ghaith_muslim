@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // ignore: library_prefixes
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ghaith/GlobalHelpers/app_themes.dart';
-import 'package:ghaith/GlobalHelpers/home_blocs.dart';
+import 'package:ghaith/helpers/app_themes.dart';
+import 'package:ghaith/helpers/home_blocs.dart';
 import 'package:ghaith/services/initialization_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:easy_localization/easy_localization.dart' as ez;
 import 'package:ghaith/blocs/player_bar_bloc.dart';
 import 'package:ghaith/blocs/player_bloc_bloc.dart';
 import 'package:ghaith/blocs/quran_page_player_bloc.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/splash/splash_screen.dart';
 
 final AudioPlayer audioPlayer = AudioPlayer();
@@ -36,6 +36,7 @@ void main() async {
     ],
     path: 'assets/translations',
     fallbackLocale: const Locale('ar'),
+    startLocale: const Locale('ar'),
     child: MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => PlayerBlocBloc()),

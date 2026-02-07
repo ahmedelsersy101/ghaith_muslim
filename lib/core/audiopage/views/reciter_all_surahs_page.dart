@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:ghaith/GlobalHelpers/home_blocs.dart';
+import 'package:ghaith/helpers/home_blocs.dart';
 import 'package:ghaith/core/audiopage/models/reciter.dart';
 import 'package:ghaith/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -18,8 +18,8 @@ import 'package:quran/quran.dart' as quran;
 // 📁 IMPORTS
 // =============================================
 import 'package:ghaith/blocs/player_bloc_bloc.dart';
-import 'package:ghaith/GlobalHelpers/constants.dart';
-import 'package:ghaith/GlobalHelpers/hive_helper.dart';
+import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/blocs/quran_page_player_bloc.dart';
 // =============================================
 // 🏗️ MAIN WIDGET - Reciters Surah List Page
@@ -290,7 +290,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
       children: [
         Scaffold(
           extendBodyBehindAppBar: true,
-          backgroundColor: _getBackgroundColor(),
+          backgroundColor: _getsoftOffWhite(),
           appBar: _buildAppBar(),
           body: _buildSurahList(),
         ),
@@ -321,7 +321,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: CircleAvatar(
-        backgroundColor: orangeColor,
+        backgroundColor: wineRed,
         backgroundImage: photoUrl.isNotEmpty ? CachedNetworkImageProvider(photoUrl) : null,
         child: photoUrl.isEmpty ? const Icon(Icons.person, color: Colors.white) : null,
       ),
@@ -336,6 +336,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
       icon: Icon(
         isFavoriteMode ? Icons.favorite : Icons.favorite_border,
         color: isFavoriteMode ? Colors.white : Colors.white,
+        size: 32,
       ),
       tooltip: isFavoriteMode ? "عرض كل السور" : "عرض المفضلة",
     );
@@ -357,10 +358,13 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
         MediaQuery.of(context).size.height * .1,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.only(right: 20, left: 8, bottom: 24),
         child: Row(
           children: [
             _buildSearchField(),
+            SizedBox(
+              width: 12.w,
+            ),
             // _buildDownloadAllButton(), // زر تحميل الكل الجديد
             _buildFavoriteFilterButton(), // زر المفضلة الجديد
           ],
@@ -427,7 +431,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
         child: Text(
           selectedMode == "favorite" ? "لا توجد سور مفضلة" : "لا توجد نتائج بحث",
           style: TextStyle(
-            color: _getTextColor(),
+            color: _getcharcoalDarkGray(),
             fontSize: 18.sp,
           ),
         ),
@@ -479,7 +483,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
       style: TextStyle(
         fontFamily: context.locale.languageCode == "ar" ? "qaloon" : "roboto",
         fontSize: context.locale.languageCode == "ar" ? 22.sp : 17.sp,
-        color: _getTextColor(),
+        color: _getcharcoalDarkGray(),
       ),
     );
   }
@@ -507,7 +511,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
       icon: Icon(
         isPlaying ? Icons.pause : Icons.play_arrow,
         size: 24.sp,
-        color: blueColor,
+        color: tealBlue,
       ),
     );
   }
@@ -526,7 +530,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
           return _buildDownloadIcon(surahNumber, snapshot.data!);
         },
       ),
-      color: orangeColor,
+      color: wineRed,
     );
   }
 
@@ -589,7 +593,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
       return Icon(
         Icons.download_done,
         size: 24.sp,
-        color: orangeColor,
+        color: wineRed,
       );
     }
 
@@ -597,7 +601,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
     return Icon(
       Icons.download,
       size: 24.sp,
-      color: orangeColor,
+      color: wineRed,
     );
   }
 
@@ -610,7 +614,7 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
         isFavorite ? Icons.favorite : Icons.favorite_border,
         size: 24.sp,
       ),
-      color: orangeColor,
+      color: wineRed,
     );
   }
 
@@ -926,11 +930,11 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
     );
   }
 
-  void _showSnackBar(String message, Color backgroundColor) {
+  void _showSnackBar(String message, Color softOffWhite) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: backgroundColor,
+        backgroundColor: softOffWhite,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -940,23 +944,23 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
   // 🎨 STYLE HELPER METHODS
   // =============================================
 
-  Color _getBackgroundColor() {
-    return isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight;
+  Color _getsoftOffWhite() {
+    return isDarkModeNotifier.value ? darkSlateGray : paperBeige;
   }
 
   Color _getAppBarColor() {
-    return isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.9) : orangeColor;
+    return isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.9) : wineRed;
   }
 
   Color _getForegroundColor() {
-    return isDarkModeNotifier.value ? quranPagesColorDark : quranPagesColorLight;
+    return isDarkModeNotifier.value ? darkSlateGray : paperBeige;
   }
 
   Color _getCardColor() {
-    return isDarkModeNotifier.value ? darkModeSecondaryColor.withOpacity(.9) : Colors.white;
+    return isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.9) : paperBeige;
   }
 
-  Color _getTextColor() {
+  Color _getcharcoalDarkGray() {
     return isDarkModeNotifier.value ? Colors.white.withOpacity(.9) : Colors.black87;
   }
 }
