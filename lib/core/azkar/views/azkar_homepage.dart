@@ -239,7 +239,7 @@ class _AzkarHomePageState extends State<AzkarHomePage> {
   void _onAzkarItemTap(dynamic azkarItem) {
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => ZikrPage(
           zikr: DuaModel.fromJson(azkarItem),
         ),

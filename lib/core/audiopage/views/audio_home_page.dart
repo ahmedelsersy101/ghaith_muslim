@@ -600,7 +600,7 @@ class _RecitersPageState extends State<RecitersPage> {
           final isDownloading = _downloadingStatus[moshaf.id] ?? false;
 
           if (isDownloading) {
-            return SizedBox(
+            return const SizedBox(
               height: 20,
               width: 20,
               child: CircularProgressIndicator(

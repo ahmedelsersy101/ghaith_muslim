@@ -216,7 +216,7 @@ class _SettingsViewState extends State<SettingsView> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        CupertinoPageRoute(
+                        MaterialPageRoute(
                           builder: (builder) => const NotificationsPage(),
                         ),
                       );
@@ -396,7 +396,7 @@ class _SettingsViewState extends State<SettingsView> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getString("hadithlist-100000-${context.locale.languageCode}") == null) {
       Response response = await Dio().get(
-          "https://hadeethenc.com/api/v1/categories/roots/?language=${context.locale.languageCode}");
+          "https://hadeethenc.com/api/v1/categories/list/?language=${context.locale.languageCode}");
 
       if (response.data != null) {
         final jsonData = json.encode(response.data);

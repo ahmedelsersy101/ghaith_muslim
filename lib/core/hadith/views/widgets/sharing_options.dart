@@ -174,7 +174,7 @@ class _SharingOptionsState extends State<SharingOptions> {
 
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => HadithScreenShotPreviewPage(
           hadithAr: hadithAr,
           addExplanation: _includeExplanation,

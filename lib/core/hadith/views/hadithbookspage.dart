@@ -314,7 +314,7 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
   void _navigateToHadithList(int index) {
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => HadithList(
           // 🔹 الآن HadithList معروف
           title: _categories[index].title,

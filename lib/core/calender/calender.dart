@@ -306,7 +306,7 @@ class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMix
                       backgroundColor: isDark ? darkSlateGray : paperBeige,
                       borderRadius: const Radius.circular(0),
                       headerTitle: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           gradient: LinearGradient(
                             colors: [wineRed, paperBeige],
                             begin: Alignment.centerLeft,

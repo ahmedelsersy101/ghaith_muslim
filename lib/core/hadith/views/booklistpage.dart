@@ -253,7 +253,7 @@ class _HadithListState extends State<HadithList> {
         closedColor: _getItemsoftOffWhite(),
         middleColor: _getItemsoftOffWhite(),
         transitionType: ContainerTransitionType.fadeThrough,
-        transitionDuration: const Duration(milliseconds: 500),
+        transitionDuration: const Duration(milliseconds: 200),
         openBuilder: (context, action) => _buildHadithDetailsPage(index),
         closedBuilder: (context, action) => _buildHadithListItem(index),
       ),

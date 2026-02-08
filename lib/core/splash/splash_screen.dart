@@ -53,12 +53,12 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void navigateToHome() async {
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 1));
 
     if (mounted) {
       Navigator.pushAndRemoveUntil(
         context,
-        CupertinoPageRoute(builder: (builder) => const HomeScreen()),
+        MaterialPageRoute(builder: (builder) => const HomeScreen()),
         (route) => false,
       );
     }
@@ -133,7 +133,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل بيانات الحديث لملف services/hadith_service.dart
   Future<void> downloadAndStoreHadithData() async {
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (prefs.getString("hadithlist-100000-${context.locale.languageCode}") == null) {
@@ -144,7 +144,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> fetchAndStoreHadithCategories(SharedPreferences prefs) async {
     try {
       Response response = await Dio().get(
-          "https://hadeethenc.com/api/v1/categories/roots/?language=${context.locale.languageCode}");
+          "https://hadeethenc.com/api/v1/categories/list/?language=${context.locale.languageCode}");
 
       if (response.data != null) {
         final jsonData = json.encode(response.data);
@@ -244,7 +244,7 @@ class _SplashScreenState extends State<SplashScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildZikrText(),
-              SizedBox(height: 16.h),
+              SizedBox(height: 32.h),
               _buildAppLogo(),
               _buildLoadingAnimation(),
             ],

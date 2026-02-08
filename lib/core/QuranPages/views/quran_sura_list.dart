@@ -308,7 +308,7 @@ class _SurahListPageState extends State<SurahListPage> {
   void _navigateToLastRead() async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => QuranDetailsPage(
           shouldHighlightSura: false,
           pageNumber: getValue("lastRead"),
@@ -485,7 +485,7 @@ class _SurahListPageState extends State<SurahListPage> {
   void _navigateToPage(int pageNumber) {
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => QuranDetailsPage(
           shouldHighlightSura: true,
           shouldHighlightText: false,
@@ -603,7 +603,7 @@ class _SurahListPageState extends State<SurahListPage> {
   void _navigateToSurah(int suraNumber) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => BlocProvider(
           create: (context) => QuranPagePlayerBloc(),
           child: QuranDetailsPage(
@@ -662,7 +662,7 @@ class _SurahListPageState extends State<SurahListPage> {
   void _navigateToSearchResult(int surah, int verse) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => QuranDetailsPage(
           shouldHighlightSura: false,
           pageNumber: quran.getPageNumber(surah, verse),
@@ -741,7 +741,7 @@ class _SurahListPageState extends State<SurahListPage> {
   void _navigateToJuz(int juzNumber, int firstSurah, int firstVerse) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => QuranDetailsPage(
           shouldHighlightSura: false,
           quarterJsonData: widget.quarterjsonData,
@@ -823,7 +823,7 @@ class _SurahListPageState extends State<SurahListPage> {
   void _navigateToQuarter(int surah, int ayah) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => QuranDetailsPage(
           shouldHighlightSura: false,
           quarterJsonData: widget.quarterjsonData,
@@ -1007,7 +1007,7 @@ class _SurahListPageState extends State<SurahListPage> {
   void _navigateToBookmark(int suraNumber, int verseNumber) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => QuranDetailsPage(
           shouldHighlightSura: false,
           pageNumber: quran.getPageNumber(suraNumber, verseNumber),
@@ -1101,7 +1101,7 @@ class _SurahListPageState extends State<SurahListPage> {
   void _navigateToStarredVerse(int suraNumber, int verseNumber) async {
     await Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => QuranDetailsPage(
           shouldHighlightSura: false,
           pageNumber: quran.getPageNumber(suraNumber, verseNumber),

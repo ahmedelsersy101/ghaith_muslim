@@ -203,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _fetchAndStoreHadithCategories(SharedPreferences prefs) async {
     try {
       Response response = await Dio().get(
-          "https://hadeethenc.com/api/v1/categories/roots/?language=${context.locale.languageCode}");
+          "https://hadeethenc.com/api/v1/categories/list/?language=${context.locale.languageCode}");
 
       if (response.data != null) {
         final jsonData = json.encode(response.data);
@@ -680,7 +680,7 @@ class _HomeScreenState extends State<HomeScreen>
                           onTap: () {
                             Navigator.push(
                               context,
-                              CupertinoPageRoute(builder: (builder) => const SettingsView()),
+                              MaterialPageRoute(builder: (builder) => const SettingsView()),
                             );
                           },
                           child: Padding(
@@ -1058,7 +1058,7 @@ class _HomeScreenState extends State<HomeScreen>
   void _navigateToQuran() {
     Navigator.push(
         context,
-        CupertinoPageRoute(
+        MaterialPageRoute(
             builder: (builder) => SurahListPage(
                   jsonData: widgejsonData,
                   quarterjsonData: quarterjsonData,
@@ -1068,7 +1068,7 @@ class _HomeScreenState extends State<HomeScreen>
   void _navigateToHadith() {
     Navigator.push(
         context,
-        CupertinoPageRoute(
+        MaterialPageRoute(
             builder: (builder) => BlocProvider(
                   create: (context) => hadithPageBloc,
                   child: HadithBooksPage(locale: context.locale.languageCode),
@@ -1124,13 +1124,13 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _navigateToAzkar() {
-    Navigator.push(context, CupertinoPageRoute(builder: ((context) => const AzkarHomePage())));
+    Navigator.push(context, MaterialPageRoute(builder: ((context) => const AzkarHomePage())));
   }
 
   void _navigateToAudios() {
     Navigator.push(
         context,
-        CupertinoPageRoute(
+        MaterialPageRoute(
             builder: (builder) => BlocProvider(
                   create: (create) => playerPageBloc,
                   child: RecitersPage(jsonData: widgejsonData),
@@ -1138,11 +1138,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _navigateToSibha() {
-    Navigator.push(context, CupertinoPageRoute(builder: (builder) => const SibhaPage()));
+    Navigator.push(context, MaterialPageRoute(builder: (builder) => const SibhaPage()));
   }
 
   void _navigateToCalender() {
-    Navigator.push(context, CupertinoPageRoute(builder: (builder) => const CalenderPage()));
+    Navigator.push(context, MaterialPageRoute(builder: (builder) => const CalenderPage()));
   }
 
   Widget _buildWidgetsSection(Size screenSize) {
@@ -1445,7 +1445,7 @@ class _HomeScreenState extends State<HomeScreen>
     Navigator.pop(context);
     Navigator.push(
         context,
-        CupertinoPageRoute(
+        MaterialPageRoute(
             builder: (builder) => ScreenShotPreviewPage(
                 index: 5,
                 surahNumber: suranumber,
@@ -1641,7 +1641,7 @@ class _HomeScreenState extends State<HomeScreen>
 
     Navigator.push(
         context,
-        CupertinoPageRoute(
+        MaterialPageRoute(
             builder: (builder) => HadithScreenShotPreviewPage(
                   hadithAr: hadith,
                   hadithOtherLanguage: null,

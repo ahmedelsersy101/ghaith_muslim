@@ -1908,7 +1908,7 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
                         },
                         child: Text(
                           "verticalview".tr(),
-                          style: TextStyle(color: wineRed, fontSize: 24, fontFamily: 'Taha'),
+                          style: const TextStyle(color: wineRed, fontSize: 24, fontFamily: 'Taha'),
                         )),
                     SizedBox(
                       height: 8.h,
@@ -1928,7 +1928,7 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
                         },
                         child: Text(
                           "pageview".tr(),
-                          style: TextStyle(color: wineRed, fontSize: 24, fontFamily: 'Taha'),
+                          style: const TextStyle(color: wineRed, fontSize: 24, fontFamily: 'Taha'),
                         )),
                     SizedBox(
                       height: 8.h,
@@ -1941,7 +1941,7 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
                         },
                         child: Text(
                           "versebyverse".tr(),
-                          style: TextStyle(color: wineRed, fontSize: 24, fontFamily: 'Taha'),
+                          style: const TextStyle(color: wineRed, fontSize: 24, fontFamily: 'Taha'),
                         )),
                     if (getValue("alignmentType") == "versebyverse")
                       Directionality(

@@ -14,7 +14,7 @@ const Color mutedGreen = Color(0xFF5D9566);
 
 const Color lightGray = Color(0xFFDDDDDD);
 
-const Color paperBeige =  Color(0xffF1EEE5);
+const Color paperBeige = Color(0xffF1EEE5);
 
 const Color darkSlateGray = Color(0xff292C31);
 
@@ -22,13 +22,11 @@ const Color deepNavyBlack = Color.fromRGBO(17, 18, 27, 1);
 
 const Color wineRed = Color(0xff6a1e2c);
 
-const Color tealBlue =  Color(0xFF00A2B5);
+const Color tealBlue = Color(0xFF00A2B5);
 
 List colorsOfBookmarks = [
   Colors.greenAccent.withOpacity(.1),
-
   Colors.redAccent.withOpacity(.1),
-
   Colors.blueAccent.withOpacity(.1)
 ];
 
@@ -168,16 +166,11 @@ const List<String> fontFamilies = [
 ];
 const List darkWarmBrowns = [
   Colors.black,
+  Color(0xFF000000),
   Color(0xff283618),
-  deepBurgundyRed,
   Colors.black,
   Color(0XFf4C76BA),
-  Colors.white,
-  Color(0xffBFAE99),
-  Color.fromARGB(255, 255, 255, 255),
-  Color.fromARGB(255, 255, 211, 167),
   Color.fromARGB(255, 0, 0, 0),
-  Colors.white,
   Colors.black,
   Colors.black,
   Colors.black,
@@ -187,16 +180,11 @@ const List darkWarmBrowns = [
 ];
 const List softOffWhites = [
   Color.fromARGB(255, 255, 248, 240),
+  Color(0xffFFF5E5),
   Color(0xfffefae0),
-  Color(0xffFFFCE7),
   Colors.white,
   Colors.white,
-  Color(0xff22303C),
-  Color(0xff213440),
-  Color(0xff6d6d6d),
-  Color(0xff4e4c4f),
   Color(0xfff3f6f4),
-  Color.fromARGB(255, 38, 38, 38),
   Color(0xffE7F7FE),
   Color(0xffF4FDD3),
   Color(0xffFEEED4),
@@ -206,16 +194,11 @@ const List softOffWhites = [
 ];
 const List secondaryColors = [
   Color(0xff946735),
+  Color(0xFF165A4A),
   Color(0xff606c38),
-  Color.fromARGB(255, 189, 139, 2),
   Color.fromARGB(255, 43, 43, 43),
   Color.fromARGB(255, 0, 95, 184),
-  Color.fromARGB(255, 23, 147, 255),
-  Color.fromARGB(255, 102, 95, 0),
-  Color.fromARGB(255, 255, 204, 129),
-  Color.fromARGB(255, 255, 180, 82),
   Color.fromARGB(255, 22, 21, 20),
-  Color.fromARGB(255, 216, 216, 216),
   Color.fromARGB(255, 18, 28, 32),
   Color.fromARGB(255, 28, 29, 23),
   Color.fromARGB(255, 58, 45, 23),
@@ -225,15 +208,10 @@ const List secondaryColors = [
 ];
 const List highlightColors = [
   Color.fromARGB(172, 255, 201, 54),
+  Color(0xFF165A4A),
   Color.fromARGB(96, 188, 107, 37),
-  Color.fromARGB(255, 255, 244, 157),
   Color.fromARGB(255, 89, 216, 255),
   Color.fromARGB(255, 89, 216, 255),
-  Color.fromARGB(255, 120, 192, 255),
-  Color.fromARGB(255, 255, 244, 157),
-  Color.fromARGB(255, 255, 244, 157),
-  Color.fromARGB(255, 255, 244, 157),
-  Color.fromARGB(255, 120, 192, 255),
   Color.fromARGB(255, 120, 192, 255),
   Color.fromARGB(255, 120, 192, 255),
   Color.fromARGB(255, 120, 192, 255),
