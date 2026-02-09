@@ -116,6 +116,7 @@ class _SettingsViewState extends State<SettingsView> {
                                       const Locale("pt"),
                                       const Locale("tr"),
                                       const Locale("ru"),
+                                      const Locale("it"),
                                     ].map((locale) {
                                       return DropdownMenuItem<Locale>(
                                         value: locale,
@@ -334,6 +335,8 @@ class _SettingsViewState extends State<SettingsView> {
         return 'Türkçe';
       case 'ru':
         return 'Русский';
+      case 'it':
+        return 'Italiano';
       default:
         return languageCode;
     }

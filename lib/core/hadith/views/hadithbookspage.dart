@@ -216,7 +216,8 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Container(
-        color: _getCardColor(),
+        decoration:
+            BoxDecoration(color: _getCardColor(), borderRadius: BorderRadius.circular(17.0.r)),
         child: InkWell(
           onTap: () => _navigateToHadithList(index),
           child: Row(

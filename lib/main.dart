@@ -32,7 +32,8 @@ void main() async {
       Locale("ms"),
       Locale("pt"),
       Locale("tr"),
-      Locale("ru")
+      Locale("ru"),
+      Locale("it")
     ],
     path: 'assets/translations',
     fallbackLocale: const Locale('ar'),
@@ -64,6 +65,7 @@ class _GhaithMuslimAppState extends State<GhaithMuslimApp> {
   void initState() {
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(

@@ -589,26 +589,6 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
                                       ],
                                     ),
                                   ),
-                                  SizedBox(height: 4.h),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 12.w,
-                                      vertical: 4.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12.r),
-                                    ),
-                                    child: Text(
-                                      "اضغط للعد",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: "cairo",
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
