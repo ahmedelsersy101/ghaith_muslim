@@ -25,7 +25,6 @@ class _BookmarksDialogState extends State<BookmarksDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      // title: const Text('Add Bookmark'),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(

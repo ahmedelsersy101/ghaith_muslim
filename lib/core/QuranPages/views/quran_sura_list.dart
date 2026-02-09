@@ -5,7 +5,6 @@ import 'package:ghaith/main.dart';
 import 'dart:convert';
 import 'package:easy_container/easy_container.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:iconsax/iconsax.dart';
