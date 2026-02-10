@@ -180,7 +180,7 @@ const List darkWarmBrowns = [
 ];
 const List softOffWhites = [
   Color.fromARGB(255, 255, 248, 240),
-  Color(0xffFFF5E5),
+  Color.fromARGB(255, 255, 251, 246),
   Color(0xfffefae0),
   Colors.white,
   Colors.white,

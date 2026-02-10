@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:ghaith/core/QuranPages/widgets/bottom_sheets/translation_selection_sheet.dart';
 import '../../helpers/translation/translationdata.dart';
 
 /// Settings bottom sheet for Quran page customization
@@ -123,7 +124,11 @@ class SettingsBottomSheet {
       case 2:
         return _buildAlignmentTab(context, setStatee, onSettingsChanged);
       case 3:
-        return _buildTranslationTab(context, setStatee, onSettingsChanged);
+        return _buildTranslationTab(
+          context,
+          setStatee,
+          onSettingsChanged,
+        );
       default:
         return const SizedBox();
     }
@@ -287,7 +292,7 @@ class SettingsBottomSheet {
     return ListView(
       children: [
         _buildAlignmentOption(
-          title: "pageView".tr(),
+          title: "pageview".tr(),
           value: "pageview",
           currentValue: getValue("alignmentType"),
           icon: Icons.book,
@@ -295,7 +300,7 @@ class SettingsBottomSheet {
           onSettingsChanged: onSettingsChanged,
         ),
         _buildAlignmentOption(
-          title: "verticalView".tr(),
+          title: "verticalview".tr(),
           value: "verticalview",
           currentValue: getValue("alignmentType"),
           icon: Icons.view_agenda,
@@ -303,7 +308,7 @@ class SettingsBottomSheet {
           onSettingsChanged: onSettingsChanged,
         ),
         _buildAlignmentOption(
-          title: "verseByVerse".tr(),
+          title: "versebyverse".tr(),
           value: "versebyverse",
           currentValue: getValue("alignmentType"),
           icon: Icons.format_list_bulleted,
@@ -354,12 +359,14 @@ class SettingsBottomSheet {
     );
   }
 
-  /// Translation selection tab (for verse-by-verse view)
   static Widget _buildTranslationTab(
     BuildContext context,
     StateSetter setStatee,
     VoidCallback onSettingsChanged,
   ) {
+    final currentTranslation =
+        translationDataList[getValue("indexOfTranslationInVerseByVerse") ?? 0];
+
     return Column(
       children: [
         Padding(
@@ -373,45 +380,90 @@ class SettingsBottomSheet {
             ),
           ),
         ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: translationDataList.length,
-            itemBuilder: (context, index) {
-              final translation = translationDataList[index];
-              final isSelected = getValue("indexOfTranslationInVerseByVerse") == index;
-
-              return ListTile(
-                selected: isSelected,
-                selectedTileColor:
-                    secondaryColors[getValue("quranPageolorsIndex")].withOpacity(0.2),
-                title: Text(
-                  translation.typeTextInRelatedLanguage,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontFamily: translation.typeInNativeLanguage == "العربية" ? "cairo" : "roboto",
-                    color: darkWarmBrowns[getValue("quranPageolorsIndex")],
+        SizedBox(height: 10.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          child: InkWell(
+            onTap: () => TranslationSelectionSheet.show(
+              context,
+              onSettingsChanged: () {
+                setStatee(() {});
+                onSettingsChanged();
+              },
+            ),
+            borderRadius: BorderRadius.circular(15.r),
+            child: Container(
+              padding: EdgeInsets.all(20.r),
+              decoration: BoxDecoration(
+                color: secondaryColors[getValue("quranPageolorsIndex")].withOpacity(0.1),
+                borderRadius: BorderRadius.circular(15.r),
+                border: Border.all(
+                  color: secondaryColors[getValue("quranPageolorsIndex")].withOpacity(0.3),
+                  width: 1.5,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10.r),
+                    decoration: BoxDecoration(
+                      color: secondaryColors[getValue("quranPageolorsIndex")],
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: const Icon(Icons.translate, color: Colors.white),
                   ),
-                ),
-                subtitle: Text(
-                  translation.typeInNativeLanguage,
-                  style: TextStyle(fontSize: 12.sp),
-                ),
-                trailing: isSelected
-                    ? Icon(
-                        Icons.check_circle,
-                        color: secondaryColors[getValue("quranPageolorsIndex")],
-                      )
-                    : null,
-                onTap: () {
-                  updateValue("indexOfTranslationInVerseByVerse", index);
-                  setStatee(() {});
-                  onSettingsChanged();
-                },
-              );
-            },
+                  SizedBox(width: 15.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          currentTranslation.typeTextInRelatedLanguage,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: darkWarmBrowns[getValue("quranPageolorsIndex")],
+                            fontFamily: currentTranslation.typeInNativeLanguage == "العربية"
+                                ? "cairo"
+                                : "roboto",
+                          ),
+                        ),
+                        Text(
+                          currentTranslation.typeInNativeLanguage,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: darkWarmBrowns[getValue("quranPageolorsIndex")].withOpacity(0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 18.sp,
+                    color: darkWarmBrowns[getValue("quranPageolorsIndex")].withOpacity(0.3),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const Spacer(),
+        Padding(
+          padding: EdgeInsets.all(20.r),
+          child: Text(
+            "clickToChangeTranslation".tr(),
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontStyle: FontStyle.italic,
+              color: darkWarmBrowns[getValue("quranPageolorsIndex")].withOpacity(0.5),
+            ),
           ),
         ),
       ],
     );
   }
+
+  // _showTranslationBottomSheet and _downloadTranslation are removed
+  // in favor of TranslationSelectionSheet.show
 }

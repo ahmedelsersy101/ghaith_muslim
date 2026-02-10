@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 part of '../quranDetailsPage.dart';
 
 extension VerticalViewExtension on QuranDetailsPageState {
@@ -236,8 +238,10 @@ extension VerticalViewExtension on QuranDetailsPageState {
                       children: [
                         IconButton(
                             onPressed: () {
-                              SettingsBottomSheet.show(context,
-                                  onSettingsChanged: () => updateState(() {}));
+                              SettingsBottomSheet.show(context, onSettingsChanged: () {
+                                getTranslationData();
+                                updateState(() {});
+                              });
                             },
                             icon: Icon(
                               Icons.settings,

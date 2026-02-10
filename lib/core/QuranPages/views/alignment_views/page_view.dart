@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 part of '../quranDetailsPage.dart';
 
 extension PageViewExtension on QuranDetailsPageState {
@@ -59,8 +61,10 @@ extension PageViewExtension on QuranDetailsPageState {
                                 )),
                             IconButton(
                                 onPressed: () {
-                                  SettingsBottomSheet.show(context,
-                                      onSettingsChanged: () => updateState(() {}));
+                                  SettingsBottomSheet.show(context, onSettingsChanged: () {
+                                    getTranslationData();
+                                    updateState(() {});
+                                  });
                                 },
                                 icon: Icon(
                                   Icons.settings,

@@ -20,6 +20,7 @@ String getVerseTranslationForVerseByVerse(
 
     // String jsonData = await file.readAsString();
     // translationDataList = json.decode(jsonData);
+    if (data == null) return "";
     translationDataList = data;
   }
   String verse = "";
@@ -36,13 +37,10 @@ String getVerseTranslationForVerseByVerse(
   }
   print(verse);
   return verse.replaceAll("<br>", "\n") +
-      (verseEndSymbol
-          ? q.getVerseEndSymbol(verseNumber, arabicNumeral: false)
-          : "");
+      (verseEndSymbol ? q.getVerseEndSymbol(verseNumber, arabicNumeral: false) : "");
 }
 
-Future<String> getVerseTranslation(
-    int surahNumber, int verseNumber, TranslationData translation,
+Future<String> getVerseTranslation(int surahNumber, int verseNumber, TranslationData translation,
     {bool verseEndSymbol = false}) async {
   List<dynamic> translationDataList = [];
   Directory appDir = await getTemporaryDirectory();
@@ -68,8 +66,5 @@ Future<String> getVerseTranslation(
   if (verse == "") {
     return "";
   }
-  return verse +
-      (verseEndSymbol
-          ? q.getVerseEndSymbol(verseNumber, arabicNumeral: false)
-          : "");
+  return verse + (verseEndSymbol ? q.getVerseEndSymbol(verseNumber, arabicNumeral: false) : "");
 }

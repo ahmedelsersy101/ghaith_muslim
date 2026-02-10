@@ -159,7 +159,7 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
       File file = File(
           "${appDir!.path}/${translationDataList[getValue("indexOfTranslationInVerseByVerse")].typeText}.json");
 
-      String jsonData = await file.readAsString();
+      String jsonData =await file.readAsString();
       dataOfCurrentTranslation = json.decode(jsonData);
     }
     setState(() {});

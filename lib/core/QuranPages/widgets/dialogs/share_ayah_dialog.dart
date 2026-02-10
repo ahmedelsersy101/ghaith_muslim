@@ -234,7 +234,7 @@ class _ShareAyahDialogState extends State<ShareAyahDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 Directionality(
                   textDirection: m.TextDirection.rtl,
                   child: Padding(
@@ -248,7 +248,6 @@ class _ShareAyahDialogState extends State<ShareAyahDialog> {
                         // or replicating the bottom sheet strictly for translation selection
                         // inside this dialog is tricky.
                         // For now, I'll simplify it to use the current translation
-                        // or add a TODO to improve translation selection UI reuse.
                       },
                       child: Container(
                         width: MediaQuery.of(context).size.width * .7,
@@ -257,7 +256,7 @@ class _ShareAyahDialogState extends State<ShareAyahDialog> {
                             color: Colors.blueGrey.withOpacity(.1),
                             borderRadius: BorderRadius.circular(12)),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 14.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 14.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -303,7 +302,7 @@ class _ShareAyahDialogState extends State<ShareAyahDialog> {
                           for (int verseNumber = firstVerse;
                               verseNumber <= lastVerse;
                               verseNumber++) {
-                            String verseTafseer = await quran.getVerseTranslation(
+                            String verseTafseer = quran.getVerseTranslation(
                               widget.surahNumber,
                               verseNumber,
                               getValue("addTafseerValue"),
@@ -324,10 +323,8 @@ class _ShareAyahDialogState extends State<ShareAyahDialog> {
                           for (int verseNumber = firstVerse;
                               verseNumber <= lastVerse;
                               verseNumber++) {
-                            String cTafseer = await quran.getVerseTranslation(
-                                widget.surahNumber,
-                                verseNumber,
-                                getValue("addTafseerValue"));
+                            String cTafseer = quran.getVerseTranslation(
+                                widget.surahNumber, verseNumber, getValue("addTafseerValue"));
                             tafseer = "$tafseer $cTafseer ";
                           }
                           Share.share(
