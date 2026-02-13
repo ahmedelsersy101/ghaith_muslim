@@ -1,11 +1,14 @@
 // ignore_for_file: unrelated_type_equality_checks, depend_on_referenced_packages, file_names
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart' as flutter_foundation;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:ghaith/core/QuranPages/views/quran_sura_list.dart';
 import 'package:ghaith/core/QuranPages/widgets/bottom_sheets/ayah_options_sheet.dart';
+import 'package:ghaith/helpers/home_state.dart';
 import '../helpers/translation/get_translation_data.dart' as get_translation_data;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -25,9 +28,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:flutter/services.dart';
 import 'package:ghaith/blocs/quran_page_player_bloc.dart';
+import 'package:ghaith/blocs/bookmark_cubit.dart';
 import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:ghaith/blocs/quran_reading_cubit.dart';
+import 'package:ghaith/core/QuranPages/models/bookmark_model.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:just_audio/just_audio.dart';
@@ -38,17 +44,34 @@ part 'alignment_views/verse_by_verse_view.dart';
 part 'alignment_views/vertical_view.dart';
 part 'alignment_views/page_view.dart';
 
-class QuranReadingPage extends StatefulWidget {
+class QuranReadingPage extends StatelessWidget {
   const QuranReadingPage({super.key});
 
   @override
-  State<QuranReadingPage> createState() => _QuranReadingPageState();
-}
-
-class _QuranReadingPageState extends State<QuranReadingPage> {
-  @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return BlocBuilder<QuranReaderCubit, QuranReadingState>(
+      buildWhen: (previous, current) => previous.isLoading != current.isLoading,
+      builder: (context, state) {
+        if (state.isLoading) {
+          final theme = Theme.of(context);
+          return Scaffold(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            body: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        return QuranDetailsPage(
+          pageNumber: state.position.page,
+          jsonData: widgejsonData,
+          quarterJsonData: quarterjsonData,
+          shouldHighlightText: false,
+          highlightVerse: "",
+          shouldHighlightSura: false,
+        );
+      },
+    );
   }
 }
 
@@ -73,7 +96,9 @@ class QuranDetailsPage extends StatefulWidget {
   State<QuranDetailsPage> createState() => QuranDetailsPageState();
 }
 
-class QuranDetailsPageState extends State<QuranDetailsPage> {
+class QuranDetailsPageState extends State<QuranDetailsPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   // ==================== Controllers ====================
   final ScrollController _scrollController = ScrollController();
   final ItemScrollController itemScrollController = ItemScrollController();
@@ -101,7 +126,7 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
   bool isTrackingStarted = false; // flag لمنع بدء التتبع مرتين
 
   // ==================== Bookmarks & Starred Verses ====================
-  List bookmarks = [];
+  List<BookmarkModel> bookmarks = [];
   Set<String> starredVerses = {};
 
   // ==================== UI State ====================
@@ -120,6 +145,9 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
 
   // ==================== Reciters ====================
   List<QuranPageReciter> reciters = [];
+
+  // ==================== Quran Reading Cubit Sync ====================
+  bool _hasSyncedInitialPosition = false;
 
   // ==================== Initialization Methods ====================
 
@@ -150,8 +178,14 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
   // ==================== Data Fetching Methods ====================
 
   void fetchBookmarks() {
-    bookmarks = json.decode(getValue("bookmarks"));
-    setState(() {});
+    final state = context.read<BookmarkCubit>().state;
+    setState(() {
+      bookmarks = state.bookmarks;
+    });
+  }
+
+  static Future<dynamic> _decodeJson(String jsonString) async {
+    return json.decode(jsonString);
   }
 
   Future<void> getTranslationData() async {
@@ -159,10 +193,13 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
       File file = File(
           "${appDir!.path}/${translationDataList[getValue("indexOfTranslationInVerseByVerse")].typeText}.json");
 
-      String jsonData =await file.readAsString();
-      dataOfCurrentTranslation = json.decode(jsonData);
+      if (await file.exists()) {
+        String jsonData = await file.readAsString();
+        // Offload JSON decoding to background thread
+        dataOfCurrentTranslation = await flutter_foundation.compute(_decodeJson, jsonData);
+      }
     }
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   // [CAN_BE_EXTRACTED] -> helpers/audio_url_fixer.dart
@@ -189,7 +226,7 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
     checkIfSelectHighlight();
 
     // Setup page controller
-    _pageController = PageController(initialPage: index);
+    _pageController = PageController(initialPage: widget.pageNumber);
     _pageController.addListener(_pagecontroller_scrollListner);
 
     // Setup highlight animations
@@ -198,9 +235,35 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
 
     // Configure system UI
     _configureSystemUI();
+  }
 
-    // Save last read position
-    updateValue("lastRead", widget.pageNumber);
+  @override
+  void didUpdateWidget(QuranDetailsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.pageNumber != oldWidget.pageNumber && widget.pageNumber != index) {
+      // Only update local state if widget.pageNumber changed due to a deliberate parent update,
+      // though now we handle most updates via BlocListener.
+      setState(() {
+        index = widget.pageNumber;
+      });
+      // We rely on BlocListener for navigation now to avoid conflicts
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Ensure we only sync the initial reading position once.
+    if (!_hasSyncedInitialPosition) {
+      _hasSyncedInitialPosition = true;
+
+      // Precache the Quran page background image for smoother transition
+      precacheImage(const AssetImage("assets/images/quran.jpg"), context);
+
+      final readerCubit = context.read<QuranReaderCubit>();
+      readerCubit.updateFromPageChange(widget.pageNumber);
+    }
   }
 
   // ==================== System UI Configuration ====================
@@ -344,6 +407,44 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
 
   void checkIfAyahIsAStartOfSura() {}
 
+  bool hasLocalBookmark(int surahNumber, int verseNumber) {
+    return bookmarks.any(
+      (b) => b.suraNumber == surahNumber && b.verseNumber == verseNumber,
+    );
+  }
+
+  Color? localBookmarkColor(int surahNumber, int verseNumber) {
+    for (final b in bookmarks) {
+      if (b.suraNumber == surahNumber && b.verseNumber == verseNumber) {
+        try {
+          return Color(int.parse('0x${b.color}'));
+        } catch (_) {
+          return null;
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Resolve the initial page index for scrollable views (vertical / verse-by-verse)
+  /// using the QuranReaderCubit when available, otherwise falling back to the
+  /// legacy `lastRead` Hive value.
+  int getInitialPageIndex(BuildContext context) {
+    final readerCubit = context.watch<QuranReaderCubit>();
+    final dynamic legacyLastRead = getValue("lastRead");
+
+    if (!readerCubit.state.isLoading) {
+      return readerCubit.state.position.page;
+    }
+
+    if (legacyLastRead is int && legacyLastRead > 0) {
+      return legacyLastRead;
+    }
+
+    // Fallback to first page (Al-Fatiha)
+    return 1;
+  }
+
   // [CAN_BE_EXTRACTED] -> helpers/quran_page_helper.dart
   Result checkIfPageIncludesQuarterAndQuarterIndex(array, pageData, indexes) {
     for (int i = 0; i < array.length; i++) {
@@ -373,25 +474,187 @@ class QuranDetailsPageState extends State<QuranDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final screenSize = MediaQuery.of(context).size;
 
-    return BlocBuilder<QuranPagePlayerBloc, QuranPagePlayerState>(
-      builder: (context, state) {
-        return Scaffold(
-          key: scaffoldKey,
-          endDrawer: SizedBox(
-            height: screenSize.height,
-            width: screenSize.width * .5,
-          ),
-          backgroundColor: Colors.transparent,
-          body: Stack(
-            children: [
-              Builder(
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<BookmarkCubit, BookmarkState>(
+          listener: (context, state) {
+            setState(() {
+              bookmarks = state.bookmarks;
+            });
+          },
+        ),
+        BlocListener<QuranReaderCubit, QuranReadingState>(
+          listenWhen: (previous, current) => previous.position.page != current.position.page,
+          listener: (context, state) {
+            final int targetPage = state.position.page;
+            // Use the controller's page as the truth if available, otherwise fallback to index.
+            // This prevents conflicts if didUpdateWidget updated 'index' prematurely.
+            final int currentPage =
+                _pageController.hasClients ? (_pageController.page?.round() ?? index) : index;
+
+            if (targetPage != currentPage) {
+              setState(() {
+                index = targetPage;
+              });
+              if (_pageController.hasClients) {
+                final int diff = (targetPage - currentPage).abs();
+                if (diff > 5) {
+                  _pageController.jumpToPage(targetPage);
+                } else {
+                  _pageController.animateToPage(
+                    targetPage,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOutQuart,
+                  );
+                }
+              }
+              if (itemScrollController.isAttached) {
+                itemScrollController.jumpTo(index: targetPage);
+              }
+            }
+          },
+        ),
+      ],
+      child: BlocBuilder<QuranPagePlayerBloc, QuranPagePlayerState>(
+        builder: (context, state) {
+          return SafeArea(
+            child: Scaffold(
+              key: scaffoldKey,
+              resizeToAvoidBottomInset: false,
+              backgroundColor: Colors.transparent,
+              body: Builder(
                 builder: (context2) {
                   return _buildAlignmentView(screenSize, context);
                 },
               ),
-            ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ==================== Immersive Chrome ====================
+
+  // Widget _buildTopChrome(
+  //   BuildContext context,
+  //   Size screenSize,
+  //   QuranReadingState readingState,
+  // ) {
+  //   final bool isVisible = readingState.isChromeVisible;
+  //   final theme = Theme.of(context);
+
+  //   return Positioned(
+  //     top: 0,
+  //     left: 0,
+  //     right: 0,
+  //     child: AnimatedSlide(
+  //       duration: const Duration(milliseconds: 220),
+  //       curve: Curves.easeInOut,
+  //       offset: Offset(0, isVisible ? 0 : -1),
+  //       child: AnimatedOpacity(
+  //         duration: const Duration(milliseconds: 200),
+  //         opacity: isVisible ? 1 : 0,
+  //         child: Container(
+  //           height: 56.h,
+  //           margin: EdgeInsets.symmetric(vertical: 8.h),
+  //           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+  //           decoration: BoxDecoration(
+  //             color: isDarkModeNotifier.value ? Colors.black : paperBeige,
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: Colors.black.withOpacity(0.15),
+  //                 blurRadius: 12,
+  //                 offset: const Offset(0, 4),
+  //               ),
+  //             ],
+  //           ),
+  //           child: Row(
+  //             children: [
+  //               IconButton(
+  //                 icon: Icon(
+  //                   Icons.arrow_back_ios_new_rounded,
+  //                   size: 18.sp,
+  //                 ),
+  //                 onPressed: () => Navigator.pop(context),
+  //               ),
+  //               SizedBox(width: 4.w),
+  //               Expanded(
+  //                 child: Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   mainAxisSize: MainAxisSize.min,
+  //                   children: [
+  //                     Text(
+  //                       quran.getSurahNameArabic(
+  //                         readingState.position.surahNumber,
+  //                       ),
+  //                       overflow: TextOverflow.ellipsis,
+  //                       style: TextStyle(
+  //                         fontFamily: 'arsura',
+  //                         fontSize: 16.sp,
+  //                         fontWeight: FontWeight.w700,
+  //                       ),
+  //                     ),
+  //                     SizedBox(height: 2.h),
+  //                     Text(
+  //                       '${"page".tr()} ${readingState.position.page} • ${"ayah".tr()} ${convertToArabicNumber(readingState.position.ayahNumber.toString())}',
+  //                       overflow: TextOverflow.ellipsis,
+  //                       style: TextStyle(
+  //                         fontSize: 11.sp,
+  //                         color: Colors.grey.withOpacity(0.8),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               IconButton(
+  //                 icon: const Icon(Icons.settings_rounded),
+  //                 onPressed: () {
+  //                   SettingsBottomSheet.show(
+  //                     context,
+  //                     onSettingsChanged: () {
+  //                       getTranslationData();
+  //                       updateState(() {});
+  //                     },
+  //                   );
+  //                 },
+  //               ),
+  //               IconButton(
+  //                 icon: const Icon(Icons.menu_book_rounded),
+  //                 onPressed: () async {
+  //                   final page = await showSurahNavigatorSheet(context);
+  //                   if (page != null && context.mounted) {
+  //                     context.read<QuranReaderCubit>().goToPage(page);
+  //                   }
+  //                 },
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  static Future<int?> showSurahNavigatorSheet(BuildContext context) {
+    return showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      sheetAnimationStyle: const AnimationStyle(
+        duration: Duration(milliseconds: 500),
+        curve: Curves.easeInOutQuart,
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 100),
+          child: SurahListPage(
+            jsonData: widgejsonData,
+            quarterjsonData: quarterjsonData,
           ),
         );
       },

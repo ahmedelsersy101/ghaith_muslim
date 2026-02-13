@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_single_quotes, unused_field
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ghaith/blocs/quran_page_player_bloc.dart';
+// import 'package:ghaith/blocs/quran_page_player_bloc.dart';
 import 'package:ghaith/main.dart';
 import 'dart:convert';
 import 'package:easy_container/easy_container.dart';
@@ -10,7 +10,7 @@ import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
-import 'package:ghaith/core/QuranPages/views/quranDetailsPage.dart';
+// import 'package:ghaith/core/QuranPages/views/quranDetailsPage.dart';
 import 'package:ghaith/core/widgets/hizb_quarter_circle.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -21,6 +21,8 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:group_list_view/group_list_view.dart';
 import 'package:flutter/material.dart' as m;
 import '../helpers/convertNumberToAr.dart';
+import 'package:ghaith/blocs/bookmark_cubit.dart';
+import 'package:ghaith/core/QuranPages/models/bookmark_model.dart';
 import 'package:string_validator/string_validator.dart';
 
 class SurahListPage extends StatefulWidget {
@@ -46,7 +48,7 @@ class _SurahListPageState extends State<SurahListPage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<int> pageNumbers = [];
-  List<dynamic> bookmarks = [];
+  List<BookmarkModel> bookmarks = [];
   Set<String> starredVerses = {};
   int juzNumberLastRead = 0;
   bool _isSearchOpen = false;
@@ -73,7 +75,6 @@ class _SurahListPageState extends State<SurahListPage> {
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل التهيئة لملف services/surah_list_initializer.dart
   void _initializeData() {
     getStarredVerse();
-    fetchBookmarks();
     addFilteredData();
     if (getValue("lastRead") != "non") {
       getJuzNumber();
@@ -86,11 +87,6 @@ class _SurahListPageState extends State<SurahListPage> {
           quran.getPageData(getValue("lastRead"))[0]["start"]);
       setState(() {});
     }
-  }
-
-  void fetchBookmarks() {
-    bookmarks = json.decode(getValue("bookmarks"));
-    setState(() {});
   }
 
   Future<void> getStarredVerse() async {
@@ -113,12 +109,18 @@ class _SurahListPageState extends State<SurahListPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Keep local snapshot in sync with the global BookmarkCubit
+    final bookmarkState = context.watch<BookmarkCubit>().state;
+    bookmarks = bookmarkState.bookmarks;
+
     return DefaultTabController(
       length: tabs.length,
       child: KeyboardDismissOnTap(
         dismissOnCapturedTaps: true,
         child: Container(
-          decoration: BoxDecoration(color: isDarkModeNotifier.value ? darkSlateGray : softOffWhite),
+          decoration: BoxDecoration(
+            color: isDarkModeNotifier.value ? darkSlateGray : softOffWhite,
+          ),
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: isDarkModeNotifier.value ? darkSlateGray : paperBeige.withOpacity(.99),
@@ -305,37 +307,22 @@ class _SurahListPageState extends State<SurahListPage> {
   }
 
   void _navigateToLastRead() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (builder) => QuranDetailsPage(
-          shouldHighlightSura: false,
-          pageNumber: getValue("lastRead"),
-          jsonData: widget.jsonData,
-          shouldHighlightText: false,
-          highlightVerse: "",
-          quarterJsonData: widget.quarterjsonData,
-        ),
-      ),
-    );
-    setState(() {});
+    Navigator.pop(context, getValue("lastRead"));
+    // await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (builder) => QuranDetailsPage(
+    //       shouldHighlightSura: false,
+    //       pageNumber: getValue("lastRead"),
+    //       jsonData: widget.jsonData,
+    //       shouldHighlightText: false,
+    //       highlightVerse: "",
+    //       quarterJsonData: widget.quarterjsonData,
+    //     ),
+    //   ),
+    // );
+    // setState(() {});
   }
-
-  // InputDecoration _buildSearchInputDecoration() {
-  //   return InputDecoration(
-  //     hintText: 'searchQuran'.tr(),
-  //     suffixIcon: _buildSearchSuffixIcon(),
-  //     hintStyle: _searchHintStyle(),
-  //     border: OutlineInputBorder(
-  //       borderRadius: BorderRadius.circular(12.r),
-  //       borderSide: BorderSide(color: Colors.black, width: 1.w),
-  //     ),
-  //     focusedBorder: OutlineInputBorder(
-  //       borderRadius: BorderRadius.circular(12.r),
-  //       borderSide: BorderSide(color: darkWarmBrown, width: 1.w),
-  //     ),
-  //   );
-  // }
 
   Widget _buildSearchSuffixIcon({Color? iconColor}) {
     final color = iconColor ?? _getSearchIconColor();
@@ -466,7 +453,7 @@ class _SurahListPageState extends State<SurahListPage> {
       padding: const EdgeInsets.all(5.0),
       child: EasyContainer(
         color: getValue("darkMode") ? Colors.white70 : darkWarmBrown,
-        onTap: () => _navigateToPage(pageNumber),
+        onTap: () => Navigator.pop(context, pageNumber),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -481,21 +468,22 @@ class _SurahListPageState extends State<SurahListPage> {
     );
   }
 
-  void _navigateToPage(int pageNumber) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (builder) => QuranDetailsPage(
-          shouldHighlightSura: true,
-          shouldHighlightText: false,
-          highlightVerse: "",
-          jsonData: widget.jsonData,
-          quarterJsonData: widget.quarterjsonData,
-          pageNumber: pageNumber,
-        ),
-      ),
-    );
-  }
+  // void _navigateToPage(int pageNumber) {
+  //   Navigator.pop(context, pageNumber);
+  //   // Navigator.push(
+  //   //   context,
+  //   //   MaterialPageRoute(
+  //   //     builder: (builder) => QuranDetailsPage(
+  //   //       shouldHighlightSura: true,
+  //   //       shouldHighlightText: false,
+  //   //       highlightVerse: "",
+  //   //       jsonData: widget.jsonData,
+  //   //       quarterJsonData: widget.quarterjsonData,
+  //   //       pageNumber: pageNumber,
+  //   //     ),
+  //   //   ),
+  //   // );
+  // }
 
   Widget _buildSurahsListView() {
     return ListView.separated(
@@ -513,16 +501,15 @@ class _SurahListPageState extends State<SurahListPage> {
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل بناء عنصر السورة لملف ui/components/surah_list_item.dart
   Widget _buildSurahListItem(int index) {
     final suraData = filteredData[index];
-    final suraNumber = index + 1;
     final suraNumberInQuran = suraData["number"];
-    final hasBookmark =
-        bookmarks.indexWhere((a) => a.toString().split("-")[0] == "$suraNumberInQuran") != -1;
+    final surahBookmarks = bookmarks.where((b) => b.suraNumber == suraNumberInQuran).toList();
+    final BookmarkModel? firstBookmark = surahBookmarks.isNotEmpty ? surahBookmarks.first : null;
 
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: ListTile(
         leading: _buildSurahNumberCircle(suraNumberInQuran),
-        title: _buildSurahTitle(suraData, hasBookmark, suraNumberInQuran),
+        title: _buildSurahTitle(suraData, firstBookmark),
         subtitle: _buildSurahSubtitle(suraData),
         // trailing: _buildSurahTrailing(suraNumber),
         onTap: () => _navigateToSurah(suraNumberInQuran),
@@ -549,7 +536,7 @@ class _SurahListPageState extends State<SurahListPage> {
     );
   }
 
-  Widget _buildSurahTitle(Map<String, dynamic> suraData, bool hasBookmark, int suraNumber) {
+  Widget _buildSurahTitle(Map<String, dynamic> suraData, BookmarkModel? bookmark) {
     return SizedBox(
       width: 90.w,
       child: Row(
@@ -563,18 +550,30 @@ class _SurahListPageState extends State<SurahListPage> {
               fontFamily: "arsura",
             ),
           ),
-          if (hasBookmark) _buildBookmarkIcon(suraNumber),
+          if (bookmark != null)
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              transitionBuilder: (child, animation) =>
+                  ScaleTransition(scale: animation, child: child),
+              child: _buildBookmarkIcon(bookmark),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildBookmarkIcon(int suraNumber) {
-    final bookmarkIndex = bookmarks.indexWhere((a) => a.toString().startsWith("$suraNumber"));
+  Widget _buildBookmarkIcon(BookmarkModel bookmark) {
+    Color color;
+    try {
+      color = Color(int.parse("0x${bookmark.color}"));
+    } catch (_) {
+      color = colorsOfBookmarks2.first;
+    }
+
     return Icon(
       Icons.bookmark,
       size: 16.sp,
-      color: colorsOfBookmarks2[bookmarkIndex].withOpacity(.7),
+      color: color.withOpacity(.7),
     );
   }
 
@@ -600,22 +599,23 @@ class _SurahListPageState extends State<SurahListPage> {
   // }
 
   void _navigateToSurah(int suraNumber) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (builder) => BlocProvider(
-          create: (context) => QuranPagePlayerBloc(),
-          child: QuranDetailsPage(
-            shouldHighlightSura: true,
-            shouldHighlightText: false,
-            highlightVerse: "",
-            jsonData: widget.jsonData,
-            quarterJsonData: widget.quarterjsonData,
-            pageNumber: quran.getPageNumber(suraNumber, 1),
-          ),
-        ),
-      ),
-    );
+    Navigator.pop(context, quran.getPageNumber(suraNumber, 1));
+    // await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (builder) => BlocProvider(
+    //       create: (context) => QuranPagePlayerBloc(),
+    //       child: QuranDetailsPage(
+    //         shouldHighlightSura: true,
+    //         shouldHighlightText: false,
+    //         highlightVerse: "",
+    //         jsonData: widget.jsonData,
+    //         quarterJsonData: widget.quarterjsonData,
+    //         pageNumber: quran.getPageNumber(suraNumber, 1),
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   Widget _buildSearchResults() {
@@ -659,19 +659,20 @@ class _SurahListPageState extends State<SurahListPage> {
   }
 
   void _navigateToSearchResult(int surah, int verse) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (builder) => QuranDetailsPage(
-          shouldHighlightSura: false,
-          pageNumber: quran.getPageNumber(surah, verse),
-          jsonData: widget.jsonData,
-          shouldHighlightText: true,
-          highlightVerse: quran.getVerse(surah, verse),
-          quarterJsonData: widget.quarterjsonData,
-        ),
-      ),
-    );
+    Navigator.pop(context, quran.getPageNumber(surah, verse));
+    // await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (builder) => QuranDetailsPage(
+    //       shouldHighlightSura: false,
+    //       pageNumber: quran.getPageNumber(surah, verse),
+    //       jsonData: widget.jsonData,
+    //       shouldHighlightText: true,
+    //       highlightVerse: quran.getVerse(surah, verse),
+    //       quarterJsonData: widget.quarterjsonData,
+    //     ),
+    //   ),
+    // );
   }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل تبويب الجزء لملف ui/tabs/juz_tab.dart
@@ -738,21 +739,22 @@ class _SurahListPageState extends State<SurahListPage> {
   }
 
   void _navigateToJuz(int juzNumber, int firstSurah, int firstVerse) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (builder) => QuranDetailsPage(
-          shouldHighlightSura: false,
-          quarterJsonData: widget.quarterjsonData,
-          shouldHighlightText: true,
-          highlightVerse: quran.getVerse(firstSurah, firstVerse),
-          pageNumber: quran.getPageNumber(firstSurah, firstVerse),
-          jsonData: widget.jsonData,
-        ),
-      ),
-    );
-    getJuzNumber();
-    setState(() {});
+    Navigator.pop(context, quran.getPageNumber(firstSurah, firstVerse));
+    // await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (builder) => QuranDetailsPage(
+    //       shouldHighlightSura: false,
+    //       quarterJsonData: widget.quarterjsonData,
+    //       shouldHighlightText: true,
+    //       highlightVerse: quran.getVerse(firstSurah, firstVerse),
+    //       pageNumber: quran.getPageNumber(firstSurah, firstVerse),
+    //       jsonData: widget.jsonData,
+    //     ),
+    //   ),
+    // );
+    // getJuzNumber();
+    // setState(() {});
   }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل تبويب الربع لملف ui/tabs/quarter_tab.dart
@@ -820,20 +822,21 @@ class _SurahListPageState extends State<SurahListPage> {
   }
 
   void _navigateToQuarter(int surah, int ayah) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (builder) => QuranDetailsPage(
-          shouldHighlightSura: false,
-          quarterJsonData: widget.quarterjsonData,
-          shouldHighlightText: true,
-          highlightVerse: quran.getVerse(surah, ayah),
-          pageNumber: quran.getPageNumber(surah, ayah),
-          jsonData: widget.jsonData,
-        ),
-      ),
-    );
-    setState(() {});
+    Navigator.pop(context, quran.getPageNumber(surah, ayah));
+    // await Navigator.pushReplacement(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (builder) => QuranDetailsPage(
+    //       shouldHighlightSura: false,
+    //       quarterJsonData: widget.quarterjsonData,
+    //       shouldHighlightText: true,
+    //       highlightVerse: quran.getVerse(surah, ayah),
+    //       pageNumber: quran.getPageNumber(surah, ayah),
+    //       jsonData: widget.jsonData,
+    //     ),
+    //   ),
+    // );
+    // setState(() {});
   }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل دوائر الأرباع لملف utils/quarter_circle_utils.dart
@@ -905,15 +908,41 @@ class _SurahListPageState extends State<SurahListPage> {
         shrinkWrap: true,
         children: [
           _buildBookmarksList(),
-          _buildStarredVersesHeader(),
-          _buildStarredVersesList(),
+          // _buildStarredVersesHeader(),
+          // _buildStarredVersesList(),
         ],
       ),
     );
   }
 
   Widget _buildBookmarksList() {
-    if (bookmarks.isEmpty) return const SizedBox.shrink();
+    if (bookmarks.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.bookmark_border_rounded,
+              size: 40.sp,
+              color: isDarkModeNotifier.value
+                  ? Colors.white.withOpacity(.6)
+                  : darkWarmBrowns[0].withOpacity(.6),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              "noBookmarksYet".tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: "cairo",
+                fontSize: 15.sp,
+                color: isDarkModeNotifier.value ? Colors.white.withOpacity(.85) : Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.separated(
       separatorBuilder: (context, index) => const Divider(),
@@ -924,10 +953,15 @@ class _SurahListPageState extends State<SurahListPage> {
     );
   }
 
-  Widget _buildBookmarkItem(dynamic bookmark) {
-    final suraNumber = int.parse(bookmark["suraNumber"].toString());
-    final verseNumber = int.parse(bookmark["verseNumber"].toString());
-    final bookmarkColor = Color(int.parse("0x${bookmark["color"]}"));
+  Widget _buildBookmarkItem(BookmarkModel bookmark) {
+    final suraNumber = bookmark.suraNumber;
+    final verseNumber = bookmark.verseNumber;
+    Color bookmarkColor;
+    try {
+      bookmarkColor = Color(int.parse("0x${bookmark.color}"));
+    } catch (_) {
+      bookmarkColor = colorsOfBookmarks2.first;
+    }
 
     return EasyContainer(
       borderRadius: 18,
@@ -955,7 +989,7 @@ class _SurahListPageState extends State<SurahListPage> {
         Icon(Icons.bookmark, color: color),
         SizedBox(width: 20.w),
         Text(
-          bookmark["name"],
+          bookmark.name,
           style: TextStyle(
             fontFamily: "cairo",
             fontSize: 14.sp,
@@ -1004,114 +1038,119 @@ class _SurahListPageState extends State<SurahListPage> {
   }
 
   void _navigateToBookmark(int suraNumber, int verseNumber) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (builder) => QuranDetailsPage(
-          shouldHighlightSura: false,
-          pageNumber: quran.getPageNumber(suraNumber, verseNumber),
-          jsonData: widget.jsonData,
-          shouldHighlightText: true,
-          highlightVerse: quran.getVerse(suraNumber, verseNumber),
-          quarterJsonData: widget.quarterjsonData,
-        ),
-      ),
-    );
+    if (scaffoldKey.currentState?.isEndDrawerOpen ?? false) {
+      Navigator.pop(context); // Close drawer
+    }
+    Navigator.pop(context, quran.getPageNumber(suraNumber, verseNumber));
+    // await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (builder) => QuranDetailsPage(
+    //       shouldHighlightSura: false,
+    //       pageNumber: quran.getPageNumber(suraNumber, verseNumber),
+    //       jsonData: widget.jsonData,
+    //       shouldHighlightText: true,
+    //       highlightVerse: quran.getVerse(suraNumber, verseNumber),
+    //       quarterJsonData: widget.quarterjsonData,
+    //     ),
+    //   ),
+    // );
   }
 
-  Widget _buildStarredVersesHeader() {
-    return Column(
-      children: [
-        Center(
-          child: Padding(
-            padding: EdgeInsets.only(top: 8.0.h),
-            child: Text(
-              "starredverses".tr(),
-              style: TextStyle(
-                color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black,
-                fontSize: 18.sp,
-              ),
-            ),
-          ),
-        ),
-        Center(child: Icon(Icons.keyboard_arrow_down, size: 18.sp)),
-      ],
-    );
-  }
+  // Widget _buildStarredVersesHeader() {
+  //   return Column(
+  //     children: [
+  //       Center(
+  //         child: Padding(
+  //           padding: EdgeInsets.only(top: 8.0.h),
+  //           child: Text(
+  //             "starredverses".tr(),
+  //             style: TextStyle(
+  //               color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black,
+  //               fontSize: 18.sp,
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //       Center(child: Icon(Icons.keyboard_arrow_down, size: 18.sp)),
+  //     ],
+  //   );
+  // }
 
-  Widget _buildStarredVersesList() {
-    return ListView(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: starredVerses.map((e) => _buildStarredVerseItem(e)).toList(),
-    );
-  }
+  // Widget _buildStarredVersesList() {
+  //   return ListView(
+  //     shrinkWrap: true,
+  //     physics: const NeverScrollableScrollPhysics(),
+  //     children: starredVerses.map((e) => _buildStarredVerseItem(e)).toList(),
+  //   );
+  // }
 
-  Widget _buildStarredVerseItem(String verseKey) {
-    final parts = verseKey.split("-");
-    final suraNumber = int.parse(parts[0]);
-    final verseNumber = int.parse(parts[1]);
+  // Widget _buildStarredVerseItem(String verseKey) {
+  //   final parts = verseKey.split("-");
+  //   final suraNumber = int.parse(parts[0]);
+  //   final verseNumber = int.parse(parts[1]);
 
-    return EasyContainer(
-      color: darkWarmBrowns[0].withOpacity(.05),
-      onTap: () => _navigateToStarredVerse(suraNumber, verseNumber),
-      child: Column(
-        children: [
-          _buildStarredVerseText(suraNumber, verseNumber),
-          _buildStarredVerseInfo(suraNumber, verseNumber),
-        ],
-      ),
-    );
-  }
+  //   return EasyContainer(
+  //     color: darkWarmBrowns[0].withOpacity(.05),
+  //     onTap: () => _navigateToStarredVerse(suraNumber, verseNumber),
+  //     child: Column(
+  //       children: [
+  //         _buildStarredVerseText(suraNumber, verseNumber),
+  //         _buildStarredVerseInfo(suraNumber, verseNumber),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildStarredVerseText(int suraNumber, int verseNumber) {
-    return Text(
-      quran.getVerse(suraNumber, verseNumber),
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontFamily: fontFamilies[0],
-        fontSize: 18.sp,
-        color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : darkWarmBrowns[0],
-      ),
-    );
-  }
+  // Widget _buildStarredVerseText(int suraNumber, int verseNumber) {
+  //   return Text(
+  //     quran.getVerse(suraNumber, verseNumber),
+  //     textAlign: TextAlign.center,
+  //     style: TextStyle(
+  //       fontFamily: fontFamilies[0],
+  //       fontSize: 18.sp,
+  //       color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : darkWarmBrowns[0],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildStarredVerseInfo(int suraNumber, int verseNumber) {
-    return Column(
-      children: [
-        Text(
-          context.locale.languageCode == "ar"
-              ? quran.getSurahNameArabic(suraNumber)
-              : quran.getSurahNameEnglish(suraNumber),
-          textAlign: TextAlign.center,
-        ),
-        Text(
-          convertToArabicNumber(verseNumber.toString()),
-          style: TextStyle(
-            fontSize: 24.sp,
-            color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87,
-            fontFamily: "KFGQPC Uthmanic Script HAFS Regular",
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildStarredVerseInfo(int suraNumber, int verseNumber) {
+  //   return Column(
+  //     children: [
+  //       Text(
+  //         context.locale.languageCode == "ar"
+  //             ? quran.getSurahNameArabic(suraNumber)
+  //             : quran.getSurahNameEnglish(suraNumber),
+  //         textAlign: TextAlign.center,
+  //       ),
+  //       Text(
+  //         convertToArabicNumber(verseNumber.toString()),
+  //         style: TextStyle(
+  //           fontSize: 24.sp,
+  //           color: isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87,
+  //           fontFamily: "KFGQPC Uthmanic Script HAFS Regular",
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  void _navigateToStarredVerse(int suraNumber, int verseNumber) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (builder) => QuranDetailsPage(
-          shouldHighlightSura: false,
-          pageNumber: quran.getPageNumber(suraNumber, verseNumber),
-          jsonData: widget.jsonData,
-          shouldHighlightText: true,
-          highlightVerse: quran.getVerse(suraNumber, verseNumber),
-          quarterJsonData: widget.quarterjsonData,
-        ),
-      ),
-    );
-  }
+  // void _navigateToStarredVerse(int suraNumber, int verseNumber) async {
+  //   Navigator.pop(context, quran.getPageNumber(suraNumber, verseNumber));
+  //   // await Navigator.push(
+  //   //   context,
+  //   //   MaterialPageRoute(
+  //   //     builder: (builder) => QuranDetailsPage(
+  //   //       shouldHighlightSura: false,
+  //   //       pageNumber: quran.getPageNumber(suraNumber, verseNumber),
+  //   //       jsonData: widget.jsonData,
+  //   //       shouldHighlightText: true,
+  //   //       highlightVerse: quran.getVerse(suraNumber, verseNumber),
+  //   //       quarterJsonData: widget.quarterjsonData,
+  //   //     ),
+  //   //   ),
+  //   // );
+  // }
 
   // 🔹 [CAN_BE_EXTRACTED] يمكن نقل تأثير التحميل لملف ui/components/shimmer_loading.dart
   Widget _buildShimmerLoading() {

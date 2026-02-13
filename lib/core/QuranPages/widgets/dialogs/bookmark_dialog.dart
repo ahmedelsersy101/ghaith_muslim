@@ -1,13 +1,15 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:ghaith/blocs/bookmark_cubit.dart';
+import 'package:ghaith/core/QuranPages/models/bookmark_model.dart';
 
 class BookmarksDialog extends StatefulWidget {
   final int verseNumber;
@@ -399,48 +401,46 @@ class _BookmarksDialogState extends State<BookmarksDialog> with SingleTickerProv
           bottomRight: Radius.circular(28.r),
         ),
       ),
-      child: Expanded(
-        child: InkWell(
-          onTap: _handleSaveBookmark,
-          borderRadius: BorderRadius.circular(14.r),
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 14.h),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  _secondaryColor,
-                  _secondaryColor.withOpacity(0.9),
-                ],
+      child: InkWell(
+        onTap: _handleSaveBookmark,
+        borderRadius: BorderRadius.circular(14.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 14.h),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                _secondaryColor,
+                _secondaryColor.withOpacity(0.9),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(14.r),
+            boxShadow: [
+              BoxShadow(
+                color: _secondaryColor.withOpacity(0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-              borderRadius: BorderRadius.circular(14.r),
-              boxShadow: [
-                BoxShadow(
-                  color: _secondaryColor.withOpacity(0.4),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.check_circle_rounded,
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.check_circle_rounded,
+                color: Colors.white,
+                size: 18.sp,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                "saveBookmark".tr(),
+                style: TextStyle(
+                  fontFamily: "cairo",
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
                   color: Colors.white,
-                  size: 18.sp,
                 ),
-                SizedBox(width: 8.w),
-                Text(
-                  "saveBookmark".tr(),
-                  style: TextStyle(
-                    fontFamily: "cairo",
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -448,21 +448,24 @@ class _BookmarksDialogState extends State<BookmarksDialog> with SingleTickerProv
   }
 
   // ============ Save Bookmark Handler ============
-  void _handleSaveBookmark() {
+  Future<void> _handleSaveBookmark() async {
     try {
       String bookmarkName = _nameController.text.trim();
-      List bookmarks = json.decode(getValue("bookmarks"));
+      if (bookmarkName.isEmpty) {
+        bookmarkName = "bookmark".tr();
+      }
 
-      String hexCode = _bookmarkColors[_selectedColorIndex].value.toRadixString(16).padLeft(8, '0');
+      final String hexCode =
+          _bookmarkColors[_selectedColorIndex].value.toRadixString(16).padLeft(8, '0');
 
-      bookmarks.add({
-        "name": bookmarkName,
-        "color": hexCode,
-        "suraNumber": widget.suraNumber,
-        "verseNumber": widget.verseNumber,
-      });
+      final bookmark = BookmarkModel(
+        name: bookmarkName,
+        suraNumber: widget.suraNumber,
+        verseNumber: widget.verseNumber,
+        color: hexCode,
+      );
 
-      updateValue("bookmarks", json.encode(bookmarks));
+      await context.read<BookmarkCubit>().addBookmark(bookmark);
 
       Fluttertoast.showToast(
         msg: "✓ ${"bookmarkSaved".tr()}",
@@ -471,7 +474,9 @@ class _BookmarksDialogState extends State<BookmarksDialog> with SingleTickerProv
         toastLength: Toast.LENGTH_SHORT,
       );
 
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     } catch (e) {
       Fluttertoast.showToast(
         msg: "✗ ${"errorSavingBookmark".tr()}",

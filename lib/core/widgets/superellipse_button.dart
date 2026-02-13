@@ -49,7 +49,7 @@ class SuperellipseButton extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: isDarkModeNotifier.value ? Colors.white70 : Colors.black,
-                      fontSize: 18.sp,
+                      fontSize: 16.sp,
                       fontFamily: "Taha"),
                 ),
                 SizedBox(

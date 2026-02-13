@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +5,6 @@ import 'package:flutter/material.dart' as m;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
-import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ghaith/blocs/quran_page_player_bloc.dart';
 import 'package:ghaith/core/QuranPages/helpers/translation/translation_info.dart';
@@ -15,6 +13,8 @@ import 'package:ghaith/core/QuranPages/widgets/dialogs/bookmark_dialog.dart';
 import 'package:ghaith/core/QuranPages/widgets/dialogs/share_ayah_dialog.dart';
 import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
+import 'package:ghaith/blocs/bookmark_cubit.dart';
+import 'package:ghaith/core/QuranPages/models/bookmark_model.dart';
 import 'package:ghaith/models/reciter.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:quran/quran.dart' as quran;
@@ -116,8 +116,8 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
   }
 
   // ============ Getters ============
-  bool get _isVerseStarred =>
-      widget.starredVerses.contains("${widget.surahNumber}:${widget.verseNumber}");
+  // bool get _isVerseStarred =>
+  //     widget.starredVerses.contains("${widget.surahNumber}:${widget.verseNumber}");
 
   String get _surahName => context.locale.languageCode == "ar"
       ? quran.getSurahNameArabic(widget.surahNumber)
@@ -154,18 +154,23 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
             children: [
               _buildDragHandle(),
               _buildHeader(),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 8.h),
-                    _buildQuickActions(),
-                    SizedBox(height: 20.h),
-                    _buildBookmarksSection(),
-                    SizedBox(height: 16.h),
-                    _buildActionButtons(),
-                    SizedBox(height: 24.h),
-                  ],
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(height: 8.h),
+                        // _buildQuickActions(),
+                        // SizedBox(height: 20.h),
+                        _buildBookmarksSection(),
+                        SizedBox(height: 16.h),
+                        _buildActionButtons(),
+                        SizedBox(height: 24.h),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -217,26 +222,37 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
           SizedBox(width: 12.w),
           // Surah Name
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  _surahName,
-                  style: TextStyle(
-                    fontFamily: "cairo",
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: _primaryColor,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _surahName,
+                      style: TextStyle(
+                        fontFamily: "cairo",
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: _primaryColor,
+                      ),
+                    ),
+                    Text(
+                      "${"verse".tr()} ${widget.verseNumber}",
+                      style: TextStyle(
+                        fontFamily: "cairo",
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w500,
+                        color: _primaryColor.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  "${"verse".tr()} ${widget.verseNumber}",
-                  style: TextStyle(
-                    fontFamily: "cairo",
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                    color: _primaryColor.withOpacity(0.6),
-                  ),
+                _buildQuickActionCard(
+                  icon: Icons.share_rounded,
+                  label: "share".tr(),
+                  onTap: _handleShare,
+                  color: Colors.blue.shade600,
                 ),
               ],
             ),
@@ -247,30 +263,30 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
   }
 
   // ============ Quick Actions ============
-  Widget _buildQuickActions() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildQuickActionCard(
-            icon: _isVerseStarred ? FontAwesome.star : FontAwesome.star_empty,
-            label: _isVerseStarred ? "starred".tr() : "star".tr(),
-            onTap: _handleStarToggle,
-            color: Colors.amber.shade600,
-            isActive: _isVerseStarred,
-          ),
-        ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: _buildQuickActionCard(
-            icon: Icons.share_rounded,
-            label: "share".tr(),
-            onTap: _handleShare,
-            color: Colors.blue.shade600,
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildQuickActions() {
+  //   return Row(
+  //     children: [
+  //       // Expanded(
+  //       //   child: _buildQuickActionCard(
+  //       //     icon: _isVerseStarred ? FontAwesome.star : FontAwesome.star_empty,
+  //       //     label: _isVerseStarred ? "starred".tr() : "star".tr(),
+  //       //     onTap: _handleStarToggle,
+  //       //     color: Colors.amber.shade600,
+  //       //     isActive: _isVerseStarred,
+  //       //   ),
+  //       // ),
+  //       // SizedBox(width: 12.w),
+  //       Expanded(
+  //         child: _buildQuickActionCard(
+  //           icon: Icons.share_rounded,
+  //           label: "share".tr(),
+  //           onTap: _handleShare,
+  //           color: Colors.blue.shade600,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildQuickActionCard({
     required IconData icon,
@@ -293,24 +309,10 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
             width: 1.5,
           ),
         ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isActive ? color : _primaryColor,
-              size: 24.sp,
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: "cairo",
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-                color: isActive ? color : _primaryColor,
-              ),
-            ),
-          ],
+        child: Icon(
+          icon,
+          color: isActive ? color : _primaryColor,
+          size: 20.sp,
         ),
       ),
     );
@@ -318,87 +320,93 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
 
   // ============ Bookmarks Section ============
   Widget _buildBookmarksSection() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        color: _primaryColor.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: _primaryColor.withOpacity(0.08),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(16.r),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.bookmark_rounded,
-                  color: _secondaryColor,
-                  size: 20.sp,
-                ),
-                SizedBox(width: 8.w),
-                Text(
-                  "bookmarks".tr(),
-                  style: TextStyle(
-                    fontFamily: "cairo",
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: _primaryColor,
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: _secondaryColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: Text(
-                    "${widget.bookmarks.length}",
-                    style: TextStyle(
-                      fontFamily: "cairo",
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                      color: _secondaryColor,
-                    ),
-                  ),
-                ),
-              ],
+    return BlocBuilder<BookmarkCubit, BookmarkState>(
+      builder: (context, state) {
+        final bookmarks = state.bookmarks;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            color: _primaryColor.withOpacity(0.04),
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(
+              color: _primaryColor.withOpacity(0.08),
+              width: 1,
             ),
           ),
-          if (widget.bookmarks.isNotEmpty) ...[
-            Divider(
-              color: _primaryColor.withOpacity(0.1),
-              height: 1,
-              indent: 16,
-              endIndent: 16,
-            ),
-            _buildBookmarksList(),
-            Divider(
-              color: _primaryColor.withOpacity(0.1),
-              height: 1,
-              indent: 16,
-              endIndent: 16,
-            ),
-          ],
-          _buildAddBookmarkButton(),
-        ],
-      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.r),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.bookmark_rounded,
+                      color: _secondaryColor,
+                      size: 20.sp,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      "bookmarks".tr(),
+                      style: TextStyle(
+                        fontFamily: "cairo",
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: _primaryColor,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: _secondaryColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Text(
+                        "${bookmarks.length}",
+                        style: TextStyle(
+                          fontFamily: "cairo",
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w700,
+                          color: _secondaryColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (bookmarks.isNotEmpty) ...[
+                Divider(
+                  color: _primaryColor.withOpacity(0.1),
+                  height: 1,
+                  indent: 16,
+                  endIndent: 16,
+                ),
+                _buildBookmarksList(bookmarks),
+                Divider(
+                  color: _primaryColor.withOpacity(0.1),
+                  height: 1,
+                  indent: 16,
+                  endIndent: 16,
+                ),
+              ],
+              _buildAddBookmarkButton(),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildBookmarksList() {
+  Widget _buildBookmarksList(List<BookmarkModel> bookmarks) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.bookmarks.length,
+      itemCount: bookmarks.length,
       itemBuilder: (context, index) {
+        final bookmark = bookmarks[index];
         return _ModernBookmarkItem(
-          bookmark: widget.bookmarks[index],
+          bookmark: bookmark,
           primaryColor: _primaryColor,
           onTap: () => _handleBookmarkUpdate(index),
           onDelete: () => _handleBookmarkDelete(index),
@@ -831,16 +839,16 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
   }
 
   // ============ Event Handlers ============
-  void _handleStarToggle() {
-    if (_isVerseStarred) {
-      widget.onRemoveStarredVerse(widget.surahNumber, widget.verseNumber);
-    } else {
-      widget.onAddStarredVerse(widget.surahNumber, widget.verseNumber);
-    }
-    setState(() {});
-    widget.onUpdate();
-    widget.verseKey?.currentState?.setState(() {});
-  }
+  // void _handleStarToggle() {
+  //   if (_isVerseStarred) {
+  //     widget.onRemoveStarredVerse(widget.surahNumber, widget.verseNumber);
+  //   } else {
+  //     widget.onAddStarredVerse(widget.surahNumber, widget.verseNumber);
+  //   }
+  //   setState(() {});
+  //   widget.onUpdate();
+  //   widget.verseKey?.currentState?.setState(() {});
+  // }
 
   void _handleShare() {
     showDialog(
@@ -857,10 +865,22 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
 
   Future<void> _handleBookmarkUpdate(int index) async {
     try {
-      final bookmarks = json.decode(getValue("bookmarks")) as List;
-      bookmarks[index]["verseNumber"] = widget.verseNumber;
-      bookmarks[index]["suraNumber"] = widget.surahNumber;
-      updateValue("bookmarks", json.encode(bookmarks));
+      final cubit = context.read<BookmarkCubit>();
+      final current = List<BookmarkModel>.from(cubit.state.bookmarks);
+
+      if (index < 0 || index >= current.length) return;
+
+      final existing = current[index];
+      final updated = BookmarkModel(
+        name: existing.name,
+        suraNumber: widget.surahNumber,
+        verseNumber: widget.verseNumber,
+        color: existing.color,
+      );
+
+      current[index] = updated;
+      await cubit.repository.saveBookmarks(current);
+      await cubit.loadBookmarks();
 
       widget.onUpdate();
       widget.onFetchBookmarks();
@@ -880,13 +900,16 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
 
   Future<void> _handleBookmarkDelete(int index) async {
     try {
-      final bookmarks = json.decode(getValue("bookmarks")) as List;
-      final bookmarkName = widget.bookmarks[index]["name"];
+      final cubit = context.read<BookmarkCubit>();
+      final current = List<BookmarkModel>.from(cubit.state.bookmarks);
+      if (index < 0 || index >= current.length) return;
 
-      bookmarks.removeWhere(
-        (e) => e["color"] == widget.bookmarks[index]["color"],
-      );
-      updateValue("bookmarks", json.encode(bookmarks));
+      final bookmarkName = current[index].name;
+      final target = current[index];
+
+      current.remove(target);
+      await cubit.repository.saveBookmarks(current);
+      await cubit.loadBookmarks();
 
       Fluttertoast.showToast(
         msg: "✓ $bookmarkName ${"removed".tr()}",
@@ -895,7 +918,6 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
       );
 
       widget.onUpdate();
-      widget.onFetchBookmarks();
 
       if (mounted) {
         Navigator.of(context).pop();
@@ -1000,7 +1022,7 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
 
 // ============ Modern Bookmark Item Widget ============
 class _ModernBookmarkItem extends StatefulWidget {
-  final Map<String, dynamic> bookmark;
+  final BookmarkModel bookmark;
   final Color primaryColor;
   final VoidCallback onTap;
   final VoidCallback onDelete;
@@ -1043,7 +1065,7 @@ class _ModernBookmarkItemState extends State<_ModernBookmarkItem>
 
   @override
   Widget build(BuildContext context) {
-    final bookmarkColor = Color(int.parse("0x${widget.bookmark["color"]}"));
+    final bookmarkColor = Color(int.parse("0x${widget.bookmark.color}"));
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -1085,7 +1107,7 @@ class _ModernBookmarkItemState extends State<_ModernBookmarkItem>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.bookmark["name"],
+                      widget.bookmark.name,
                       style: TextStyle(
                         fontFamily: "cairo",
                         fontSize: 13.sp,
@@ -1096,7 +1118,7 @@ class _ModernBookmarkItemState extends State<_ModernBookmarkItem>
                     ),
                     SizedBox(height: 2.h),
                     Text(
-                      "${"surah".tr()} ${widget.bookmark["suraNumber"]} - ${"verse".tr()} ${widget.bookmark["verseNumber"]}",
+                      "${"surah".tr()} ${widget.bookmark.suraNumber} - ${"verse".tr()} ${widget.bookmark.verseNumber}",
                       style: TextStyle(
                         fontFamily: "cairo",
                         fontSize: 10.sp,
@@ -1112,8 +1134,8 @@ class _ModernBookmarkItemState extends State<_ModernBookmarkItem>
                 flex: 3,
                 child: Text(
                   quran.getVerse(
-                    int.parse(widget.bookmark["suraNumber"].toString()),
-                    int.parse(widget.bookmark["verseNumber"].toString()),
+                    widget.bookmark.suraNumber,
+                    widget.bookmark.verseNumber,
                   ),
                   textDirection: m.TextDirection.rtl,
                   style: TextStyle(

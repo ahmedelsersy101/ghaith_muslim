@@ -11,6 +11,7 @@ extension VerticalViewExtension on QuranDetailsPageState {
         children: [
           ScrollablePositionedList.separated(
             itemCount: quran.totalPagesCount + 1,
+            physics: const BouncingScrollPhysics(),
             separatorBuilder: (context, index) {
               if (index == 0) return Container();
               return Container(
@@ -48,7 +49,7 @@ extension VerticalViewExtension on QuranDetailsPageState {
               );
             },
             itemScrollController: itemScrollController,
-            initialScrollIndex: getValue("lastRead"),
+            initialScrollIndex: getInitialPageIndex(context),
             itemPositionsListener: itemPositionsListener,
             itemBuilder: (context, index) {
               // updateValue("lastRead", index);
@@ -143,14 +144,13 @@ extension VerticalViewExtension on QuranDetailsPageState {
                                         fontFamily: getValue("selectedFontFamily"),
                                         // letterSpacing: 1,
                                         //fontWeight: FontWeight.bold,
-                                        backgroundColor: bookmarks
-                                                .where((element) =>
-                                                    element["suraNumber"] == e["surah"] &&
-                                                    element["verseNumber"] == i)
-                                                .isNotEmpty
-                                            ? Color(int.parse(
-                                                    "0x${bookmarks.where((element) => element["suraNumber"] == e["surah"] && element["verseNumber"] == i).first["color"]}"))
-                                                .withOpacity(.19)
+                                        backgroundColor: hasLocalBookmark(
+                                          e["surah"] as int,
+                                          i as int,
+                                        )
+                                            ? localBookmarkColor(e["surah"] as int, i)
+                                                    ?.withOpacity(.19) ??
+                                                Colors.transparent
                                             : shouldHighlightText
                                                 ? (highlightVerse == " ${e["surah"]}$i" ||
                                                         selectedSpan == " ${e["surah"]}$i")
@@ -178,17 +178,19 @@ extension VerticalViewExtension on QuranDetailsPageState {
                                                 fontFamily: "KFGQPC Uthmanic Script HAFS Regular")),
                                       ],
                                     ));
-                                    if (bookmarks
-                                        .where((element) =>
-                                            element["suraNumber"] == e["surah"] &&
-                                            element["verseNumber"] == i)
-                                        .isNotEmpty) {
+                                    if (hasLocalBookmark(
+                                      e["surah"] as int,
+                                      i,
+                                    )) {
                                       spans.add(WidgetSpan(
                                           alignment: PlaceholderAlignment.middle,
                                           child: Icon(
                                             Icons.bookmark,
-                                            color: Color(int.parse(
-                                                "0x${bookmarks.where((element) => element["suraNumber"] == e["surah"] && element["verseNumber"] == i).first["color"]}")),
+                                            color: localBookmarkColor(
+                                                  e["surah"] as int,
+                                                  i,
+                                                ) ??
+                                                secondaryColors[getValue("quranPageolorsIndex")],
                                           )));
                                     }
                                   }
@@ -212,46 +214,63 @@ extension VerticalViewExtension on QuranDetailsPageState {
               height: 45.h,
               width: screenSize.width,
               color: Colors.transparent,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: (screenSize.width * .27).w,
-                    child: Row(
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: (screenSize.width * .27).w,
+                      child: Row(
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon: Icon(
+                                Icons.arrow_back_ios,
+                                size: 24.sp,
+                                color: secondaryColors[getValue("quranPageolorsIndex")],
+                              )),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: (screenSize.width * .27).w,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () async {
+                              final pageNumber =
+                                  await QuranDetailsPageState.showSurahNavigatorSheet(context);
+                              if (pageNumber != null) {
+                                final readerCubit = context.read<QuranReaderCubit>();
+                                readerCubit.goToPage(pageNumber);
+                              }
                             },
                             icon: Icon(
-                              Icons.arrow_back_ios,
-                              size: 24.sp,
-                              color: darkWarmBrowns[getValue("quranPageolorsIndex")],
-                            )),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: (screenSize.width * .27).w,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              SettingsBottomSheet.show(context, onSettingsChanged: () {
-                                getTranslationData();
-                                updateState(() {});
-                              });
-                            },
-                            icon: Icon(
-                              Icons.settings,
-                              size: 24.sp,
-                              color: darkWarmBrowns[getValue("quranPageolorsIndex")],
-                            ))
-                      ],
-                    ),
-                  )
-                ],
+                              Icons.menu_book_rounded,
+                              color: secondaryColors[getValue("quranPageolorsIndex")],
+                            ),
+                          ),
+                          IconButton(
+                              onPressed: () {
+                                SettingsBottomSheet.show(context, onSettingsChanged: () {
+                                  getTranslationData();
+                                  updateState(() {});
+                                });
+                              },
+                              icon: Icon(
+                                Icons.settings,
+                                size: 24.sp,
+                                color: secondaryColors[getValue("quranPageolorsIndex")],
+                              )),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),

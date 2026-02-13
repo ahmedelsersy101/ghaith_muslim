@@ -10,6 +10,10 @@ import 'package:easy_localization/easy_localization.dart' as ez;
 import 'package:ghaith/blocs/player_bar_bloc.dart';
 import 'package:ghaith/blocs/player_bloc_bloc.dart';
 import 'package:ghaith/blocs/quran_page_player_bloc.dart';
+import 'package:ghaith/blocs/quran_reading_cubit.dart';
+import 'package:ghaith/blocs/bookmark_cubit.dart';
+import 'package:ghaith/core/QuranPages/data/quran_reading_repository.dart';
+import 'package:ghaith/core/QuranPages/data/bookmark_repository.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/splash/splash_screen.dart';
 
@@ -38,13 +42,33 @@ void main() async {
     path: 'assets/translations',
     fallbackLocale: const Locale('ar'),
     startLocale: const Locale('ar'),
-    child: MultiBlocProvider(
+    child: MultiRepositoryProvider(
       providers: [
-        BlocProvider(create: (_) => PlayerBlocBloc()),
-        BlocProvider(create: (_) => QuranPagePlayerBloc()),
-        BlocProvider(create: (_) => PlayerBarBloc()),
+        RepositoryProvider<QuranReadingRepository>(
+          create: (_) => const QuranReadingRepository(),
+        ),
+        RepositoryProvider<BookmarkRepository>(
+          create: (_) => const BookmarkRepository(),
+        ),
       ],
-      child: const GhaithMuslimApp(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => PlayerBlocBloc()),
+          BlocProvider(create: (_) => QuranPagePlayerBloc()),
+          BlocProvider(create: (_) => PlayerBarBloc()),
+          BlocProvider(
+            create: (context) => QuranReaderCubit(
+              context.read<QuranReadingRepository>(),
+            )..loadInitialPosition(),
+          ),
+          BlocProvider(
+            create: (context) => BookmarkCubit(
+              context.read<BookmarkRepository>(),
+            )..loadBookmarks(),
+          ),
+        ],
+        child: const GhaithMuslimApp(),
+      ),
     ),
   ));
 }

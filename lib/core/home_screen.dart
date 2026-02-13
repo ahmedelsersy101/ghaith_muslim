@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:ghaith/helpers/home_blocs.dart';
 import 'package:ghaith/helpers/home_state.dart';
 import 'package:ghaith/core/calender/calender.dart';
@@ -22,7 +23,7 @@ import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/helpers/initializeData.dart';
 import 'package:ghaith/core/QuranPages/helpers/convertNumberToAr.dart';
-import 'package:ghaith/core/QuranPages/views/quran_sura_list.dart';
+import 'package:ghaith/core/QuranPages/views/quranDetailsPage.dart';
 import 'package:ghaith/core/QuranPages/views/screenshot_preview.dart';
 import 'package:ghaith/core/audiopage/views/audio_home_page.dart';
 import 'package:ghaith/core/azkar/views/azkar_homepage.dart';
@@ -961,33 +962,29 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildBody(Size screenSize) {
-    return SafeArea(
-      child: SizedBox(
-        width: screenSize.width,
-        child: PageTransitionSwitcher(
-          transitionBuilder: (
-            Widget child,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-          ) {
-            return FadeThroughTransition(
-              fillColor: Colors.transparent,
-              animation: animation,
-              secondaryAnimation: secondaryAnimation,
-              child: child,
-            );
-          },
-          child: [
-            ListView(
-              padding: EdgeInsets.only(bottom: 24.h),
-              children: [
-                SizedBox(height: 50.h),
-                _buildHeroHeader(screenSize),
-                SizedBox(height: 8.h),
-                _buildHomeContent(context, screenSize),
-              ],
-            ),
-          ][index],
+    return SizedBox(
+      width: screenSize.width,
+      child: PageTransitionSwitcher(
+        transitionBuilder: (
+          Widget child,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return FadeThroughTransition(
+            fillColor: Colors.transparent,
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            child: child,
+          );
+        },
+        child: ListView(
+          padding: EdgeInsets.only(bottom: 24.h),
+          children: [
+            SizedBox(height: 50.h),
+            _buildHeroHeader(screenSize),
+            SizedBox(height: 8.h),
+            _buildHomeContent(context, screenSize),
+          ],
         ),
       ),
     );
@@ -1013,16 +1010,16 @@ class _HomeScreenState extends State<HomeScreen>
       child: Stack(
         children: [
           // Decorative pattern
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(32.r),
-              child: CustomPaint(
-                painter: IslamicPatternPainter(
-                  color: Colors.white.withOpacity(0.06),
-                ),
-              ),
-            ),
-          ),
+          // Positioned.fill(
+          //   child: ClipRRect(
+          //     borderRadius: BorderRadius.circular(32.r),
+          //     child: CustomPaint(
+          //       painter: IslamicPatternPainter(
+          //         color: Colors.white.withOpacity(0.06),
+          //       ),
+          //     ),
+          //   ),
+          // ),
 
           // Glossy overlay effect
           Positioned.fill(
@@ -1056,12 +1053,11 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _navigateToQuran() {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (builder) => SurahListPage(
-                  jsonData: widgejsonData,
-                  quarterjsonData: quarterjsonData,
-                )));
+      context,
+      CupertinoPageRoute(
+        builder: (builder) => const QuranReadingPage(),
+      ),
+    );
   }
 
   void _navigateToHadith() {

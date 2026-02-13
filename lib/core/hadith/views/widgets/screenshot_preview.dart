@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ghaith/main.dart';
 import 'package:screenshot/screenshot.dart';
 
 // =============================================
@@ -83,11 +84,13 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
   // [CAN_BE_EXTRACTED] -> widgets/app_bar_widget.dart
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: softOffWhite,
+      backgroundColor: isDarkModeNotifier.value ? deepNavyBlack : wineRed,
       elevation: 0,
+      centerTitle: true,
+      foregroundColor: Colors.white,
       title: Text(
         "preview".tr(),
-        style: const TextStyle(color: Colors.black),
+        style: const TextStyle(color: Colors.white),
       ),
     );
   }
@@ -194,7 +197,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
         children: [
           SizedBox(height: 10.h),
           _buildHadithText(),
-          _buildHadithMetadata(),
+          // _buildHadithMetadata(),
           if (widget.addExplanation) _buildExplanation(),
           SizedBox(height: 10.h),
           if (widget.addMeanings) _buildWordMeanings(),
@@ -237,30 +240,30 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
   }
 
   // [CAN_BE_EXTRACTED] -> widgets/hadith_metadata.dart
-  Widget _buildHadithMetadata() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4.0, right: 12),
-      child: Directionality(
-        textDirection: m.TextDirection.rtl,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              '[${widget.hadithAr.attribution}] - [${widget.hadithAr.grade}]',
-              textDirection: m.TextDirection.rtl,
-              locale: const Locale("ar"),
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                color: _deepBurgundyRed,
-                fontSize: textSize.sp,
-                fontFamily: _arabicFont,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildHadithMetadata() {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 4.0, right: 12),
+  //     child: Directionality(
+  //       textDirection: m.TextDirection.rtl,
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             '[${widget.hadithAr.attribution}] - [${widget.hadithAr.grade}]',
+  //             textDirection: m.TextDirection.rtl,
+  //             locale: const Locale("ar"),
+  //             textAlign: TextAlign.right,
+  //             style: TextStyle(
+  //               color: _deepBurgundyRed,
+  //               fontSize: textSize.sp,
+  //               fontFamily: _arabicFont,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   // [CAN_BE_EXTRACTED] -> widgets/explanation_widget.dart
   Widget _buildExplanation() {

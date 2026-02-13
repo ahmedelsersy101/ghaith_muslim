@@ -175,6 +175,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
       backgroundColor: isDarkModeNotifier.value ? deepNavyBlack : wineRed,
       elevation: 0,
       foregroundColor: Colors.white,
+      centerTitle: true,
       title: Text(
         "preview".tr(),
         style: const TextStyle(color: Colors.white),

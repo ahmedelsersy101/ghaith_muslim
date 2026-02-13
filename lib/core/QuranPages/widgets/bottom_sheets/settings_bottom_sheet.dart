@@ -200,45 +200,87 @@ class SettingsBottomSheet {
     return Column(
       children: [
         // Font size slider
-        Padding(
-          padding: EdgeInsets.all(16.0.w),
-          child: Column(
-            children: [
-              Text(
-                "fontSize".tr(),
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: darkWarmBrowns[getValue("quranPageolorsIndex")],
+
+        (getValue("alignmentType") == "versebyverse") ||
+                (getValue("alignmentType") == "verticalview")
+            ? Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "fontSize".tr(),
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: darkWarmBrowns[getValue("quranPageolorsIndex")],
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () {
+                            if (getValue("alignmentType") == "versebyverse") {
+                              updateValue("verseByVerseFontSize", 24.0);
+                            } else if (getValue("alignmentType") == "verticalview") {
+                              updateValue("verticalViewFontSize", 22.0);
+                            } else {
+                              updateValue("pageViewFontSize", 23.0);
+                            }
+                            setStatee(() {});
+                            onSettingsChanged();
+                          },
+                          icon: Icon(
+                            Icons.restore,
+                            size: 18.sp,
+                            color: darkWarmBrowns[getValue("quranPageolorsIndex")],
+                          ),
+                          label: Text(
+                            "reset".tr(),
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: darkWarmBrowns[getValue("quranPageolorsIndex")],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Slider(
+                      value: getValue("alignmentType") == "versebyverse"
+                          ? getValue("verseByVerseFontSize").toDouble()
+                          : getValue("alignmentType") == "verticalview"
+                              ? getValue("verticalViewFontSize").toDouble()
+                              : getValue("pageViewFontSize").toDouble(),
+                      min: 14.0,
+                      max: 40.0,
+                      divisions: 26,
+                      label: (getValue("alignmentType") == "versebyverse"
+                              ? getValue("verseByVerseFontSize").toDouble()
+                              : getValue("alignmentType") == "verticalview"
+                                  ? getValue("verticalViewFontSize").toDouble()
+                                  : getValue("pageViewFontSize").toDouble())
+                          .toString(),
+                      activeColor: secondaryColors[getValue("quranPageolorsIndex")],
+                      onChanged: (value) {
+                        if (getValue("alignmentType") == "versebyverse") {
+                          updateValue("verseByVerseFontSize", value);
+                        } else if (getValue("alignmentType") == "verticalview") {
+                          updateValue("verticalViewFontSize", value);
+                        } else {
+                          updateValue("pageViewFontSize", value);
+                        }
+                        setStatee(() {});
+                        onSettingsChanged();
+                      },
+                    ),
+                  ],
                 ),
-              ),
-              Slider(
-                value: getValue("alignmentType") == "versebyverse"
-                    ? getValue("verseByVerseFontSize").toDouble()
-                    : getValue("alignmentType") == "verticalview"
-                        ? getValue("verticalViewFontSize").toDouble()
-                        : getValue("pageViewFontSize").toDouble(),
-                min: 14.0,
-                max: 40.0,
-                divisions: 26,
-                label: (getValue("alignmentType") == "versebyverse"
-                        ? getValue("verseByVerseFontSize").toDouble()
-                        : getValue("alignmentType") == "verticalview"
-                            ? getValue("verticalViewFontSize").toDouble()
-                            : getValue("pageViewFontSize").toDouble())
-                    .toString(),
-                activeColor: secondaryColors[getValue("quranPageolorsIndex")],
-                onChanged: (value) {
-                  updateValue("quranPageTextSize", value);
-                  setStatee(() {});
-                  onSettingsChanged();
-                },
-              ),
-            ],
-          ),
-        ),
+              )
+            : const SizedBox(),
 
-        const Divider(),
-
+        (getValue("alignmentType") == "versebyverse") ||
+                (getValue("alignmentType") == "verticalview")
+            ? const Divider()
+            : const SizedBox(),
         // Font family selection
         Expanded(
           child: ListView.builder(
