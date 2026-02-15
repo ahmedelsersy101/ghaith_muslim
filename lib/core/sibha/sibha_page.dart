@@ -276,8 +276,9 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
                   ),
                   child: IconButton(
                     onPressed: () {
-                      showDialog(
+                      showModalBottomSheet(
                         context: context,
+                        backgroundColor: Colors.black,
                         builder: (c) => AddTasbeehDialog(
                           function: addCustomTasbeeh,
                         ),
