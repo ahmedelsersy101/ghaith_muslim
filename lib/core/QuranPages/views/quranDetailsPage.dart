@@ -520,16 +520,14 @@ class QuranDetailsPageState extends State<QuranDetailsPage> with AutomaticKeepAl
       ],
       child: BlocBuilder<QuranPagePlayerBloc, QuranPagePlayerState>(
         builder: (context, state) {
-          return SafeArea(
-            child: Scaffold(
-              key: scaffoldKey,
-              resizeToAvoidBottomInset: false,
-              backgroundColor: Colors.transparent,
-              body: Builder(
-                builder: (context2) {
-                  return _buildAlignmentView(screenSize, context);
-                },
-              ),
+          return Scaffold(
+            key: scaffoldKey,
+            resizeToAvoidBottomInset: false,
+            backgroundColor: paperBeige,
+            body: Builder(
+              builder: (context2) {
+                return _buildAlignmentView(screenSize, context);
+              },
             ),
           );
         },

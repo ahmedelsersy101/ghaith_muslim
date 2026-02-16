@@ -1054,7 +1054,7 @@ class _HomeScreenState extends State<HomeScreen>
   void _navigateToQuran() {
     Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (builder) => const QuranReadingPage(),
       ),
     );

@@ -53,6 +53,7 @@ dependencies:
   flutter_local_notifications: ^19.4.0
   flutter_overlay_window: null
   flutter_screenutil: null
+  flutter_timezone: ^5.0.1
   fluttericon: null
   fluttertoast: null
   geocoding: null
@@ -83,6 +84,7 @@ dependencies:
   simple_annimated_staggered: ^0.0.3
   string_validator: null
   superellipse_shape: null
+  timezone: ^0.10.1
   url_launcher: ^6.3.2
   workmanager: null
 
