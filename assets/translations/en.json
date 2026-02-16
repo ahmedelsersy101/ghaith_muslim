@@ -93,7 +93,8 @@
   "sallahNotificationDetails": "Always shows a notification of sending blessings upon the Prophet, never cancels",
   "SearchHadith": "Search for Hadith",
   "allHadith": "All Hadithes",
-
+  "loadingHadith": "Loading Hadith",
+  "pleaseWait": "Please Wait",
   "explanation": "Add Explanation",
   "meanings": "Add Meanings",
   "selectColor": "Select Color",

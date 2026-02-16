@@ -205,7 +205,6 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
   void _onCounterTap() {
     updateValue("${getValue("tasbeehLastIndex")}number",
         (getValue("${getValue("tasbeehLastIndex")}number") ?? 0) + 1);
-
     _counterAnimationController.forward().then((_) {
       _counterAnimationController.reverse();
     });

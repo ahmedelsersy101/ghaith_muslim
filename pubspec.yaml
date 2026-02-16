@@ -86,6 +86,7 @@ dependencies:
   superellipse_shape: null
   timezone: ^0.10.1
   url_launcher: ^6.3.2
+  vibration: ^3.1.6
   workmanager: null
 
 dev_dependencies:

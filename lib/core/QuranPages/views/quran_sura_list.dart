@@ -120,7 +120,11 @@ class _SurahListPageState extends State<SurahListPage> {
         child: Container(
           decoration: BoxDecoration(
             color: isDarkModeNotifier.value ? darkSlateGray : softOffWhite,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(30),
+            ),
           ),
+          clipBehavior: Clip.antiAlias,
           child: Scaffold(
             resizeToAvoidBottomInset: false,
             backgroundColor: isDarkModeNotifier.value ? darkSlateGray : paperBeige.withOpacity(.99),
@@ -143,13 +147,21 @@ class _SurahListPageState extends State<SurahListPage> {
           : [_buildSearchAppBarButton(), _buildBookmarkButton(context)],
       bottom: _buildTabBar(),
       elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(30), // حجم الانحناء
+        ),
+      ),
       centerTitle: !_isSearchOpen,
       backgroundColor: isDarkModeNotifier.value ? deepNavyBlack : wineRed,
       title: _isSearchOpen
           ? _buildAppBarSearchField()
-          : Text(
-              "alQuran".tr(),
-              style: TextStyle(color: Colors.white, fontSize: 20.sp),
+          : Padding(
+              padding: EdgeInsets.only(top: 8.h),
+              child: Text(
+                "alQuran".tr(),
+                style: TextStyle(color: Colors.white, fontSize: 20.sp),
+              ),
             ),
     );
   }
@@ -162,9 +174,12 @@ class _SurahListPageState extends State<SurahListPage> {
   }
 
   Widget _buildSearchAppBarButton() {
-    return IconButton(
-      icon: Icon(Icons.search, color: Colors.white, size: 24.sp),
-      onPressed: () => setState(() => _isSearchOpen = true),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 8.h),
+      child: IconButton(
+        icon: Icon(Icons.search, color: Colors.white, size: 24.sp),
+        onPressed: () => setState(() => _isSearchOpen = true),
+      ),
     );
   }
 
@@ -195,9 +210,7 @@ class _SurahListPageState extends State<SurahListPage> {
 
   Widget _buildBookmarkButton(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 4.0.w,
-      ),
+      padding: EdgeInsets.only(left: 16.w, right: 0, top: 8.h),
       child: Builder(builder: (context) {
         return IconButton(
           onPressed: () => Scaffold.of(context).openEndDrawer(),
@@ -209,9 +222,7 @@ class _SurahListPageState extends State<SurahListPage> {
 
   Widget _buildBackButton() {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 8.0.w,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: IconButton(
         icon: Icon(Icons.arrow_back_ios, size: 20.sp, color: Colors.white),
         onPressed: () => Navigator.pop(context),

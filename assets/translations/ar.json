@@ -119,5 +119,7 @@
   "saveBookmark": "حفظ العلامة المرجعية",
   "clickToChangeTranslation": "اضغط هنا لتغيير الترجمة",
   "noBookmarksYet": "لا توجد علامات مرجعية بعد",
+  "pleaseWait": "يرجى الانتظار",
+  "loadingHadith": "جاري التحميل",
   "addBookmarkHint": ""
 }

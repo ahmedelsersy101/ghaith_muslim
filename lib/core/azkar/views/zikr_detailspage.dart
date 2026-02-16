@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ghaith/main.dart';
+import 'package:vibration/vibration.dart';
 
 // =============================================
 // 📁 IMPORTS - يمكن نقلها لملف imports منفصل
@@ -28,11 +29,13 @@ class ZikrPage extends StatefulWidget {
 // 🔧 STATE CLASS - Zikr Page Logic
 // =============================================
 
-class _ZikrPageState extends State<ZikrPage> {
+class _ZikrPageState extends State<ZikrPage> with SingleTickerProviderStateMixin {
   // =============================================
   // 🎛️ STATE VARIABLES
   // =============================================
   int _currentCount = 0;
+  late AnimationController _scaleController;
+  late Animation<double> _scaleAnimation;
 
   // =============================================
   // 🎯 LIFECYCLE METHODS
@@ -42,6 +45,48 @@ class _ZikrPageState extends State<ZikrPage> {
   void initState() {
     super.initState();
     _initializeZikrIndex();
+    _initializeAnimations();
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    super.dispose();
+  }
+
+  // =============================================
+  // 🎬 ANIMATION SETUP
+  // =============================================
+
+  void _initializeAnimations() {
+    _scaleController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.85,
+    ).animate(
+      CurvedAnimation(
+        parent: _scaleController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  // تأثير الضغط
+  void _playTapAnimation() {
+    _scaleController.forward().then((_) {
+      _scaleController.reverse();
+    });
+  }
+
+  // اهتزاز خفيف
+  Future<void> _playVibration() async {
+    if (await Vibration.hasVibrator()) {
+      Vibration.vibrate(duration: 100);
+    }
   }
 
   // =============================================
@@ -288,39 +333,49 @@ class _ZikrPageState extends State<ZikrPage> {
     );
   }
 
-  // زر العد الكبير
+  // زر العد الكبير مع تأثير الضغط
   Widget _buildCounterButton() {
     return GestureDetector(
       onTap: _onCounterTap,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // الدائرة الخارجية
-          Container(
-            height: 140.h,
-            width: 140.h,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : wineRed,
-            ),
-          ),
-
-          // العدد
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "$_currentCount",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 50.sp,
-                  fontWeight: FontWeight.bold,
-                ),
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // الدائرة الخارجية
+            Container(
+              height: 140.h,
+              width: 140.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isDarkModeNotifier.value ? deepNavyBlack.withOpacity(.8) : wineRed,
+                boxShadow: [
+                  BoxShadow(
+                    color: (isDarkModeNotifier.value ? deepNavyBlack : wineRed).withOpacity(0.3),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
-              SizedBox(height: 8.h),
-            ],
-          ),
-        ],
+            ),
+
+            // العدد
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "$_currentCount",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 50.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -347,6 +402,8 @@ class _ZikrPageState extends State<ZikrPage> {
   // =============================================
 
   void _onCounterTap() {
+    _playTapAnimation();
+
     setState(() {
       _currentCount++;
       _checkZikrCompletion();
@@ -385,6 +442,9 @@ class _ZikrPageState extends State<ZikrPage> {
     final requiredCount = _getCurrentZikr().count;
 
     if (_currentCount >= requiredCount) {
+      // تشغيل الاهتزاز عند الانتهاء من الذكر
+      _playVibration();
+
       if (_hasNextZikr()) {
         _updateZikrIndex(_getCurrentZikrIndex() + 1);
       } else {
