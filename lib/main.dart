@@ -16,9 +16,17 @@ import 'package:ghaith/core/QuranPages/data/quran_reading_repository.dart';
 import 'package:ghaith/core/QuranPages/data/bookmark_repository.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/core/splash/splash_screen.dart';
+import 'package:ghaith/core/prayer/services/prayer_times_service.dart';
+import 'package:ghaith/core/prayer/services/location_service.dart';
+import 'package:ghaith/core/prayer/services/notification_service_prayer.dart';
+import 'package:ghaith/core/prayer/cubits/prayer_times_cubit.dart';
+import 'package:ghaith/core/prayer/cubits/prayer_settings_cubit.dart';
+import 'package:ghaith/core/prayer/cubits/location_cubit.dart';
+import 'package:ghaith/services/notification_service.dart'; // ⭐ import  NotificationService
 
 final AudioPlayer audioPlayer = AudioPlayer();
 final ValueNotifier<bool> isDarkModeNotifier = ValueNotifier(getValue("darkMode") ?? false);
+final ValueNotifier<String> fontTypeNotifier = ValueNotifier(getValue("fontType") ?? "app");
 
 // =============================================
 // 🚀 MAIN APPLICATION ENTRY POINT
@@ -50,6 +58,16 @@ void main() async {
         RepositoryProvider<BookmarkRepository>(
           create: (_) => const BookmarkRepository(),
         ),
+        // Prayer services
+        RepositoryProvider<PrayerTimesService>(
+          create: (_) => PrayerTimesService(),
+        ),
+        RepositoryProvider<LocationService>(
+          create: (_) => LocationService(),
+        ),
+        RepositoryProvider<PrayerNotificationService>(
+          create: (_) => PrayerNotificationService(),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -65,6 +83,22 @@ void main() async {
             create: (context) => BookmarkCubit(
               context.read<BookmarkRepository>(),
             )..loadBookmarks(),
+          ),
+          // Prayer cubits
+          BlocProvider(
+            create: (context) => PrayerSettingsCubit()..loadSettings(),
+          ),
+          BlocProvider(
+            create: (context) => LocationCubit(
+              context.read<LocationService>(),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => PrayerTimesCubit(
+              prayerTimesService: context.read<PrayerTimesService>(),
+              locationService: context.read<LocationService>(),
+              notificationService: context.read<PrayerNotificationService>(),
+            )..loadPrayerTimes(),
           ),
         ],
         child: const GhaithMuslimApp(),
@@ -99,16 +133,22 @@ class _GhaithMuslimAppState extends State<GhaithMuslimApp> {
         child: ValueListenableBuilder(
           valueListenable: isDarkModeNotifier,
           builder: (context, isDark, child) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              title: 'غيث المسلم',
-              localizationsDelegates: context.localizationDelegates,
-              supportedLocales: context.supportedLocales,
-              locale: context.locale,
-              theme: buildTheme(context, false),
-              darkTheme: buildTheme(context, true),
-              themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-              home: const SplashScreen(),
+            return ValueListenableBuilder(
+              valueListenable: fontTypeNotifier,
+              builder: (context, fontType, _) {
+                return MaterialApp(
+                  navigatorKey: NotificationService.navigatorKey, // ⭐ للتنقل من الإشعارات
+                  debugShowCheckedModeBanner: false,
+                  title: 'غيث المسلم',
+                  localizationsDelegates: context.localizationDelegates,
+                  supportedLocales: context.supportedLocales,
+                  locale: context.locale,
+                  theme: buildTheme(context, false, fontType),
+                  darkTheme: buildTheme(context, true, fontType),
+                  themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+                  home: const SplashScreen(),
+                );
+              },
             );
           },
         ),

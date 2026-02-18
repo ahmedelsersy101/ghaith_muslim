@@ -693,6 +693,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       time: time,
       channelId: "quranDaily",
       channelName: "Quran Daily Reading",
+      payload: 'quranDaily', // ⭐ إضافة payload للتنقل
     );
   }
 
@@ -759,6 +760,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       time: time,
       channelId: "morningAzkar",
       channelName: "Morning Azkar",
+      payload: 'morningAzkar', // ⭐ إضافة payload للتنقل
     );
   }
 
@@ -825,6 +827,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       time: time,
       channelId: "eveningAzkar",
       channelName: "Evening Azkar",
+      payload: 'eveningAzkar', // ⭐ إضافة payload للتنقل
     );
   }
 

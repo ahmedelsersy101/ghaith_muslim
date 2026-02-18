@@ -208,6 +208,106 @@ class _SettingsViewState extends State<SettingsView> {
                     ),
                   ),
 
+                  // const SizedBox(height: 16),
+
+                  // // Font Type Setting Card
+                  // _buildSettingsCard(
+                  //   isDark: isDark,
+                  //   child: Row(
+                  //     children: [
+                  //       Container(
+                  //         padding: const EdgeInsets.all(14),
+                  //         decoration: BoxDecoration(
+                  //           color:
+                  //               isDark ? Colors.white.withOpacity(0.15) : const Color(0xFFF5E6E6),
+                  //           borderRadius: BorderRadius.circular(16),
+                  //         ),
+                  //         child: Icon(
+                  //           Icons.font_download_rounded,
+                  //           color: isDark ? Colors.white70 : const Color(0xFF8B4545),
+                  //           size: 32,
+                  //         ),
+                  //       ),
+                  //       const SizedBox(width: 16),
+                  //       Expanded(
+                  //         child: Column(
+                  //           crossAxisAlignment: CrossAxisAlignment.start,
+                  //           children: [
+                  //             Text(
+                  //               "fontType"
+                  //                   .tr(), // Ensure this key exists or use a hardcoded fallback/add to json
+                  //               style: TextStyle(
+                  //                 color: isDark ? Colors.white : deepNavyBlack,
+                  //                 fontFamily: "cairo",
+                  //                 fontSize: 18.sp,
+                  //                 fontWeight: FontWeight.w600,
+                  //               ),
+                  //             ),
+                  //             const SizedBox(height: 8),
+                  //             Container(
+                  //               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  //               decoration: BoxDecoration(
+                  //                 color: isDark
+                  //                     ? Colors.black.withOpacity(0.2)
+                  //                     : const Color(0xFFF5F5F5),
+                  //                 borderRadius: BorderRadius.circular(12),
+                  //               ),
+                  //               child: ValueListenableBuilder<String>(
+                  //                 valueListenable: fontTypeNotifier,
+                  //                 builder: (context, fontType, _) {
+                  //                   return DropdownButtonHideUnderline(
+                  //                     child: DropdownButton<String>(
+                  //                       value: fontType,
+                  //                       isExpanded: true,
+                  //                       isDense: true,
+                  //                       dropdownColor:
+                  //                           isDark ? const Color(0xFF2D2D2D) : Colors.white,
+                  //                       icon: Icon(
+                  //                         Icons.keyboard_arrow_down_rounded,
+                  //                         color: isDark ? Colors.white70 : Colors.grey.shade600,
+                  //                       ),
+                  //                       onChanged: (String? newValue) {
+                  //                         if (newValue != null) {
+                  //                           fontTypeNotifier.value = newValue;
+                  //                           updateValue("fontType", newValue);
+                  //                         }
+                  //                       },
+                  //                       items: [
+                  //                         DropdownMenuItem(
+                  //                           value: "app",
+                  //                           child: Text(
+                  //                             "appFont".tr(),
+                  //                             style: TextStyle(
+                  //                               color: isDark ? Colors.white : deepNavyBlack,
+                  //                               fontFamily: "cairo",
+                  //                               fontSize: 15.sp,
+                  //                             ),
+                  //                           ),
+                  //                         ),
+                  //                         DropdownMenuItem(
+                  //                           value: "device",
+                  //                           child: Text(
+                  //                             "deviceFont".tr(),
+                  //                             style: TextStyle(
+                  //                               color: isDark ? Colors.white : deepNavyBlack,
+                  //                               // Use system font for this option so user sees the difference
+                  //                               fontSize: 15.sp,
+                  //                             ),
+                  //                           ),
+                  //                         ),
+                  //                       ],
+                  //                     ),
+                  //                   );
+                  //                 },
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+
                   const SizedBox(height: 16),
 
                   // Notifications Setting Card

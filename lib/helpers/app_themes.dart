@@ -2,8 +2,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-ThemeData buildTheme(BuildContext context, bool isDark) {
-  final fontFamily = _getFontFamily(context);
+ThemeData buildTheme(BuildContext context, bool isDark, String fontType) {
+  final fontFamily = _getFontFamily(context, fontType);
 
   return isDark
       ? ThemeData.dark().copyWith(
@@ -19,6 +19,7 @@ ThemeData buildTheme(BuildContext context, bool isDark) {
 }
 
 // [CAN_BE_EXTRACTED] -> themes/app_themes.dart
-String _getFontFamily(BuildContext context) {
+String? _getFontFamily(BuildContext context, String fontType) {
+  if (fontType == "device") return null;
   return context.locale.languageCode == "ar" ? "cairo" : "roboto";
 }

@@ -18,7 +18,7 @@ class SuperellipseButton extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
           color: isDarkModeNotifier.value
@@ -32,30 +32,33 @@ class SuperellipseButton extends StatelessWidget {
           ),
           child: InkWell(
             onTap: onPressed,
-            borderRadius: BorderRadius.circular(44.r),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 8.h,
-                ),
-                Image.asset(
-                  imagePath,
-                  height: (MediaQuery.of(context).size.height * .099),
-                  // color: const Color(0xffD28A00)
-                ),
-                Text(
-                  text,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: isDarkModeNotifier.value ? Colors.white70 : Colors.black,
-                      fontSize: 16.sp,
-                      fontFamily: "Taha"),
-                ),
-                SizedBox(
-                  height: 16.h,
-                ),
-              ],
+            borderRadius: BorderRadius.circular(24.r),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 2.h,
+                  ),
+                  Image.asset(
+                    imagePath,
+                    height: (MediaQuery.of(context).size.height * .080),
+                    // color: const Color(0xffD28A00)
+                  ),
+                  Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: isDarkModeNotifier.value ? Colors.white70 : Colors.black,
+                        fontSize: 14.sp,
+                        fontFamily: "Taha"),
+                  ),
+                  SizedBox(
+                    height: 2.h,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

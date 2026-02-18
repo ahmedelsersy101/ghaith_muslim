@@ -2,6 +2,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:ghaith/core/prayer/prayer_times_page.dart';
+import 'package:ghaith/core/prayer/components/prayer_time_card.dart';
+import 'package:ghaith/core/prayer/components/permission_denied_card.dart';
+import 'package:ghaith/core/prayer/cubits/prayer_times_cubit.dart';
 import 'package:ghaith/helpers/home_blocs.dart';
 import 'package:ghaith/helpers/home_state.dart';
 import 'package:ghaith/core/calender/calender.dart';
@@ -39,6 +43,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -419,10 +424,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-        body: Navigator(
-            onGenerateRoute: ((settings) => MaterialPageRoute(
-                settings: settings, builder: (builder) => _buildHomeScaffold(context)))));
+    return _buildHomeScaffold(context);
   }
 
   Widget _buildHomeScaffold(BuildContext context) {
@@ -430,17 +432,20 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Scaffold(
       backgroundColor: isDarkModeNotifier.value ? deepNavyBlack : paperBeige,
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(0),
-        child: SizedBox.shrink(),
-      ),
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Stack(
-          children: [
-            _buildDecorativeBackground(screenSize),
-            _buildBody(screenSize),
-          ],
+      // appBar: const PreferredSize(
+      //   preferredSize: Size.fromHeight(0),
+      //   child: SizedBox.shrink(),
+      // ),
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Stack(
+            children: [
+              _buildDecorativeBackground(screenSize),
+              _buildBody(screenSize),
+            ],
+          ),
         ),
       ),
     );
@@ -535,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen>
           // Decorative pattern
           Positioned.fill(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(32.r),
+              borderRadius: BorderRadius.circular(24.r),
               child: CustomPaint(
                 painter: IslamicPatternPainter(
                   color: Colors.white.withOpacity(0.06),
@@ -547,7 +552,7 @@ class _HomeScreenState extends State<HomeScreen>
           // Glossy overlay effect
           Positioned.fill(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(32.r),
+              borderRadius: BorderRadius.circular(24.r),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -645,18 +650,18 @@ class _HomeScreenState extends State<HomeScreen>
                               ],
                             ),
                           ),
-                          SizedBox(height: 6.h),
-                          Padding(
-                            padding: EdgeInsets.only(right: 4.w),
-                            child: Text(
-                              gregorianDate,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
+                          // SizedBox(height: 6.h),
+                          // Padding(
+                          //   padding: EdgeInsets.only(right: 4.w),
+                          //   child: Text(
+                          //     gregorianDate,
+                          //     style: TextStyle(
+                          //       color: Colors.white.withOpacity(0.8),
+                          //       fontSize: 14.sp,
+                          //       fontWeight: FontWeight.w500,
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -700,7 +705,7 @@ class _HomeScreenState extends State<HomeScreen>
                 // Bismillah Card
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -892,7 +897,7 @@ class _HomeScreenState extends State<HomeScreen>
                 const Color(0xFF4a1520),
               ],
       ),
-      borderRadius: BorderRadius.circular(32.r),
+      borderRadius: BorderRadius.circular(24.r),
       boxShadow: [
         BoxShadow(
           color: (isDark ? const Color(0xFF8C2F3A) : wineRed).withOpacity(0.3),
@@ -979,9 +984,9 @@ class _HomeScreenState extends State<HomeScreen>
         child: ListView(
           padding: EdgeInsets.only(bottom: 24.h),
           children: [
-            SizedBox(height: 50.h),
+            SizedBox(height: 16.h),
             _buildHeroHeader(screenSize),
-            SizedBox(height: 8.h),
+            SizedBox(height: 0.h),
             _buildHomeContent(context, screenSize),
           ],
         ),
@@ -994,9 +999,248 @@ class _HomeScreenState extends State<HomeScreen>
       padding: EdgeInsets.symmetric(horizontal: 16.0.w),
       child: Column(
         children: [
+          buildCardPrayerTimes(),
+          SizedBox(height: 12.h),
           _buildMainButtons(),
-          SizedBox(height: 20.h),
+          SizedBox(height: 12.h),
           _buildWidgetsSection(screenSize),
+        ],
+      ),
+    );
+  }
+
+  BlocBuilder<PrayerTimesCubit, PrayerTimesState> buildCardPrayerTimes() {
+    return BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
+      builder: (context, state) {
+        if (state is PrayerTimesLoaded) {
+          return PrayerTimeCard(
+            nextPrayer: state.nextPrayer,
+            nextPrayerArabic: state.nextPrayerArabic,
+            prayerTime: state.nextPrayerTime,
+            countdown: state.countdown,
+            fajr: state.fajr,
+            sunrise: state.sunrise,
+            dhuhr: state.dhuhr,
+            asr: state.asr,
+            maghrib: state.maghrib,
+            isha: state.isha,
+            onTap: _navigateToPrayer,
+          );
+        } else if (state is PrayerTimesPermissionDenied) {
+          return PermissionDeniedCard(
+            isPermanentlyDenied: false,
+            onRetry: () {
+              context.read<PrayerTimesCubit>().loadPrayerTimes();
+            },
+          );
+        } else if (state is PrayerTimesPermissionDeniedForever) {
+          return PermissionDeniedCard(
+            isPermanentlyDenied: true,
+            onRetry: () {
+              context.read<PrayerTimesCubit>().loadPrayerTimes();
+            },
+          );
+        } else if (state is PrayerTimesLocationServiceDisabled) {
+          return LocationServiceDisabledCard(
+            onRetry: () {
+              context.read<PrayerTimesCubit>().loadPrayerTimes();
+            },
+          );
+        } else if (state is PrayerTimesError) {
+          return _buildErrorCard(context);
+        }
+        // Show shimmer for loading or initial states
+        return _buildPrayerCardShimmer();
+      },
+    );
+  }
+
+  Widget _buildPrayerCardShimmer() {
+    return Shimmer.fromColors(
+      baseColor: isDarkModeNotifier.value ? Colors.grey[800]! : Colors.grey[300]!,
+      highlightColor: isDarkModeNotifier.value ? Colors.grey[700]! : Colors.grey[100]!,
+      child: Container(
+        padding: EdgeInsets.all(24.w),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(24.r),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
+        ),
+        child: Column(
+          children: [
+            // Header: Icon + Text + Chevron
+            Row(
+              children: [
+                // Icon placeholder
+                Container(
+                  width: 40.w,
+                  height: 40.w,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 100.w,
+                        height: 12.h,
+                        color: Colors.white,
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        children: [
+                          Container(
+                            width: 80.w,
+                            height: 20.h,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 8.w),
+                          Container(
+                            width: 60.w,
+                            height: 14.h,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 24.w,
+                  height: 24.w,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+
+            SizedBox(height: 16.h),
+
+            // Divider
+            Container(
+              height: 1,
+              width: double.infinity,
+              color: Colors.white.withOpacity(0.2),
+            ),
+
+            SizedBox(height: 12.h),
+
+            // Grid Items
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(5, (index) {
+                return Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 2.w),
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 30.w,
+                          height: 10.h,
+                          color: Colors.white,
+                        ),
+                        SizedBox(height: 4.h),
+                        Container(
+                          width: 40.w,
+                          height: 12.h,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorCard(BuildContext context) {
+    final isDark = isDarkModeNotifier.value;
+    final isArabic = context.locale.languageCode == 'ar';
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(24.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [
+                  const Color(0xFF8C2F3A),
+                  const Color(0xFF6a1e2c),
+                  const Color(0xFF4a1520),
+                ]
+              : [
+                  const Color(0xFF8C2F3A),
+                  const Color(0xFF6a1e2c),
+                  const Color(0xFF4a1520),
+                ],
+        ),
+        borderRadius: BorderRadius.circular(24.r),
+        boxShadow: [
+          BoxShadow(
+            color: (isDark ? const Color(0xFF8C2F3A) : wineRed).withOpacity(0.3),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            spreadRadius: -16,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            color: Colors.white,
+            size: 48.sp,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'prayerTimesError'.tr(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'cairo',
+            ),
+          ),
+          SizedBox(height: 16.h),
+          ElevatedButton(
+            onPressed: () {
+              context.read<PrayerTimesCubit>().loadPrayerTimes();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: wineRed,
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+            ),
+            child: Text(
+              'tryAgain'.tr(),
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'cairo',
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1009,21 +1253,21 @@ class _HomeScreenState extends State<HomeScreen>
       child: Stack(
         children: [
           // Decorative pattern
-          // Positioned.fill(
-          //   child: ClipRRect(
-          //     borderRadius: BorderRadius.circular(32.r),
-          //     child: CustomPaint(
-          //       painter: IslamicPatternPainter(
-          //         color: Colors.white.withOpacity(0.06),
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24.r),
+              child: CustomPaint(
+                painter: IslamicPatternPainter(
+                  color: Colors.white.withOpacity(0.06),
+                ),
+              ),
+            ),
+          ),
 
           // Glossy overlay effect
           Positioned.fill(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(32.r),
+              borderRadius: BorderRadius.circular(24.r),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -1040,6 +1284,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
           ),
+
           // Grid content
           Padding(
             padding: const EdgeInsets.all(12),
@@ -1073,10 +1318,8 @@ class _HomeScreenState extends State<HomeScreen>
     return GridView.count(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        crossAxisSpacing: 4.w,
-        mainAxisSpacing: 4.h,
-        crossAxisCount: 2,
-        childAspectRatio: 0.9,
+        crossAxisCount: 3,
+        childAspectRatio: 0.7,
         children: <Widget>[
           SuperellipseButton(
               text: "quran".tr(),
@@ -1139,12 +1382,17 @@ class _HomeScreenState extends State<HomeScreen>
     Navigator.push(context, MaterialPageRoute(builder: (builder) => const CalenderPage()));
   }
 
+  void _navigateToPrayer() {
+    Navigator.push(context, MaterialPageRoute(builder: (builder) => const PrayerTimesPage()));
+  }
+
   Widget _buildWidgetsSection(Size screenSize) {
     return Column(
       children: [
         _buildQuranVerseWidget(context, screenSize),
         SizedBox(height: 16.h),
         _buildHadithWidget(screenSize),
+        SizedBox(height: 8.h),
       ],
     );
   }

@@ -9,6 +9,8 @@ import 'package:flutter_overlay_window/flutter_overlay_window.dart' as overlay;
 import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/helpers/messaging_helper.dart';
 import 'package:ghaith/core/notifications/data/40hadith.dart';
+import 'package:ghaith/core/azkar/views/azkar_homepage.dart';
+import 'package:ghaith/core/QuranPages/views/quranDetailsPage.dart';
 import 'package:quran/quran.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -210,6 +212,7 @@ Future<void> _handleQuranDailyReadingNotification() async {
     "⏰ تذكير بالورد القرآني",
     "حان وقت قراءة وردك من القرآن الكريم",
     notificationDetails,
+    payload: 'quranDaily', // ⭐ جديد: إضافة payload للتنقل
   );
 }
 
@@ -246,6 +249,7 @@ Future<void> _handleMorningAzkarNotification() async {
     "🌅 أذكار الصباح",
     "حان وقت أذكار الصباح",
     notificationDetails,
+    payload: 'morningAzkar', // ⭐ جديد: إضافة payload للتنقل
   );
 }
 
@@ -282,17 +286,69 @@ Future<void> _handleEveningAzkarNotification() async {
     "🌙 أذكار المساء",
     "حان وقت أذكار المساء",
     notificationDetails,
+    payload: 'eveningAzkar', // ⭐ جديد: إضافة payload للتنقل
   );
 }
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
 
+  // ⭐ جديد: GlobalKey للتنقل من خارج BuildContext
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   factory NotificationService() {
     return _instance;
   }
 
-  NotificationService._internal();
+  NotificationService._internal() {
+    _initializeNotifications();
+  }
+
+  // ⭐ جديد: تهيئة الإشعارات مع معالج النقرات
+  Future<void> _initializeNotifications() async {
+    const initializationSettingsAndroid =
+        notificationPlugin.AndroidInitializationSettings('@mipmap/ic_launcher');
+    const initializationSettings = notificationPlugin.InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: _onNotificationTapped,
+    );
+  }
+
+  // ⭐ جديد: معالج النقرات على الإشعارات
+  void _onNotificationTapped(notificationPlugin.NotificationResponse response) {
+    final payload = response.payload;
+    if (payload == null) return;
+
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+
+    // التنقل بناءً على نوع الإشعار
+    switch (payload) {
+      case 'morningAzkar':
+      case 'eveningAzkar':
+        // فتح صفحة الأذكار
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AzkarHomePage(),
+          ),
+        );
+        break;
+      case 'quranDaily':
+        // فتح صفحة القرآن
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const QuranReadingPage(),
+          ),
+        );
+        break;
+    }
+  }
 
   /// عرض إشعار فوري (للاختبار)
   Future<void> showNotification({
@@ -407,6 +463,7 @@ class NotificationService {
     required TimeOfDay time,
     required String channelId,
     required String channelName,
+    String? payload, // ⭐ جديد: إضافة payload اختياري
   }) async {
     try {
       print("🔔 Requesting permissions on Android...");
@@ -447,6 +504,7 @@ class NotificationService {
         ),
         androidScheduleMode: notificationPlugin.AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: notificationPlugin.DateTimeComponents.time,
+        payload: payload, // ⭐ جديد: تمرير الـ payload
       );
       print("✅ Notification scheduled successfully: $id");
     } catch (e) {
