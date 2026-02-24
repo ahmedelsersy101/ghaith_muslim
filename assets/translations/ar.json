@@ -19,12 +19,12 @@
   "azkar": "الأذكار والأدعية",
   "notifications": "الاشعارات",
   "surah": "سورة",
-  "juz": "جزء",
-  "quarter": "ربع",
+  "juz": "الجزء",
+  "quarter": "الربع",
   "lastRead": "اخر ما تم قرائته",
   "alQuran": "القرأن الكريم",
   "searchQuran": "ابحث عن سورة او آية او صفحة",
-  "hizb": "حزب",
+  "hizb": "الحزب",
   "reset": "ضبط الافتراضي",
   "pageview": "صحفات افقية",
   "verticalview": "تقليب عمودي",
@@ -173,5 +173,7 @@
   "tryAgain": "إعادة المحاولة",
   "locationServiceDisabledTitle": "خدمة الموقع غير مفعلة",
   "locationServiceDisabledMessage": "يرجى تفعيل خدمة الموقع من إعدادات الجهاز",
+  "selectReciter": "حدد القاري", 
+  "reciter": "قاري",
   "enableLocation": "تفعيل الموقع"
 }

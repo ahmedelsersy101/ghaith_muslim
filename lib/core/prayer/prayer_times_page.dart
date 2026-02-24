@@ -35,13 +35,14 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
     return Scaffold(
       backgroundColor: isDark ? deepNavyBlack : paperBeige,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDarkModeNotifier.value ? darkSlateGray : wineRed,
         elevation: 0,
         title: Text(
           'prayerTimes'.tr(),
           style: TextStyle(
             fontFamily: 'cairo',
             fontWeight: FontWeight.bold,
+            color: Colors.white,
             fontSize: 20.sp,
           ),
         ),
@@ -49,9 +50,9 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
         leading: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_ios,
-              color: isDark ? Colors.white : Colors.black87,
+              color: Colors.white,
             ),
             onPressed: () => Navigator.pop(context),
           ),
@@ -60,9 +61,9 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.settings_rounded,
-                color: isDark ? Colors.white : Colors.black87,
+                color: Colors.white,
               ),
               onPressed: () {
                 // Navigate to settings page

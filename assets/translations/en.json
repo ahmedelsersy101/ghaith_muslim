@@ -169,5 +169,8 @@
   "tryAgain": "Try Again",
   "locationServiceDisabledTitle": "Location Service Disabled",
   "locationServiceDisabledMessage": "Please enable location service from device settings",
+
+  "selectReciter": "Select Reciter",
+  "reciter": "Reciter",
   "enableLocation": "Enable Location"
 }

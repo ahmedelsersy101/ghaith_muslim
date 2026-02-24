@@ -28,19 +28,19 @@ class _SettingsViewState extends State<SettingsView> {
         return Scaffold(
           backgroundColor: isDark ? deepNavyBlack : paperBeige,
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: isDark ? deepNavyBlack : wineRed,
             elevation: 0,
             title: Text(
               'settings'.tr(),
               style: TextStyle(
-                color: isDark ? softOffWhite : deepNavyBlack,
+                color: softOffWhite,
                 fontFamily: "cairo",
                 fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
             centerTitle: true,
-            foregroundColor: isDark ? softOffWhite : deepNavyBlack,
+            foregroundColor: softOffWhite,
           ),
           body: SingleChildScrollView(
             child: Padding(

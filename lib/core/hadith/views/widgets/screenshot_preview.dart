@@ -415,7 +415,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
     return Container(
       decoration: _buildBottomNavDecoration(),
       child: Padding(
-        padding: const EdgeInsets.only(left: 25.0, right: 25, bottom: 10, top: 10),
+        padding: const EdgeInsets.only(left: 25.0, right: 25, bottom: 60, top: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -450,7 +450,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
         height: 50,
         width: MediaQuery.of(context).size.width * .3,
         onTap: _shareScreenshot,
-        color: darkSlateGray,
+        color: isDarkModeNotifier.value ? deepNavyBlack : wineRed,
         child: Text(
           "shareexternal".tr(),
           style: const TextStyle(color: Colors.white),
@@ -467,7 +467,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
         height: 50,
         width: MediaQuery.of(context).size.width * .3,
         onTap: _saveScreenshot,
-        color: darkSlateGray,
+        color: isDarkModeNotifier.value ? deepNavyBlack : wineRed,
         child: Text(
           "savetogallery".tr(),
           style: TextStyle(

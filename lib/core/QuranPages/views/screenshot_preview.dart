@@ -164,7 +164,7 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: _buildBody(),
-      backgroundColor: Colors.white,
+      backgroundColor: isDarkModeNotifier.value ? darkSlateGray : paperBeige,
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -233,8 +233,8 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.black,
+          style: TextStyle(
+            color: isDarkModeNotifier.value ? Colors.white : darkSlateGray,
             fontSize: 16.0,
           ),
         ),
@@ -567,7 +567,12 @@ class _ScreenShotPreviewPageState extends State<ScreenShotPreviewPage> {
         color: isDarkModeNotifier.value ? deepNavyBlack : Colors.transparent,
       ),
       child: Padding(
-        padding: const EdgeInsets.only(left: 0),
+        padding: EdgeInsets.only(
+          bottom: 40.0.h,
+          top: 16.0.h,
+          left: 16.0.w,
+          right: 16.0.w,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

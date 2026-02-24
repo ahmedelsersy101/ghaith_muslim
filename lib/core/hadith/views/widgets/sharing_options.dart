@@ -4,6 +4,7 @@ import 'package:easy_container/easy_container.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ghaith/main.dart';
 import 'package:share_plus/share_plus.dart';
 
 // =============================================
@@ -57,6 +58,7 @@ class _SharingOptionsState extends State<SharingOptions> {
           _buildHeader(),
           _buildSharingOptions(),
           _buildActionButton(),
+          SizedBox(height: 35.h),
         ],
       ),
     );
@@ -68,12 +70,12 @@ class _SharingOptionsState extends State<SharingOptions> {
 
   // [CAN_BE_EXTRACTED] -> widgets/decorations.dart
   BoxDecoration _buildContainerDecoration() {
-    return const BoxDecoration(
-      borderRadius: BorderRadius.only(
+    return BoxDecoration(
+      borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(12),
         topRight: Radius.circular(12),
       ),
-      color: Colors.white,
+      color: isDarkModeNotifier.value ? deepNavyBlack : Colors.white,
     );
   }
 
@@ -83,7 +85,8 @@ class _SharingOptionsState extends State<SharingOptions> {
       padding: const EdgeInsets.only(top: 16.0),
       child: Text(
         widget.isImage ? "asimage".tr() : "astext".tr(),
-        style: TextStyle(fontSize: 18.sp),
+        style: TextStyle(
+            fontSize: 18.sp, color: isDarkModeNotifier.value ? Colors.white : deepNavyBlack),
       ),
     );
   }
@@ -103,7 +106,10 @@ class _SharingOptionsState extends State<SharingOptions> {
   // [CAN_BE_EXTRACTED] -> widgets/switch_option.dart
   Widget _buildExplanationOption() {
     return SwitchListTile(
-      title: Text("explanation".tr()),
+      title: Text(
+        "explanation".tr(),
+        style: TextStyle(color: isDarkModeNotifier.value ? Colors.white : deepNavyBlack),
+      ),
       value: _includeExplanation,
       onChanged: _onExplanationChanged,
     );
@@ -112,7 +118,8 @@ class _SharingOptionsState extends State<SharingOptions> {
   // [CAN_BE_EXTRACTED] -> widgets/switch_option.dart
   Widget _buildMeaningsOption() {
     return SwitchListTile(
-      title: Text("meanings".tr()),
+      title: Text("meanings".tr(),
+          style: TextStyle(color: isDarkModeNotifier.value ? Colors.white : deepNavyBlack)),
       value: _includeMeanings,
       onChanged: _onMeaningsChanged,
     );

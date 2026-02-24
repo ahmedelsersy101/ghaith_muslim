@@ -44,11 +44,12 @@ class SettingsBottomSheet {
                       icon: Icons.color_lens,
                       onTap: () => setStatee(() => tabIndex = 0),
                     ),
-                    _buildTabButton(
-                      isSelected: tabIndex == 1,
-                      icon: Icons.font_download,
-                      onTap: () => setStatee(() => tabIndex = 1),
-                    ),
+                    if (getValue("alignmentType") == "versebyverse")
+                      _buildTabButton(
+                        isSelected: tabIndex == 1,
+                        icon: Icons.font_download,
+                        onTap: () => setStatee(() => tabIndex = 1),
+                      ),
                     _buildTabButton(
                       isSelected: tabIndex == 2,
                       icon: Icons.view_agenda,

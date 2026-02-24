@@ -8,7 +8,6 @@ import 'package:dio/dio.dart';
 import 'package:easy_container/easy_container.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttericon/font_awesome_icons.dart';
 import 'package:path_provider/path_provider.dart';
@@ -312,7 +311,6 @@ class _RecitersSurahListPageState extends State<RecitersSurahListPage> {
       actions: [
         _buildReciterPhoto(),
       ],
-      systemOverlayStyle: SystemUiOverlayStyle.light,
     );
   }
 

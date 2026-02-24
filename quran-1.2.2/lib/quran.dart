@@ -84,8 +84,7 @@ int getVerseCountByPage(int pageNumber) {
   }
   int totalVerseCount = 0;
   for (int i = 0; i < pageData[pageNumber - 1].length; i++) {
-    totalVerseCount +=
-        int.parse(pageData[pageNumber - 1][i]!["end"].toString());
+    totalVerseCount += int.parse(pageData[pageNumber - 1][i]!["end"].toString());
   }
   return totalVerseCount;
 }
@@ -168,9 +167,7 @@ int getPageNumber(int surahNumber, int verseNumber) {
         surahIndexInPage < pageData[pageIndex].length;
         surahIndexInPage++) {
       final e = pageData[pageIndex][surahIndexInPage];
-      if (e['surah'] == surahNumber &&
-          e['start'] <= verseNumber &&
-          e['end'] >= verseNumber) {
+      if (e['surah'] == surahNumber && e['start'] <= verseNumber && e['end'] >= verseNumber) {
         return pageIndex + 1;
       }
     }
@@ -196,8 +193,7 @@ int getVerseCount(int surahNumber) {
 }
 
 ///Takes [surahNumber], [verseNumber] & [verseEndSymbol] (optional) and returns the Verse in Arabic
-String getVerse(int surahNumber, int verseNumber,
-    {bool verseEndSymbol = false}) {
+String getVerse(int surahNumber, int verseNumber, {bool verseEndSymbol = false}) {
   String verse = "";
   for (var i in quranText) {
     if (i['surah_number'] == surahNumber && i['verse_number'] == verseNumber) {
@@ -213,8 +209,7 @@ String getVerse(int surahNumber, int verseNumber,
   return verse + (verseEndSymbol ? getVerseEndSymbol(verseNumber) : "");
 }
 
-String getVerseQCF(int surahNumber, int verseNumber,
-    {bool verseEndSymbol = false}) {
+String getVerseQCF(int surahNumber, int verseNumber, {bool verseEndSymbol = false}) {
   String verse = "";
   for (var i in quranText) {
     if (i['surah_number'] == surahNumber && i['verse_number'] == verseNumber) {
@@ -341,8 +336,27 @@ getReciters() {
   return reciters;
 }
 
+String _getEveryAyahUrl(String reciterPath, int surahNumber, int verseNumber) {
+  String surahStr = surahNumber.toString().padLeft(3, '0');
+  String verseStr = verseNumber.toString().padLeft(3, '0');
+  return "https://everyayah.com/data/$reciterPath/$surahStr$verseStr.mp3";
+}
+
 ///Takes [surahNumber] & [verseNumber] and returns audio URL of that verse
 String getAudioURLByVerse(int surahNumber, int verseNumber, reciterIdentifier) {
+  const everyAyahMap = {
+    "ar.abdulsamad": "AbdulSamad_64kbps_QuranExplorer.Com",
+    "ar.minshawi": "Minshawy_Murattal_128kbps",
+    "ar.alafasy": "Alafasy_128kbps",
+    "ar.husary": "Husary_128kbps",
+    "ar.ibrahimakhbar": "Ibrahim_Akhdar_32kbps",
+    "ar.parhizgar": "Parhizgar_48kbps",
+  };
+
+  if (everyAyahMap.containsKey(reciterIdentifier)) {
+    return _getEveryAyahUrl(everyAyahMap[reciterIdentifier]!, surahNumber, verseNumber);
+  }
+
   int verseNum = 0;
   for (var i in quranText) {
     if (i['surah_number'] == surahNumber && i['verse_number'] == verseNumber) {
@@ -366,11 +380,27 @@ String getAudioURLByVerse(int surahNumber, int verseNumber, reciterIdentifier) {
 }
 
 ///Takes [surahNumber] & [verseNumber] and returns true if verse is sajdah
-bool isSajdahVerse(int surahNumber, int verseNumber) =>
-    sajdahVerses[surahNumber] == verseNumber;
+bool isSajdahVerse(int surahNumber, int verseNumber) => sajdahVerses[surahNumber] == verseNumber;
 
 ///Takes [verseNumber] and returns audio URL of that verse
 String getAudioURLByVerseNumber(int verseNumber, reciterIdentifier) {
+  const everyAyahMap = {
+    "ar.abdulsamad": "AbdulSamad_64kbps_QuranExplorer.Com",
+    "ar.minshawi": "Minshawy_Murattal_128kbps",
+    "ar.alafasy": "Alafasy_128kbps",
+    "ar.husary": "Husary_128kbps",
+    "ar.ibrahimakhbar": "Ibrahim_Akhdar_32kbps",
+    "ar.parhizgar": "Parhizgar_48kbps",
+  };
+
+  if (everyAyahMap.containsKey(reciterIdentifier)) {
+    if (verseNumber > 0 && verseNumber <= quranText.length) {
+      int sNum = quranText[verseNumber - 1]['surah_number'] as int;
+      int vNum = quranText[verseNumber - 1]['verse_number'] as int;
+      return _getEveryAyahUrl(everyAyahMap[reciterIdentifier]!, sNum, vNum);
+    }
+  }
+
   return "https://cdn.islamic.network/quran/audio/64/$reciterIdentifier/$verseNumber.mp3";
 }
 
@@ -391,8 +421,7 @@ enum Translation {
 
 ///Takes [surahNumber], [verseNumber], [verseEndSymbol] (optional) & [translation] (optional) and returns verse translation
 String getVerseTranslation(int surahNumber, int verseNumber, value,
-    {bool verseEndSymbol = false,
-    Translation translation = Translation.enSaheeh}) {
+    {bool verseEndSymbol = false, Translation translation = Translation.enSaheeh}) {
   String verse = "";
 
   // var translationText = enSaheeh;
@@ -455,10 +484,7 @@ String getVerseTranslation(int surahNumber, int verseNumber, value,
     throw "No verse found with given surahNumber and verseNumber.\n\n";
   }
 
-  return verse +
-      (verseEndSymbol
-          ? getVerseEndSymbol(verseNumber, arabicNumeral: false)
-          : "");
+  return verse + (verseEndSymbol ? getVerseEndSymbol(verseNumber, arabicNumeral: false) : "");
 }
 
 ///Takes a list of words [words] and [translation] (optional) and returns a map containing no. of occurences and result of the word search in the traslation
@@ -577,16 +603,13 @@ String normalise(String input) => input
 
     //Remove koranic anotation
     .replaceAll('\u0615', '') //ARABIC SMALL HIGH TAH
-    .replaceAll(
-        '\u0616', '') //ARABIC SMALL HIGH LIGATURE ALEF WITH LAM WITH YEH
+    .replaceAll('\u0616', '') //ARABIC SMALL HIGH LIGATURE ALEF WITH LAM WITH YEH
     .replaceAll('\u0617', '') //ARABIC SMALL HIGH ZAIN
     .replaceAll('\u0618', '') //ARABIC SMALL FATHA
     .replaceAll('\u0619', '') //ARABIC SMALL DAMMA
     .replaceAll('\u061A', '') //ARABIC SMALL KASRA
-    .replaceAll('\u06D6',
-        '') //ARABIC SMALL HIGH LIGATURE SAD WITH LAM WITH ALEF MAKSURA
-    .replaceAll('\u06D7',
-        '') //ARABIC SMALL HIGH LIGATURE QAF WITH LAM WITH ALEF MAKSURA
+    .replaceAll('\u06D6', '') //ARABIC SMALL HIGH LIGATURE SAD WITH LAM WITH ALEF MAKSURA
+    .replaceAll('\u06D7', '') //ARABIC SMALL HIGH LIGATURE QAF WITH LAM WITH ALEF MAKSURA
     .replaceAll('\u06D8', '') //ARABIC SMALL HIGH MEEM INITIAL FORM
     .replaceAll('\u06D9', '') //ARABIC SMALL HIGH LAM ALEF
     .replaceAll('\u06DA', '') //ARABIC SMALL HIGH JEEM
@@ -666,8 +689,7 @@ String removeDiacritics(String input) {
   };
 
   // Create a regular expression pattern that matches Arabic diacritics
-  String diacriticsPattern =
-      diacriticsMap.keys.map((e) => RegExp.escape(e)).join('|');
+  String diacriticsPattern = diacriticsMap.keys.map((e) => RegExp.escape(e)).join('|');
   RegExp exp = RegExp('[$diacriticsPattern]');
 
   // Remove diacritics using the regular expression

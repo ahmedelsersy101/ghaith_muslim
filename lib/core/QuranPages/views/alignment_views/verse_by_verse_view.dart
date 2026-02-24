@@ -17,7 +17,7 @@ extension VerseByVerseViewExtension on QuranDetailsPageState {
                 color: secondaryColors[getValue("quranPageolorsIndex")].withOpacity(.45),
                 width: double.infinity,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 77.0.w),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -26,10 +26,10 @@ extension VerseByVerseViewExtension on QuranDetailsPageState {
                                         widget.quarterJsonData, quran.getPageData(index), indexes)
                                     .includesQuarter ==
                                 true
-                            ? "${"page".tr()} ${(index).toString()} | ${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).quarterIndex + 1) == 1 ? "" : "${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).quarterIndex).toString()}/${4.toString()}"} ${"hizb".tr()} ${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).hizbIndex + 1).toString()} | ${"juz".tr()}: ${getJuzNumber(getPageData(index)[0]["surah"], getPageData(index)[0]["start"])} "
-                            : "${"page".tr()} $index | ${"juz".tr()}: ${getJuzNumber(getPageData(index)[0]["surah"], getPageData(index)[0]["start"])}",
+                            ? "${"page".tr()} ${_convertNumbersToArabic(index.toString())} | ${(checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).quarterIndex + 1) == 1 ? "" : "${_convertNumbersToArabic((checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).quarterIndex).toString())}/${_convertNumbersToArabic(4.toString())}"} ${"hizb".tr()} ${_convertNumbersToArabic((checkIfPageIncludesQuarterAndQuarterIndex(widget.quarterJsonData, quran.getPageData(index), indexes).hizbIndex + 1).toString())} | ${"juz".tr()} ${_getArabicOrdinalJuzName(getJuzNumber(getPageData(index)[0]["surah"], getPageData(index)[0]["start"]))}"
+                            : "${"page".tr()} ${_convertNumbersToArabic(index.toString())} | ${"juz".tr()} ${_getArabicOrdinalJuzName(getJuzNumber(getPageData(index)[0]["surah"], getPageData(index)[0]["start"]))}",
                         style: TextStyle(
-                            fontSize: 12.sp,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.bold,
                             color: softOffWhites[getValue("quranPageolorsIndex")]),
                       ),
@@ -50,6 +50,9 @@ extension VerseByVerseViewExtension on QuranDetailsPageState {
             initialScrollIndex: getInitialPageIndex(context),
             itemPositionsListener: itemPositionsListener,
             itemBuilder: (context, index) {
+              // تنظيف التظليل عند تغيير الصفحة في عرض الآية بآية
+              verseHighlightTimer?.cancel();
+
               if (index == 0) {
                 return Container(
                   color: const Color(0xffFFFCE7),
@@ -109,49 +112,56 @@ extension VerseByVerseViewExtension on QuranDetailsPageState {
                                       locale: const Locale("ar"),
                                       children: [
                                         TextSpan(
-                                          recognizer: LongPressGestureRecognizer()
+                                          recognizer: LongPressGestureRecognizer(
+                                            duration: const Duration(milliseconds: 300),
+                                          )
+                                            ..onLongPressDown = (details) {
+                                              verseHighlightTimer?.cancel();
+                                              updateState(() {
+                                                selectedSpan = "${e["surah"]}:$i";
+                                              });
+                                            }
                                             ..onLongPress = () {
                                               showAyahOptionsSheet(index, e["surah"], i);
                                               print("longpressed");
                                             }
-                                            ..onLongPressDown = (details) {
-                                              updateState(() {
-                                                selectedSpan = " ${e["surah"]}$i";
-                                              });
+                                            ..onLongPressMoveUpdate = (details) {
+                                              if (details.offsetFromOrigin.distance > 20) {
+                                                verseHighlightTimer?.cancel();
+                                                updateState(() {
+                                                  selectedSpan = "";
+                                                });
+                                              }
                                             }
                                             ..onLongPressUp = () {
+                                              verseHighlightTimer?.cancel();
                                               updateState(() {
                                                 selectedSpan = "";
                                               });
                                               print("finished long press");
                                             }
-                                            ..onLongPressCancel = () => updateState(() {
-                                                  selectedSpan = "";
-                                                }),
+                                            ..onLongPressCancel = () {
+                                              verseHighlightTimer?.cancel();
+                                              updateState(() {
+                                                selectedSpan = "";
+                                              });
+                                            },
                                           text: quran.getVerse(e["surah"], i),
                                           style: TextStyle(
                                             color: darkWarmBrowns[getValue("quranPageolorsIndex")],
                                             fontSize: getValue("verseByVerseFontSize").toDouble(),
                                             fontFamily: getValue("selectedFontFamily"),
-                                            backgroundColor: hasLocalBookmark(
-                                              e["surah"] as int,
-                                              i as int,
-                                            )
-                                                ? localBookmarkColor(e["surah"] as int, i)
-                                                        ?.withOpacity(.19) ??
-                                                    Colors.transparent
-                                                : shouldHighlightText
-                                                    ? (highlightVerse == " ${e["surah"]}$i" ||
-                                                            selectedSpan == " ${e["surah"]}$i")
-                                                        ? highlightColors[
-                                                                getValue("quranPageolorsIndex")]
-                                                            .withOpacity(.25)
-                                                        : Colors.transparent
-                                                    : selectedSpan == " ${e["surah"]}$i"
-                                                        ? highlightColors[
-                                                                getValue("quranPageolorsIndex")]
-                                                            .withOpacity(.25)
-                                                        : Colors.transparent,
+                                            backgroundColor: selectedSpan == "${e["surah"]}:$i"
+                                                ? secondaryColors[getValue("quranPageolorsIndex")]
+                                                    .withOpacity(0.3)
+                                                : hasLocalBookmark(
+                                                    e["surah"] as int,
+                                                    i as int,
+                                                  )
+                                                    ? localBookmarkColor(e["surah"] as int, i)
+                                                            ?.withOpacity(.19) ??
+                                                        Colors.transparent
+                                                    : Colors.transparent,
                                           ),
                                         ),
                                         TextSpan(

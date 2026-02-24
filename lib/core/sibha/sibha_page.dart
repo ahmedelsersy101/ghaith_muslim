@@ -203,12 +203,12 @@ class _SibhaPageState extends State<SibhaPage> with TickerProviderStateMixin {
       PageController(initialPage: getValue("tasbeehLastIndex") ?? 0);
 
   void _onCounterTap() {
-    updateValue("${getValue("tasbeehLastIndex")}number",
-        (getValue("${getValue("tasbeehLastIndex")}number") ?? 0) + 1);
+    final index = getValue("tasbeehLastIndex") ?? 0; // ✅ خزّنها في متغير
+    updateValue("${index}number", (getValue("${index}number") ?? 0) + 1);
+
     _counterAnimationController.forward().then((_) {
       _counterAnimationController.reverse();
     });
-
     _rippleAnimationController.forward().then((_) {
       _rippleAnimationController.reset();
     });

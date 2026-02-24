@@ -71,7 +71,7 @@ class _HadithBooksPageState extends State<HadithBooksPage> {
   Future<void> _fetchCategoriesFromAPI() async {
     try {
       Response response = await Dio()
-          .get("https://hadeethenc.com/api/v1/categories/roots/?language=${widget.locale}");
+          .get("https://hadeethenc.com/api/v1/categories/list/?language=${widget.locale}");
 
       for (var cat in response.data) {
         _categories.add(Category.fromJson(cat));

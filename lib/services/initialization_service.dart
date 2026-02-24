@@ -1,10 +1,10 @@
 // [CAN_BE_EXTRACTED] -> services/initialization_service.dart
 import 'package:easy_localization/easy_localization.dart' as ez;
+import 'package:flutter/services.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:ghaith/helpers/hive_initialization_example.dart';
@@ -90,10 +90,17 @@ Future<void> _initializeDependencies() async {
 
 // [CAN_BE_EXTRACTED] -> services/initialization_service.dart
 Future<void> _configureSystemSettings() async {
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-  ));
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge); // ✅
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+      systemNavigationBarContrastEnforced: false,
+    ),
+  );
 
   await setOptimalDisplayMode();
 }

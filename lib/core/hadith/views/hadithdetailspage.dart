@@ -514,7 +514,7 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: const Color(0xffF5EFE8).withOpacity(.9),
+          color: isDarkModeNotifier.value ? deepNavyBlack : const Color(0xffF5EFE8).withOpacity(.9),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Padding(
@@ -522,8 +522,8 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
           child: Center(
             child: Icon(
               Icons.share,
-              color: Colors.black87,
-              size: 24.sp,
+              color: isDarkModeNotifier.value ? Colors.white : Colors.black,
+              size: 20.sp,
             ),
           ),
         ),
@@ -558,7 +558,7 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: const Color(0xffF5EFE8).withOpacity(.9),
+          color: isDarkModeNotifier.value ? deepNavyBlack : const Color(0xffF5EFE8).withOpacity(.9),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Padding(
@@ -566,8 +566,8 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
           child: Center(
             child: Icon(
               Icons.copy,
-              color: Colors.black87,
-              size: 24.sp,
+              color: isDarkModeNotifier.value ? Colors.white : Colors.black,
+              size: 20.sp,
             ),
           ),
         ),
@@ -638,7 +638,7 @@ class _HadithDetailsPageState extends State<HadithDetailsPage> {
     return TextStyle(
       color: isExpanded
           ? (isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : Colors.black87)
-          : (isDarkModeNotifier.value ? wineRed : const Color(0xffA28858)),
+          : (isDarkModeNotifier.value ? Colors.white.withOpacity(.87) : const Color(0xffA28858)),
       fontFamily: 'Taha',
       fontSize: 16.sp,
     );

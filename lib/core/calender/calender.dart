@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hijri/hijri_calendar.dart' as j;
 import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/helpers/hijri_date_helper.dart';
 import 'package:flutter/material.dart' as m;
 import 'package:jhijri_picker/jhijri_picker.dart';
 import 'package:ghaith/main.dart';
@@ -16,8 +17,8 @@ class CalenderPage extends StatefulWidget {
 
 class _CalenderPageState extends State<CalenderPage> with TickerProviderStateMixin {
   int index = 1;
-  var _today = j.HijriCalendar.now().toFormat(
-    "dd - MMMM - yyyy",
+  var _today = HijriDateHelper.getFormattedHijriDate(
+    format: "dd - MMMM - yyyy",
   );
   var date = DateTime.now();
 

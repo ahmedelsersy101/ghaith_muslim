@@ -15,6 +15,7 @@ import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/blocs/bookmark_cubit.dart';
 import 'package:ghaith/core/QuranPages/models/bookmark_model.dart';
+import 'package:ghaith/main.dart';
 import 'package:ghaith/models/reciter.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:quran/quran.dart' as quran;
@@ -167,7 +168,7 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
                         _buildBookmarksSection(),
                         SizedBox(height: 16.h),
                         _buildActionButtons(),
-                        SizedBox(height: 24.h),
+                        SizedBox(height: 60.h),
                       ],
                     ),
                   ),
@@ -492,7 +493,9 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
             Container(
               padding: EdgeInsets.all(12.r),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDarkModeNotifier.value
+                    ? _secondaryColor.withOpacity(0.2)
+                    : _primaryColor.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12.r),
                 boxShadow: [
                   BoxShadow(
@@ -555,28 +558,23 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
         padding: EdgeInsets.all(18.r),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              _primaryColor,
-              _primaryColor.withOpacity(0.85),
-            ],
+            colors: isDarkModeNotifier.value
+                ? [
+                    _primaryColor.withOpacity(0.08),
+                    _secondaryColor.withOpacity(0.08),
+                  ]
+                : [
+                    _secondaryColor.withOpacity(0.1),
+                    _primaryColor.withOpacity(0.1),
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20.r),
-          boxShadow: [
-            BoxShadow(
-              color: _primaryColor.withOpacity(0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-              spreadRadius: 0,
-            ),
-            BoxShadow(
-              color: _primaryColor.withOpacity(0.2),
-              blurRadius: 40,
-              offset: const Offset(0, 12),
-              spreadRadius: -5,
-            ),
-          ],
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: _primaryColor.withOpacity(0.15),
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
@@ -587,7 +585,9 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
                 Container(
                   padding: EdgeInsets.all(12.r),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDarkModeNotifier.value
+                        ? _primaryColor.withOpacity(0.2)
+                        : _primaryColor.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(14.r),
                     boxShadow: [
                       BoxShadow(
@@ -621,7 +621,7 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
                           fontFamily: "cairo",
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                          color: _primaryColor,
                           letterSpacing: 0.3,
                         ),
                       ),
@@ -632,7 +632,7 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
                           vertical: 2.h,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
+                          color: Colors.black,
                           borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Row(
@@ -663,7 +663,7 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
                     children: [
                       Icon(
                         Icons.person_rounded,
-                        color: Colors.white.withOpacity(0.8),
+                        color: _primaryColor,
                         size: 14.sp,
                       ),
                       SizedBox(width: 4.w),
@@ -676,7 +676,7 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
                             fontFamily: "cairo",
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white.withOpacity(0.9),
+                            color: _primaryColor,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -704,10 +704,10 @@ class _AyahOptionsSheetState extends State<AyahOptionsSheet> with TickerProvider
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.black,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: Colors.white.withOpacity(0.3),
+            color: isDarkModeNotifier.value ? Colors.white : _primaryColor,
             width: 1.5,
           ),
         ),

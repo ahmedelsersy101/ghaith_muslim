@@ -167,6 +167,7 @@ const List<String> fontFamilies = [
 const List darkWarmBrowns = [
   Colors.black,
   Color(0xFF000000),
+  Colors.white,
   Color(0xff283618),
   Colors.black,
   Color(0XFf4C76BA),
@@ -181,6 +182,7 @@ const List darkWarmBrowns = [
 const List softOffWhites = [
   Color.fromARGB(255, 255, 248, 240),
   Color.fromARGB(255, 255, 251, 246),
+  Colors.black,
   Color(0xfffefae0),
   Colors.white,
   Colors.white,
@@ -190,11 +192,12 @@ const List softOffWhites = [
   Color(0xffFEEED4),
   Color(0xffD2F4CF),
   Color(0xffFEFADF),
-  Color(0xffEAF0FE)
+  Color(0xffEAF0FE),
 ];
 const List secondaryColors = [
   Color(0xff946735),
   Color(0xFF165A4A),
+  Colors.white,
   Color(0xff606c38),
   Color.fromARGB(255, 43, 43, 43),
   Color.fromARGB(255, 0, 95, 184),
@@ -204,11 +207,12 @@ const List secondaryColors = [
   Color.fromARGB(255, 58, 45, 23),
   Color.fromARGB(255, 31, 46, 29),
   Color.fromARGB(255, 36, 34, 22),
-  Color.fromARGB(255, 24, 29, 43)
+  Color.fromARGB(255, 24, 29, 43),
 ];
 const List highlightColors = [
   Color.fromARGB(172, 255, 201, 54),
   Color(0xFF165A4A),
+  Colors.white,
   Color.fromARGB(96, 188, 107, 37),
   Color.fromARGB(255, 89, 216, 255),
   Color.fromARGB(255, 89, 216, 255),

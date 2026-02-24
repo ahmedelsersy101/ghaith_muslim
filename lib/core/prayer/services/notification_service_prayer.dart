@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -6,6 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 /// Service for managing prayer-related notifications
 /// Handles Adhan notifications, reminders, and persistent notifications
 class PrayerNotificationService {
+  // Store audio player instance for stopping Adhan sound
+  static AudioPlayer? _currentAudioPlayer;
   final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
 
   // Notification channel IDs
@@ -34,6 +37,9 @@ class PrayerNotificationService {
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
+
+    // Request notification permission
+    await requestPermission();
 
     // Create notification channels
     await _createNotificationChannels();
@@ -108,6 +114,9 @@ class PrayerNotificationService {
     if (!isEnabled) return;
 
     final scheduledDate = tz.TZDateTime.from(prayerTime, tz.local);
+    // Format the prayer time as HH:mm
+    final formattedTime =
+        '${prayerTime.hour.toString().padLeft(2, '0')}:${prayerTime.minute.toString().padLeft(2, '0')}';
 
     // Play Adhan sound if specified
     // For reliable playback, we use Android Notification Channels with raw resources
@@ -137,6 +146,16 @@ class PrayerNotificationService {
           ?.createNotificationChannel(androidChannel);
     }
 
+    // Define the stop adhan action
+    final androidActions = <AndroidNotificationAction>[
+      const AndroidNotificationAction(
+        'stop_adhan',
+        'إغلاق',
+        cancelNotification: true,
+        showsUserInterface: true,
+      ),
+    ];
+
     final androidDetails = AndroidNotificationDetails(
       channelId,
       'Prayer Times',
@@ -147,6 +166,9 @@ class PrayerNotificationService {
       sound: soundName != null ? RawResourceAndroidNotificationSound(soundName) : null,
       enableVibration: true,
       fullScreenIntent: true,
+      autoCancel: false,
+      ongoing: true,
+      actions: androidActions,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -162,10 +184,13 @@ class PrayerNotificationService {
       iOS: iosDetails,
     );
 
+    // Notification body with prayer time
+    final bodyText = 'It\'s time for $prayerName prayer at $formattedTime';
+
     await _notificationsPlugin.zonedSchedule(
       id,
-      'حان وقت صلاة $prayerNameArabic',
-      'It\'s time for $prayerName prayer',
+      'حان وقت صلاة $prayerNameArabic - $formattedTime',
+      bodyText,
       scheduledDate,
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -262,6 +287,9 @@ class PrayerNotificationService {
 
   /// Schedule all prayer notifications for the day
   Future<void> scheduleAllPrayersForDay(Map<String, DateTime> prayerTimes) async {
+    // Cancel all previous prayer notifications to prevent duplicates
+    await cancelAllPrayerNotifications();
+
     int notificationId = 1000; // Start from 1000 for prayer notifications
 
     final prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
@@ -300,8 +328,14 @@ class PrayerNotificationService {
     }
   }
 
-  /// Handle notification tap
+  /// Handle notification tap and action
   void _onNotificationTapped(NotificationResponse response) {
+    // Handle action buttons
+    if (response.actionId == 'stop_adhan') {
+      _stopAdhanSound();
+      return;
+    }
+
     // Handle navigation based on payload
     final payload = response.payload;
     if (payload != null) {
@@ -309,6 +343,19 @@ class PrayerNotificationService {
         // Navigate to prayer times page
       } else if (payload.startsWith('reminder:')) {
         // Navigate to prayer times page
+      }
+    }
+  }
+
+  /// Stop Adhan sound
+  void _stopAdhanSound() {
+    // Stop the audio player if it's playing
+    if (_currentAudioPlayer != null) {
+      try {
+        _currentAudioPlayer?.stop();
+        _currentAudioPlayer = null;
+      } catch (e) {
+        print('Error stopping Adhan sound: $e');
       }
     }
   }

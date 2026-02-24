@@ -42,12 +42,13 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
     return Scaffold(
       backgroundColor: isDark ? deepNavyBlack : paperBeige,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDark ? darkSlateGray : wineRed,
         elevation: 0,
         title: Text(
           'prayerSettings'.tr(),
           style: TextStyle(
             fontFamily: 'cairo',
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 20.sp,
           ),
@@ -56,9 +57,9 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
         leading: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_ios,
-              color: isDark ? Colors.white : Colors.black87,
+              color: Colors.white,
             ),
             onPressed: () => Navigator.pop(context),
           ),

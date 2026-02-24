@@ -25,6 +25,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/helpers/constants.dart';
 import 'package:ghaith/helpers/initializeData.dart';
+import 'package:ghaith/helpers/hijri_date_helper.dart';
 import 'package:ghaith/core/QuranPages/helpers/convertNumberToAr.dart';
 import 'package:ghaith/core/QuranPages/views/quranDetailsPage.dart';
 import 'package:ghaith/core/QuranPages/views/screenshot_preview.dart';
@@ -417,34 +418,49 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> updateDateData() async {
     await Future.delayed(const Duration(milliseconds: 300));
     HijriCalendar.setLocal(context.locale.languageCode == "ar" ? "ar" : "en");
-    today = HijriCalendar.now();
+    today = HijriDateHelper.getAdjustedHijriDate();
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return _buildHomeScaffold(context);
+    return ValueListenableBuilder<bool>(
+      valueListenable: isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return _buildHomeScaffold(context);
+      },
+    );
   }
 
   Widget _buildHomeScaffold(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final isDark = isDarkModeNotifier.value;
+    final bgColor = isDark ? deepNavyBlack : paperBeige;
 
-    return Scaffold(
-      backgroundColor: isDarkModeNotifier.value ? deepNavyBlack : paperBeige,
-      // appBar: const PreferredSize(
-      //   preferredSize: Size.fromHeight(0),
-      //   child: SizedBox.shrink(),
-      // ),
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Stack(
-            children: [
-              _buildDecorativeBackground(screenSize),
-              _buildBody(screenSize),
-            ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: bgColor,
+        systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarContrastEnforced: false,
+        systemNavigationBarDividerColor: bgColor,
+      ),
+      child: Scaffold(
+        backgroundColor: isDark ? deepNavyBlack : paperBeige,
+        resizeToAvoidBottomInset: false,
+        extendBody: true, // ✅
+        extendBodyBehindAppBar: true, // ✅
+        body: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: Stack(
+              children: [
+                _buildDecorativeBackground(screenSize),
+                _buildBody(screenSize),
+              ],
+            ),
           ),
         ),
       ),
@@ -1285,7 +1301,6 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
 
-          // Grid content
           Padding(
             padding: const EdgeInsets.all(12),
             child: _buildGridButtons(),
@@ -1319,7 +1334,9 @@ class _HomeScreenState extends State<HomeScreen>
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 3,
-        childAspectRatio: 0.7,
+        mainAxisSpacing: 2,
+        crossAxisSpacing: 2,
+        childAspectRatio: 0.8,
         children: <Widget>[
           SuperellipseButton(
               text: "quran".tr(),
@@ -1640,7 +1657,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ],
           ),
-          SizedBox(height: 30.h)
+          SizedBox(height: 60.h)
         ],
       ),
     );
@@ -1858,7 +1875,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ],
           ),
-          SizedBox(height: 30.h)
+          SizedBox(height: 60.h)
         ],
       ),
     );

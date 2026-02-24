@@ -16,7 +16,7 @@ class SuperellipseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -34,28 +34,31 @@ class SuperellipseButton extends StatelessWidget {
             onTap: onPressed,
             borderRadius: BorderRadius.circular(24.r),
             child: FittedBox(
-              fit: BoxFit.scaleDown,
+              fit: BoxFit.contain,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 2.h,
+                    height: 8.h,
                   ),
                   Image.asset(
                     imagePath,
-                    height: (MediaQuery.of(context).size.height * .080),
+                    height: (MediaQuery.of(context).size.height * .060),
                     // color: const Color(0xffD28A00)
                   ),
-                  Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: isDarkModeNotifier.value ? Colors.white70 : Colors.black,
-                        fontSize: 14.sp,
-                        fontFamily: "Taha"),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: isDarkModeNotifier.value ? Colors.white70 : Colors.black,
+                          fontSize: 12.sp,
+                          fontFamily: "Taha"),
+                    ),
                   ),
                   SizedBox(
-                    height: 2.h,
+                    height: 8.h,
                   ),
                 ],
               ),

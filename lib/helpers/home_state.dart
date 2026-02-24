@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:ghaith/core/notifications/data/40hadith.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:quran/quran.dart';
+import 'package:ghaith/helpers/hijri_date_helper.dart';
 
 var widgejsonData;
 var quarterjsonData;
@@ -26,7 +26,7 @@ bool reload = false;
 String nextPrayer = '';
 String nextPrayerTime = '';
 int index = 0;
-var today = HijriCalendar.now();
+var today = HijriDateHelper.getAdjustedHijriDate();
 String currentCity = "";
 String currentCountry = "";
 List prayers = [
