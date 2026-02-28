@@ -72,7 +72,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: _buildBody(),
-      backgroundColor: Colors.white,
+      backgroundColor: isDarkModeNotifier.value ? deepNavyBlack : paperBeige,
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -415,7 +415,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
     return Container(
       decoration: _buildBottomNavDecoration(),
       child: Padding(
-        padding: const EdgeInsets.only(left: 25.0, right: 25, bottom: 60, top: 10),
+        padding: const EdgeInsets.only(left: 25.0, right: 25, bottom: 40, top: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -430,7 +430,7 @@ class _ScreenShotPreviewPageState extends State<HadithScreenShotPreviewPage> {
   // [CAN_BE_EXTRACTED] -> widgets/decorations.dart
   BoxDecoration _buildBottomNavDecoration() {
     return BoxDecoration(
-      color: Colors.white,
+      color: isDarkModeNotifier.value ? deepNavyBlack : paperBeige,
       boxShadow: [
         BoxShadow(
           color: darkWarmBrowns[getValue("quranPageolorsIndex")].withOpacity(.4),

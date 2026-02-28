@@ -51,16 +51,20 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
+  /// Navigates to HomeScreen after the splash animation.
+  /// All location disclosure and permission logic is now handled on the
+  /// Home Screen (via [PermissionDeniedCard]) to comply with Google Play's
+  /// Prominent Disclosure policy — the system permission dialog must appear
+  /// immediately after the custom disclosure, on the same screen.
   void navigateToHome() async {
     await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
 
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (builder) => const HomeScreen()),
-        (route) => false,
-      );
-    }
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (builder) => const HomeScreen()),
+      (route) => false,
+    );
   }
 
   Future<void> getAndStoreRecitersData() async {

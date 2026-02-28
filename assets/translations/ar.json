@@ -173,7 +173,15 @@
   "tryAgain": "إعادة المحاولة",
   "locationServiceDisabledTitle": "خدمة الموقع غير مفعلة",
   "locationServiceDisabledMessage": "يرجى تفعيل خدمة الموقع من إعدادات الجهاز",
-  "selectReciter": "حدد القاري", 
+  "selectReciter": "حدد القاري",
   "reciter": "قاري",
-  "enableLocation": "تفعيل الموقع"
+  "enableLocation": "تفعيل الموقع",
+  "locationDisclosureTitle": "الوصول إلى الموقع الجغرافي",
+  "locationDisclosureBody": "يحتاج تطبيق غيث المسلم إلى الوصول لموقعك الحالي لتقديم ميزة أوقات الصلاة واتجاه القبلة بدقة، وذلك حتى عندما يكون التطبيق مغلقاً أو غير مستخدم. نحن نلتزم بخصوصيتك ولا نشارك بيانات موقعك مع أي أطراف خارجية.",
+  "locationDisclosureAgree": "موافقة",
+  "locationDisclosureNotNow": "ليس الآن",
+  "backgroundLocationTitle": "الوصول للموقع في الخلفية",
+  "backgroundLocationBody": "لضمان دقة مواقيت الصلاة حتى عند إغلاق التطبيق، يرجى السماح بالوصول للموقع 'دائماً' من إعدادات التطبيق. بيانات موقعك الجغرافي مشفرة وآمنة.",
+  "allowAlways": "السماح دائماً",
+  "privacyPolicy": "عرض سياسة الخصوصية"
 }

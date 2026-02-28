@@ -12,6 +12,7 @@ import 'package:ghaith/services/display_service.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:ghaith/blocs/observer.dart';
 import 'package:ghaith/services/notification_service.dart' hide initializeNotificationDefaults;
+import 'package:ghaith/core/prayer/adhan_notification_manager.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -22,6 +23,7 @@ Future<void> initializeApp() async {
   await _configureSystemSettings();
   await _initializeWorkManager();
   await initializeNotificationDefaults();
+  await AdhanNotificationManager.initializeChannels();
 }
 
 // [CAN_BE_EXTRACTED] -> services/initialization_service.dart

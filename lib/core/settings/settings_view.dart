@@ -494,7 +494,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   downloadAndStoreHadithData() async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 4));
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getString("hadithlist-100000-${context.locale.languageCode}") == null) {
       Response response = await Dio().get(

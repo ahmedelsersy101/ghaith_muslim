@@ -75,7 +75,7 @@ class _SharingOptionsState extends State<SharingOptions> {
         topLeft: Radius.circular(12),
         topRight: Radius.circular(12),
       ),
-      color: isDarkModeNotifier.value ? deepNavyBlack : Colors.white,
+      color: isDarkModeNotifier.value ? deepNavyBlack : paperBeige,
     );
   }
 
@@ -110,6 +110,7 @@ class _SharingOptionsState extends State<SharingOptions> {
         "explanation".tr(),
         style: TextStyle(color: isDarkModeNotifier.value ? Colors.white : deepNavyBlack),
       ),
+      activeColor: wineRed,
       value: _includeExplanation,
       onChanged: _onExplanationChanged,
     );
@@ -121,6 +122,7 @@ class _SharingOptionsState extends State<SharingOptions> {
       title: Text("meanings".tr(),
           style: TextStyle(color: isDarkModeNotifier.value ? Colors.white : deepNavyBlack)),
       value: _includeMeanings,
+      activeColor: wineRed,
       onChanged: _onMeaningsChanged,
     );
   }

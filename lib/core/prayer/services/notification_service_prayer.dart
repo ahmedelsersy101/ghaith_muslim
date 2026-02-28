@@ -1,5 +1,4 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -7,8 +6,6 @@ import 'package:permission_handler/permission_handler.dart';
 /// Service for managing prayer-related notifications
 /// Handles Adhan notifications, reminders, and persistent notifications
 class PrayerNotificationService {
-  // Store audio player instance for stopping Adhan sound
-  static AudioPlayer? _currentAudioPlayer;
   final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
 
   // Notification channel IDs
@@ -53,7 +50,7 @@ class PrayerNotificationService {
       'Prayer Times',
       description: 'Notifications for prayer times with Adhan',
       importance: Importance.high,
-      playSound: true,
+      playSound: false,
       enableVibration: true,
     );
 
@@ -118,68 +115,27 @@ class PrayerNotificationService {
     final formattedTime =
         '${prayerTime.hour.toString().padLeft(2, '0')}:${prayerTime.minute.toString().padLeft(2, '0')}';
 
-    // Play Adhan sound if specified
-    // For reliable playback, we use Android Notification Channels with raw resources
-    String channelId = 'prayer_times_channel';
-    String? soundName;
-
-    if (adhanSoundPath != null) {
-      // Extract filename without extension for RawResourceAndroidNotificationSound
-      // e.g., aqsa_athan.ogg -> aqsa_athan
-      soundName = adhanSoundPath.split('.').first;
-      channelId = 'prayer_channel_$soundName';
-
-      // Create channel for this specific sound if on Android
-      // This is required because channel sound cannot be changed after creation
-      final androidChannel = AndroidNotificationChannel(
-        channelId,
-        'Prayer Times ($soundName)',
-        description: 'Notifications for prayer times with $soundName adhan',
-        importance: Importance.high,
-        playSound: true,
-        sound: RawResourceAndroidNotificationSound(soundName),
-        enableVibration: true,
-      );
-
-      await _notificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(androidChannel);
-    }
-
-    // Define the stop adhan action
-    final androidActions = <AndroidNotificationAction>[
-      const AndroidNotificationAction(
-        'stop_adhan',
-        'إغلاق',
-        cancelNotification: true,
-        showsUserInterface: true,
-      ),
-    ];
-
-    final androidDetails = AndroidNotificationDetails(
-      channelId,
+    const androidDetails = AndroidNotificationDetails(
+      _prayerChannelId,
       'Prayer Times',
       channelDescription: 'Notifications for prayer times with Adhan',
       importance: Importance.high,
       priority: Priority.high,
-      playSound: true,
-      sound: soundName != null ? RawResourceAndroidNotificationSound(soundName) : null,
+      playSound: false,
+      sound: null,
       enableVibration: true,
       fullScreenIntent: true,
-      autoCancel: false,
-      ongoing: true,
-      actions: androidActions,
+      autoCancel: true,
+      ongoing: false,
     );
 
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
-      presentSound: true,
-      // For iOS, the sound file must be in the app bundle
-      // sound: soundName != null ? '$soundName.wav' : null,
+      presentSound: false,
     );
 
-    final notificationDetails = NotificationDetails(
+    const notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
@@ -194,7 +150,9 @@ class PrayerNotificationService {
       scheduledDate,
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      payload: 'prayer:$prayerName',
+      // Payload includes adhan sound so that future integrations
+      // can trigger AdhanNotificationManager if needed.
+      payload: adhanSoundPath != null ? 'prayer:$prayerName|$adhanSoundPath' : 'prayer:$prayerName',
     );
   }
 
@@ -328,14 +286,31 @@ class PrayerNotificationService {
     }
   }
 
-  /// Handle notification tap and action
-  void _onNotificationTapped(NotificationResponse response) {
-    // Handle action buttons
-    if (response.actionId == 'stop_adhan') {
-      _stopAdhanSound();
-      return;
+  /// Cancel the main scheduled notification for a specific prayer (not the reminder).
+  Future<void> cancelPrayerNotification(String prayerName) async {
+    final prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    final reminderMinutes = _getReminderMinutes();
+
+    // Base ID logic must mirror scheduleAllPrayersForDay
+    int baseId = 1000;
+
+    final index = prayers.indexOf(prayerName);
+    if (index == -1) return;
+
+    int notificationId;
+    if (reminderMinutes > 0) {
+      // When reminders are enabled, each prayer consumes 2 IDs: main + reminder.
+      notificationId = baseId + (index * 2);
+    } else {
+      // When reminders are disabled, each prayer consumes 1 ID.
+      notificationId = baseId + index;
     }
 
+    await _notificationsPlugin.cancel(notificationId);
+  }
+
+  /// Handle notification tap and action
+  void _onNotificationTapped(NotificationResponse response) {
     // Handle navigation based on payload
     final payload = response.payload;
     if (payload != null) {
@@ -343,19 +318,6 @@ class PrayerNotificationService {
         // Navigate to prayer times page
       } else if (payload.startsWith('reminder:')) {
         // Navigate to prayer times page
-      }
-    }
-  }
-
-  /// Stop Adhan sound
-  void _stopAdhanSound() {
-    // Stop the audio player if it's playing
-    if (_currentAudioPlayer != null) {
-      try {
-        _currentAudioPlayer?.stop();
-        _currentAudioPlayer = null;
-      } catch (e) {
-        print('Error stopping Adhan sound: $e');
       }
     }
   }

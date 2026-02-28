@@ -12,6 +12,7 @@ import 'package:ghaith/core/notifications/data/40hadith.dart';
 import 'package:ghaith/core/azkar/views/azkar_homepage.dart';
 import 'package:ghaith/core/QuranPages/views/quranDetailsPage.dart';
 import 'package:quran/quran.dart';
+import 'package:ghaith/core/prayer/adhan_notification_manager.dart';
 import 'package:workmanager/workmanager.dart';
 
 @pragma('vm:entry-point')
@@ -320,6 +321,13 @@ class NotificationService {
 
   // ⭐ جديد: معالج النقرات على الإشعارات
   void _onNotificationTapped(notificationPlugin.NotificationResponse response) {
+    // First, handle any Adhan-specific actions (e.g., "stop_adhan").
+    final actionId = response.actionId;
+    if (actionId != null && actionId == 'stop_adhan') {
+      AdhanNotificationManager.onActionReceived(actionId);
+      return;
+    }
+
     final payload = response.payload;
     if (payload == null) return;
 

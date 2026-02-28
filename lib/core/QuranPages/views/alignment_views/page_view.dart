@@ -58,35 +58,35 @@ String _convertNumbersToArabic(String input) {
 }
 
 /// متغير لتتبع الجزء الحالي
-int _currentJuzNotificationIndex = -1;
+// int _currentJuzNotificationIndex = -1;
 
 extension PageViewExtension on QuranDetailsPageState {
   /// التحقق من بداية جزء جديد وإظهار إشعار
-  void _checkAndShowJuzNotification(BuildContext context, int currentPageIndex) {
-    if (currentPageIndex == 0) return; // تجاهل صفحة الغلاف
+  // void _checkAndShowJuzNotification(BuildContext context, int currentPageIndex) {
+  //   if (currentPageIndex == 0) return; // تجاهل صفحة الغلاف
 
-    final currentPageData = quran.getPageData(currentPageIndex);
-    if (currentPageData.isEmpty) return;
+  //   final currentPageData = quran.getPageData(currentPageIndex);
+  //   if (currentPageData.isEmpty) return;
 
-    final firstVerseData = currentPageData[0];
-    final currentJuzNumber = getJuzNumber(
-      firstVerseData["surah"],
-      firstVerseData["start"],
-    );
+  //   final firstVerseData = currentPageData[0];
+  //   final currentJuzNumber = getJuzNumber(
+  //     firstVerseData["surah"],
+  //     firstVerseData["start"],
+  //   );
 
-    // إذا كان الجزء الحالي مختلفًا عن السابق
-    if (currentJuzNumber != _currentJuzNotificationIndex) {
-      _currentJuzNotificationIndex = currentJuzNumber;
+  //   // إذا كان الجزء الحالي مختلفًا عن السابق
+  //   if (currentJuzNumber != _currentJuzNotificationIndex) {
+  //     _currentJuzNotificationIndex = currentJuzNumber;
 
-      // إظهار الإشعار
-      Fluttertoast.showToast(
-        msg: "➤ ${"juz".tr()} ${_getArabicOrdinalJuzName(currentJuzNumber)}",
-        backgroundColor: secondaryColors[getValue("quranPageolorsIndex")],
-        textColor: softOffWhites[getValue("quranPageolorsIndex")],
-        gravity: ToastGravity.CENTER,
-      );
-    }
-  }
+  //     // إظهار الإشعار
+  //     Fluttertoast.showToast(
+  //       msg: "➤ ${"juz".tr()} ${_getArabicOrdinalJuzName(currentJuzNumber)}",
+  //       backgroundColor: secondaryColors[getValue("quranPageolorsIndex")],
+  //       textColor: softOffWhites[getValue("quranPageolorsIndex")],
+  //       gravity: ToastGravity.CENTER,
+  //     );
+  //   }
+  // }
 
   PageView buildPageView(BuildContext context, Size screenSize) {
     return PageView.builder(
@@ -113,7 +113,7 @@ extension PageViewExtension on QuranDetailsPageState {
         readerCubit.updateFromPageChange(a);
 
         // التحقق من بداية جزء جديد وإظهار الإشعار
-        _checkAndShowJuzNotification(context, a);
+        // _checkAndShowJuzNotification(context, a);
       },
       controller: _pageController,
       // onPageChanged: _onPageChanged,

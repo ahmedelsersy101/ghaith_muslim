@@ -4,7 +4,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:ghaith/main.dart';
 import 'package:ghaith/helpers/constants.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:ghaith/core/prayer/prayer_times_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ghaith/core/prayer/services/location_service.dart';
+import 'package:ghaith/core/prayer/components/prominent_disclosure_dialog.dart';
+import 'package:location/location.dart' as loc;
 
 /// Widget displayed when location permission is denied
 /// Shows a user-friendly message and options to grant permission or use manual location
@@ -19,27 +22,43 @@ class PermissionDeniedCard extends StatelessWidget {
   });
 
   Future<void> _requestPermission(BuildContext context) async {
+    final locationService = context.read<LocationService>();
+
+    // ── Case 1: Permission permanently denied → open app settings ──────────
     if (isPermanentlyDenied) {
-      // Open app settings
       await openAppSettings();
-      // After coming back, retry loading prayer times
-      onRetry();
-    } else {
-      // Request permission again
-      final status = await Permission.location.request();
-      if (status.isGranted) {
+      return;
+    }
+
+    // ── Case 2: Show Prominent Disclosure → System Permission ──────────────
+    // Google Play requires the system dialog to appear IMMEDIATELY after
+    // the custom disclosure dialog – no screen navigation in between.
+    final agreed = await showProminentDisclosureDialog(context);
+    if (!agreed || !context.mounted) return;
+
+    // Mark disclosure as seen so it won't appear again
+    await locationService.markDisclosureSeen();
+
+    // IMMEDIATELY request foreground permission (system dialog)
+    final foregroundStatus = await Permission.location.request();
+
+    if (!context.mounted) return;
+
+    if (foregroundStatus.isGranted || foregroundStatus.isLimited) {
+      // Foreground granted → request background (Android 11+ opens settings)
+      await Permission.locationAlways.request();
+
+      if (context.mounted) {
+        // Immediately trigger loading → shows shimmer while prayer times are fetched
         onRetry();
       }
+    } else if (foregroundStatus.isPermanentlyDenied) {
+      // User denied permanently from the system dialog
+      onRetry();
+    } else {
+      // User denied but can ask again later
+      onRetry();
     }
-  }
-
-  void _navigateToPrayerSettings(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const PrayerTimesPage(),
-      ),
-    );
   }
 
   @override
@@ -203,33 +222,33 @@ class PermissionDeniedCard extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(width: 12.w),
+                    // SizedBox(width: 12.w),
 
-                    // Manual Location Button
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => _navigateToPrayerSettings(context),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 14.h),
-                          side: BorderSide(
-                            color: Colors.white.withOpacity(0.5),
-                            width: 2,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                        ),
-                        child: Text(
-                          'useManualLocation'.tr(),
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'cairo',
-                          ),
-                        ),
-                      ),
-                    ),
+                    // // Manual Location Button
+                    // Expanded(
+                    //   child: OutlinedButton(
+                    //     onPressed: () => _navigateToPrayerSettings(context),
+                    //     style: OutlinedButton.styleFrom(
+                    //       foregroundColor: Colors.white,
+                    //       padding: EdgeInsets.symmetric(vertical: 14.h),
+                    //       side: BorderSide(
+                    //         color: Colors.white.withOpacity(0.5),
+                    //         width: 2,
+                    //       ),
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(16.r),
+                    //       ),
+                    //     ),
+                    //     child: Text(
+                    //       'useManualLocation'.tr(),
+                    //       style: TextStyle(
+                    //         fontSize: 15.sp,
+                    //         fontWeight: FontWeight.bold,
+                    //         fontFamily: 'cairo',
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ],
@@ -251,18 +270,12 @@ class LocationServiceDisabledCard extends StatelessWidget {
   });
 
   Future<void> _openLocationSettings(BuildContext context) async {
-    await openAppSettings();
-    // After coming back, retry loading prayer times
-    onRetry();
-  }
-
-  void _navigateToPrayerSettings(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const PrayerTimesPage(),
-      ),
-    );
+    final location = loc.Location();
+    bool isEnabled = await location.requestService();
+    // After coming back, if service is enabled, retry loading prayer times
+    if (isEnabled) {
+      onRetry();
+    }
   }
 
   @override
@@ -413,34 +426,6 @@ class LocationServiceDisabledCard extends StatelessWidget {
                         ),
                         child: Text(
                           'enableLocation'.tr(),
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'cairo',
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(width: 12.w),
-
-                    // Manual Location Button
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => _navigateToPrayerSettings(context),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 14.h),
-                          side: BorderSide(
-                            color: Colors.white.withOpacity(0.5),
-                            width: 2,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                        ),
-                        child: Text(
-                          'useManualLocation'.tr(),
                           style: TextStyle(
                             fontSize: 15.sp,
                             fontWeight: FontWeight.bold,

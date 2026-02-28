@@ -3,7 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:ghaith/core/prayer/cubits/prayer_times_cubit.dart';
+import 'package:ghaith/core/prayer/cubits/location_cubit.dart';
 import 'package:ghaith/core/prayer/cubits/prayer_settings_cubit.dart';
+import 'package:ghaith/core/prayer/services/location_service.dart';
+import 'package:ghaith/core/prayer/components/location_disclosure_sheet.dart';
+import 'package:ghaith/core/prayer/components/background_location_sheet.dart';
 import 'package:ghaith/core/prayer/components/next_prayer_highlight.dart';
 import 'package:ghaith/core/prayer/components/prayer_item.dart';
 import 'package:ghaith/core/prayer/prayer_settings_page.dart';
@@ -25,6 +29,18 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
     super.initState();
     // Refresh prayer times when page opens
     context.read<PrayerTimesCubit>().refreshPrayerTimes();
+  }
+
+  /// Triggers the Prominent Disclosure sheet, then requests permission.
+  Future<void> _handleDisclosureFlow() async {
+    if (!mounted) return;
+    final agreed = await showLocationDisclosureSheet(context);
+    if (agreed == true && mounted) {
+      await context.read<LocationCubit>().requestPermissionAfterDisclosure();
+      if (mounted) {
+        context.read<PrayerTimesCubit>().loadPrayerTimes();
+      }
+    }
   }
 
   @override
@@ -66,7 +82,6 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
                 color: Colors.white,
               ),
               onPressed: () {
-                // Navigate to settings page
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const PrayerSettingsPage()),
@@ -76,166 +91,260 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
           ),
         ],
       ),
-      body: BlocListener<PrayerSettingsCubit, PrayerSettingsState>(
-        listener: (context, state) {
-          // Reload prayer times when settings change
-          context.read<PrayerTimesCubit>().loadPrayerTimes();
-        },
-        child: BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
-          builder: (context, state) {
-            if (state is PrayerTimesLoading) {
-              return _buildShimmerLoading(isDark);
+      body: BlocListener<LocationCubit, LocationState>(
+        listener: (context, locationState) async {
+          // After foreground permission granted, offer background access
+          if (locationState is LocationNeedsBackgroundPermission && mounted) {
+            final allowAlways = await showBackgroundLocationSheet(context);
+            if (allowAlways != true && mounted) {
+              await context.read<LocationService>().markBackgroundLocationSkipped();
             }
+            if (mounted) {
+              context.read<PrayerTimesCubit>().loadPrayerTimes();
+            }
+          }
+        },
+        child: BlocListener<PrayerSettingsCubit, PrayerSettingsState>(
+          listener: (context, state) {
+            context.read<PrayerTimesCubit>().loadPrayerTimes();
+          },
+          child: BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
+            builder: (context, state) {
+              if (state is PrayerTimesLoading) {
+                return _buildShimmerLoading(isDark);
+              }
 
-            if (state is PrayerTimesError) {
-              return Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24.w),
+              // ── Prominent Disclosure gate ────────────────────────────────
+              if (state is PrayerTimesNeedsDisclosure) {
+                return _buildDisclosureCard(isDark);
+              }
+              // ─────────────────────────────────────────────────────────────
+
+              if (state is PrayerTimesError) {
+                return Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24.w),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline_rounded,
+                          size: 64.sp,
+                          color: Colors.red.withOpacity(0.7),
+                        ),
+                        SizedBox(height: 16.h),
+                        Text(
+                          isArabic ? 'حدث خطأ' : 'An error occurred',
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'cairo',
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          state.message,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontFamily: 'cairo',
+                            color: isDark
+                                ? Colors.white.withOpacity(0.7)
+                                : Colors.black.withOpacity(0.6),
+                          ),
+                        ),
+                        SizedBox(height: 24.h),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            context.read<PrayerTimesCubit>().loadPrayerTimes();
+                          },
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isDark ? wineRed : deepBurgundyRed,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24.w,
+                              vertical: 12.h,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              if (state is! PrayerTimesLoaded) {
+                return const SizedBox.shrink();
+              }
+
+              return RefreshIndicator(
+                onRefresh: () async {
+                  await context.read<PrayerTimesCubit>().refreshPrayerTimes();
+                },
+                color: isDark ? wineRed : deepBurgundyRed,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.error_outline_rounded,
-                        size: 64.sp,
-                        color: Colors.red.withOpacity(0.7),
-                      ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        isArabic ? 'حدث خطأ' : 'An error occurred',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'cairo',
-                        ),
-                      ),
                       SizedBox(height: 8.h),
-                      Text(
-                        state.message,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontFamily: 'cairo',
-                          color: isDark
-                              ? Colors.white.withOpacity(0.7)
-                              : Colors.black.withOpacity(0.6),
-                        ),
+
+                      // Location button
+                      _buildLocationButton(context, state, isDark, isArabic),
+
+                      SizedBox(height: 16.h),
+
+                      // Next prayer highlight
+                      NextPrayerHighlight(
+                        prayerName: state.nextPrayer,
+                        prayerNameArabic: state.nextPrayerArabic,
+                        prayerTime: state.nextPrayerTime,
+                        countdown: state.countdown,
                       ),
+
                       SizedBox(height: 24.h),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          context.read<PrayerTimesCubit>().loadPrayerTimes();
-                        },
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDark ? wineRed : deepBurgundyRed,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24.w,
-                            vertical: 12.h,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
+
+                      // Section title
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Text(
+                          isArabic ? 'مواقيت الصلاة اليومية' : 'Daily Prayer Times',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'cairo',
+                            color: isDark ? Colors.white : Colors.black87,
                           ),
                         ),
                       ),
+
+                      SizedBox(height: 12.h),
+
+                      // Prayer times list
+                      PrayerItem(
+                        prayerName: 'Fajr',
+                        prayerNameArabic: 'fajr'.tr(),
+                        prayerTime: state.fajr,
+                        isNextPrayer: state.nextPrayer.toLowerCase() == 'fajr',
+                      ),
+                      PrayerItem(
+                        prayerName: 'Sunrise',
+                        prayerNameArabic: 'sunrise'.tr(),
+                        prayerTime: state.sunrise,
+                        isSunrise: true,
+                      ),
+                      PrayerItem(
+                        prayerName: 'Dhuhr',
+                        prayerNameArabic: 'dhuhr'.tr(),
+                        prayerTime: state.dhuhr,
+                        isNextPrayer: state.nextPrayer.toLowerCase() == 'dhuhr',
+                      ),
+                      PrayerItem(
+                        prayerName: 'Asr',
+                        prayerNameArabic: 'asr'.tr(),
+                        prayerTime: state.asr,
+                        isNextPrayer: state.nextPrayer.toLowerCase() == 'asr',
+                      ),
+                      PrayerItem(
+                        prayerName: 'Maghrib',
+                        prayerNameArabic: 'maghrib'.tr(),
+                        prayerTime: state.maghrib,
+                        isNextPrayer: state.nextPrayer.toLowerCase() == 'maghrib',
+                      ),
+                      PrayerItem(
+                        prayerName: 'Isha',
+                        prayerNameArabic: 'isha'.tr(),
+                        prayerTime: state.isha,
+                        isNextPrayer: state.nextPrayer.toLowerCase() == 'isha',
+                      ),
+
+                      SizedBox(height: 24.h),
                     ],
                   ),
                 ),
               );
-            }
+            },
+          ),
+        ),
+      ),
+    );
+  }
 
-            if (state is! PrayerTimesLoaded) {
-              return const SizedBox.shrink();
-            }
+  /// Card shown when the Prominent Disclosure has not been agreed to yet.
+  Widget _buildDisclosureCard(bool isDark) {
+    final accentColor = isDark ? wineRed : deepBurgundyRed;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subtextColor = isDark ? Colors.white.withOpacity(0.65) : Colors.black.withOpacity(0.55);
 
-            return RefreshIndicator(
-              onRefresh: () async {
-                await context.read<PrayerTimesCubit>().refreshPrayerTimes();
-              },
-              color: isDark ? wineRed : deepBurgundyRed,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 8.h),
-
-                    // Location button
-                    _buildLocationButton(context, state, isDark, isArabic),
-
-                    SizedBox(height: 16.h),
-
-                    // Next prayer highlight
-                    NextPrayerHighlight(
-                      prayerName: state.nextPrayer,
-                      prayerNameArabic: state.nextPrayerArabic,
-                      prayerTime: state.nextPrayerTime,
-                      countdown: state.countdown,
-                    ),
-
-                    SizedBox(height: 24.h),
-
-                    // Section title
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Text(
-                        isArabic ? 'مواقيت الصلاة اليومية' : 'Daily Prayer Times',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'cairo',
-                          color: isDark ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 12.h),
-
-                    // Prayer times list
-                    PrayerItem(
-                      prayerName: 'Fajr',
-                      prayerNameArabic: 'fajr'.tr(),
-                      prayerTime: state.fajr,
-                      isNextPrayer: state.nextPrayer.toLowerCase() == 'fajr',
-                    ),
-                    PrayerItem(
-                      prayerName: 'Sunrise',
-                      prayerNameArabic: 'sunrise'.tr(),
-                      prayerTime: state.sunrise,
-                      isSunrise: true,
-                    ),
-                    PrayerItem(
-                      prayerName: 'Dhuhr',
-                      prayerNameArabic: 'dhuhr'.tr(),
-                      prayerTime: state.dhuhr,
-                      isNextPrayer: state.nextPrayer.toLowerCase() == 'dhuhr',
-                    ),
-                    PrayerItem(
-                      prayerName: 'Asr',
-                      prayerNameArabic: 'asr'.tr(),
-                      prayerTime: state.asr,
-                      isNextPrayer: state.nextPrayer.toLowerCase() == 'asr',
-                    ),
-                    PrayerItem(
-                      prayerName: 'Maghrib',
-                      prayerNameArabic: 'maghrib'.tr(),
-                      prayerTime: state.maghrib,
-                      isNextPrayer: state.nextPrayer.toLowerCase() == 'maghrib',
-                    ),
-                    PrayerItem(
-                      prayerName: 'Isha',
-                      prayerNameArabic: 'isha'.tr(),
-                      prayerTime: state.isha,
-                      isNextPrayer: state.nextPrayer.toLowerCase() == 'isha',
-                    ),
-
-                    SizedBox(height: 24.h),
-                  ],
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(24.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80.sp,
+              height: 80.sp,
+              decoration: BoxDecoration(
+                color: accentColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.location_on_outlined,
+                color: accentColor,
+                size: 40.sp,
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'locationDisclosureTitle'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'cairo',
+                color: textColor,
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              'locationDisclosureBody'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontFamily: 'cairo',
+                color: subtextColor,
+                height: 1.6,
+              ),
+            ),
+            SizedBox(height: 28.h),
+            ElevatedButton.icon(
+              onPressed: _handleDisclosureFlow,
+              icon: Icon(Icons.location_on_rounded, size: 18.sp),
+              label: Text(
+                'enableLocation'.tr(),
+                style: TextStyle(
+                  fontFamily: 'cairo',
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            );
-          },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accentColor,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 14.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -252,97 +361,45 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
       child: Material(
         color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
         borderRadius: BorderRadius.circular(16.r),
-        child: InkWell(
-          onTap: () {
-            // Show location options dialog
-            _showLocationDialog(context, isArabic);
-          },
-          borderRadius: BorderRadius.circular(16.r),
-          child: Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.location_on_rounded,
-                  color: isDark ? wineRed : deepBurgundyRed,
-                  size: 24.sp,
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isArabic
-                            ? 'مواقيت الصلاة حسب موقعك'
-                            : 'Prayer times based on your location',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontFamily: 'cairo',
-                          color: isDark
-                              ? Colors.white.withOpacity(0.6)
-                              : Colors.black.withOpacity(0.5),
-                        ),
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Row(
+            children: [
+              Icon(
+                Icons.location_on_rounded,
+                color: isDark ? wineRed : deepBurgundyRed,
+                size: 24.sp,
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isArabic ? 'مواقيت الصلاة حسب موقعك' : 'Prayer times based on your location',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontFamily: 'cairo',
+                        color:
+                            isDark ? Colors.white.withOpacity(0.6) : Colors.black.withOpacity(0.5),
                       ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        state.location,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'cairo',
-                          color: isDark ? Colors.white : Colors.black87,
-                        ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      state.location,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'cairo',
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.3),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showLocationDialog(BuildContext context, bool isArabic) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDarkModeNotifier.value ? Colors.black : paperBeige,
-        title: Text(
-          isArabic ? 'تحديد الموقع' : 'Set Location',
-          style: const TextStyle(fontFamily: 'cairo'),
-        ),
-        content: Text(
-          isArabic
-              ? 'يمكنك استخدام موقعك الحالي أو إدخال موقع يدوياً'
-              : 'You can use your current location or enter a location manually',
-          style: const TextStyle(fontFamily: 'cairo'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<PrayerTimesCubit>().loadPrayerTimes();
-            },
-            child: Text(
-              isArabic ? 'استخدام الموقع الحالي' : 'Use Current Location',
-              style: const TextStyle(fontFamily: 'cairo'),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              isArabic ? 'إلغاء' : 'Cancel',
-              style: const TextStyle(fontFamily: 'cairo'),
-            ),
-          ),
-        ],
       ),
     );
   }

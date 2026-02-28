@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:ghaith/core/prayer/cubits/prayer_settings_cubit.dart';
+import 'package:ghaith/core/prayer/cubits/prayer_times_cubit.dart';
 import 'package:ghaith/core/prayer/services/adhan_preview_service.dart';
 import 'package:ghaith/helpers/constants.dart';
+import 'package:ghaith/core/prayer/adhan_notification_manager.dart';
 
 /// Prayer Settings Page
 /// Allows users to configure prayer-related settings including:
@@ -101,6 +103,16 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                   SizedBox(height: 12.h),
                   _buildLocationModeSelector(context, state, isDark, isArabic),
 
+                  SizedBox(height: 32.h),
+
+                  // Adhan notification test section
+                  _buildSectionTitle(
+                    isArabic ? 'اختبار إشعار الأذان' : 'Test Adhan Notification',
+                    isDark,
+                  ),
+                  SizedBox(height: 12.h),
+                  _buildAdhanTestCard(context, state, isDark, isArabic),
+
                   SizedBox(height: 24.h),
                 ],
               ),
@@ -155,8 +167,11 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () {
-                    cubit.setAdhanSound(sound.path);
+                  onTap: () async {
+                    await cubit.setAdhanSound(sound.path);
+                    if (context.mounted) {
+                      context.read<PrayerTimesCubit>().refreshPrayerTimes();
+                    }
                   },
                   borderRadius: BorderRadius.circular(16.r),
                   child: Padding(
@@ -277,8 +292,11 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             ),
             Switch(
               value: isEnabled,
-              onChanged: (value) {
-                cubit.setReminderMinutes(value ? 10 : 0);
+              onChanged: (value) async {
+                await cubit.setReminderMinutes(value ? 10 : 0);
+                if (context.mounted) {
+                  context.read<PrayerTimesCubit>().refreshPrayerTimes();
+                }
               },
               activeColor: isDark ? wineRed : deepBurgundyRed,
             ),
@@ -410,6 +428,94 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdhanTestCard(
+    BuildContext context,
+    PrayerSettingsState state,
+    bool isDark,
+    bool isArabic,
+  ) {
+    final selectedSound = state.selectedAdhanSound.isNotEmpty ? state.selectedAdhanSound : 'aqsa_athan.ogg';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isArabic
+                  ? 'يمكنك هنا تشغيل أذان تجريبي للتأكد أن الإشعارات تعمل بشكل صحيح حتى في وضع الريليز.'
+                  : 'Here you can play a test Adhan to ensure notifications and audio work correctly, even in release builds.',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontFamily: 'cairo',
+                color: isDark ? Colors.white.withOpacity(0.7) : Colors.black.withOpacity(0.7),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await AdhanNotificationManager.showAdhanNotification(
+                        prayerName: isArabic ? 'الفجر (تجريبي)' : 'Fajr (Test)',
+                        adhanAudioPath: selectedSound,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark ? wineRed : deepBurgundyRed,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Text(
+                      isArabic ? 'تشغيل أذان تجريبي' : 'Play test Adhan',
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontFamily: 'cairo',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                SizedBox(
+                  width: 56.w,
+                  child: OutlinedButton(
+                    onPressed: () async {
+                      await AdhanNotificationManager.stopAdhan();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: isDark ? wineRed : deepBurgundyRed,
+                        width: 1.5,
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.stop_rounded,
+                      color: isDark ? wineRed : deepBurgundyRed,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

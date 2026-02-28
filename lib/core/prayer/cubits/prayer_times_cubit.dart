@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // ignore: depend_on_referenced_packages
 import 'package:equatable/equatable.dart';
+import 'package:geolocator/geolocator.dart' hide LocationServiceDisabledException;
 import 'package:ghaith/core/prayer/services/prayer_times_service.dart';
 import 'package:ghaith/core/prayer/services/location_service.dart';
 import 'package:ghaith/core/prayer/services/notification_service_prayer.dart';
+import 'package:ghaith/core/prayer/adhan_notification_manager.dart';
 import 'package:ghaith/helpers/hive_helper.dart';
 import 'package:adhan/adhan.dart';
 
@@ -16,6 +18,7 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
 
   Timer? _countdownTimer;
   PrayerTimes? _currentPrayerTimes;
+  StreamSubscription<ServiceStatus>? _serviceStatusSubscription;
 
   PrayerTimesCubit({
     required PrayerTimesService prayerTimesService,
@@ -24,12 +27,32 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
   })  : _prayerTimesService = prayerTimesService,
         _locationService = locationService,
         _notificationService = notificationService,
-        super(PrayerTimesInitial());
+        super(PrayerTimesInitial()) {
+    _initServiceStatusListener();
+  }
+
+  void _initServiceStatusListener() {
+    _serviceStatusSubscription = Geolocator.getServiceStatusStream().listen((status) {
+      if (status == ServiceStatus.enabled) {
+        if (state is PrayerTimesLocationServiceDisabled) {
+          loadPrayerTimes();
+        }
+      }
+    });
+  }
 
   /// Load prayer times for current location
   Future<void> loadPrayerTimes() async {
     try {
       emit(PrayerTimesLoading());
+
+      // ── Google Play Prominent Disclosure compliance ───────────────────────
+      // Do not request location until the user has agreed to the disclosure.
+      if (!_locationService.hasSeenDisclosure()) {
+        emit(PrayerTimesNeedsDisclosure());
+        return;
+      }
+      // ──────────────────────────────────────────────────────────────
 
       // Get location
       final locationInfo = await _locationService.getLocationInfo();
@@ -104,8 +127,22 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
         final currentState = state as PrayerTimesLoaded;
         final now = DateTime.now();
 
-        // Check if we've passed the next prayer time
-        if (now.isAfter(currentState.nextPrayerTime)) {
+        // Check if we've reached or passed the next prayer time
+        if (now.isAfter(currentState.nextPrayerTime) ||
+            now.isAtSameMomentAs(currentState.nextPrayerTime)) {
+          // Trigger Adhan playback + foreground notification
+          final selectedAdhanSound =
+              getValue('selectedAdhanSound') ?? 'aqsa_athan.ogg';
+
+          AdhanNotificationManager.showAdhanNotification(
+            prayerName: currentState.nextPrayerArabic,
+            adhanAudioPath: selectedAdhanSound,
+          );
+
+          // Cancel the scheduled "time for prayer" notification for this prayer
+          // to avoid duplicate notifications in the shade.
+          _notificationService.cancelPrayerNotification(currentState.nextPrayer);
+
           // Reload prayer times to get new next prayer
           loadPrayerTimes();
           return;
@@ -160,6 +197,7 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
   @override
   Future<void> close() {
     _countdownTimer?.cancel();
+    _serviceStatusSubscription?.cancel();
     return super.close();
   }
 }
@@ -294,3 +332,7 @@ class PrayerTimesLocationServiceDisabled extends PrayerTimesState {
   @override
   List<Object?> get props => [message];
 }
+
+/// The user has not yet seen the Prominent Disclosure.
+/// UI should show [showLocationDisclosureSheet] before requesting permission.
+class PrayerTimesNeedsDisclosure extends PrayerTimesState {}

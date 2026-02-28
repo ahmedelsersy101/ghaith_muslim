@@ -54,12 +54,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with AfterLayoutMixin, TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        AfterLayoutMixin,
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        WidgetsBindingObserver {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     _initializeApp();
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -89,12 +94,25 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     subscription?.cancel();
     subscription2?.cancel();
     _installUpdateSubscription?.cancel();
     _timer.cancel();
     _fadeController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final prayerState = context.read<PrayerTimesCubit>().state;
+      if (prayerState is PrayerTimesPermissionDeniedForever ||
+          prayerState is PrayerTimesLocationServiceDisabled ||
+          prayerState is PrayerTimesPermissionDenied) {
+        context.read<PrayerTimesCubit>().loadPrayerTimes();
+      }
+    }
   }
 
   late Timer _timer;
@@ -1042,7 +1060,7 @@ class _HomeScreenState extends State<HomeScreen>
             isha: state.isha,
             onTap: _navigateToPrayer,
           );
-        } else if (state is PrayerTimesPermissionDenied) {
+        } else if (state is PrayerTimesPermissionDenied || state is PrayerTimesNeedsDisclosure) {
           return PermissionDeniedCard(
             isPermanentlyDenied: false,
             onRetry: () {

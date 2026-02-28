@@ -104,5 +104,13 @@
   "newBookmark": "Aggiungi Nuovo Segnalibro",
   "nameOfBookmark": "Dai un nome unico",
   "color": "Colore del Segnalibro",
-  "saveBookmark": "Salva Segnalibro"
+  "saveBookmark": "Salva Segnalibro",
+  "locationDisclosureTitle": "Location Access",
+  "locationDisclosureBody": "Ghaith Al-Muslim requires access to your current location to provide accurate prayer times and Qibla direction, even when the app is closed or not in use. We value your privacy and do not share your location data with any third parties.",
+  "locationDisclosureAgree": "Agree",
+  "locationDisclosureNotNow": "Not Now",
+  "backgroundLocationTitle": "Background Location Access",
+  "backgroundLocationBody": "To ensure prayer times are accurate even when the app is closed, please allow location access 'All the time' from the app settings. Your location data is encrypted and secure.",
+  "allowAlways": "Allow Always",
+  "privacyPolicy": "View Privacy Policy"
 }

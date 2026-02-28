@@ -22,7 +22,10 @@ class LocationService {
   }
 
   /// Get current GPS position
-  /// Throws exception if permission denied or service disabled
+  /// Throws exception if permission denied or service disabled.
+  /// NOTE: This method no longer requests permission inline.
+  /// Permission must be requested via [requestPermission()] from the UI layer
+  /// after showing the Prominent Disclosure dialog.
   Future<Position> getCurrentPosition() async {
     // Check if location services are enabled
     bool serviceEnabled = await isLocationServiceEnabled();
@@ -30,13 +33,10 @@ class LocationService {
       throw LocationServiceDisabledException();
     }
 
-    // Check permission
+    // Check permission – do NOT request automatically here
     LocationPermission permission = await checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await requestPermission();
-      if (permission == LocationPermission.denied) {
-        throw LocationPermissionDeniedException();
-      }
+      throw LocationPermissionDeniedException();
     }
 
     if (permission == LocationPermission.deniedForever) {
@@ -47,6 +47,26 @@ class LocationService {
     return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Prominent Disclosure tracking (Google Play policy compliance)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /// Returns true if the user has already seen the Prominent Disclosure dialog.
+  bool hasSeenDisclosure() => getValue('locationDisclosureSeen') == true;
+
+  /// Persists that the disclosure has been shown so it is never shown again.
+  Future<void> markDisclosureSeen() async {
+    await updateValue('locationDisclosureSeen', true);
+  }
+
+  /// Returns true if the user has chosen to skip the background location prompt
+  bool hasSkippedBackgroundLocation() => getValue('backgroundLocationSkipped') == true;
+
+  /// Persists that the background location prompt was skipped
+  Future<void> markBackgroundLocationSkipped() async {
+    await updateValue('backgroundLocationSkipped', true);
   }
 
   /// Get location information including city and country names

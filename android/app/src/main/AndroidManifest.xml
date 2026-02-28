@@ -22,6 +22,7 @@
     <!-- ✅ صلاحيات الإشعارات المجدولة وإعادة التشغيل -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- ✅ صلاحيات الموقع (مطلوبة لمواقيت الصلاة) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
